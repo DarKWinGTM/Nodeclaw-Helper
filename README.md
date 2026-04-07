@@ -2,9 +2,10 @@
 
 Public distribution mirror for the helper scripts that live in `NodeClaw-platform/script/`.
 
-- GitHub Pages homepage: https://darkwingtm.github.io/Nodeclaw-Helper/
+- GitHub Pages release surface: `Nodeclaw-Helper/script/`
 - Source authority remains: `NodeClaw-platform/script/`
 - `script/` in this repo is mirrored publication content, not the primary authoring location
+- The live site is intended to be deployed from the `script/` directory, not the repository root
 
 ## Included helpers
 

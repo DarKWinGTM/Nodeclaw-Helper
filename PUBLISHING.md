@@ -14,17 +14,18 @@ Do not treat this repository as the primary authoring location for helper behavi
 1. Edit and verify scripts in `NodeClaw-platform/script/`.
 2. Copy the checked script tree into `Nodeclaw-Helper/script/`.
 3. Update `script/manifest.json` with the source commit and mirrored file metadata.
-4. Update `README.md` and `index.md` only if the public usage/support contract changed.
+4. Update `README.md`, `script/index.html`, and `script/manifest.json` only if the public usage/support contract changed.
 5. Commit and push `main`.
 6. Verify:
    - `https://darkwingtm.github.io/Nodeclaw-Helper/`
-   - direct `/script/<file>` URLs
+   - helper files published from the `script/` directory
 
 ## Current Pages model
 
-- GitHub Pages serves directly from `main:/`
-- `index.md` is the intended homepage
-- `script/` remains directly downloadable from the published site
+- GitHub Pages is deployed by GitHub Actions
+- the deployment artifact is `./script`
+- `script/index.html` is the intended homepage
+- helper files in `script/` are published directly at the site root
 
 ## Boundary notes
 
