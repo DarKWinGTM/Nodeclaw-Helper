@@ -1,0 +1,63 @@
+{
+  "source": {
+    "repo": "NodeClaw-platform",
+    "path": "script/",
+    "localPath": "/home/node/workplace/AWCLOUD/CLAUDE/NodeClaw-platform/script/",
+    "commit": "8f3b421231ee8b8d1502ab58903434a83d90cb3a"
+  },
+  "publishedAt": "2026-04-07",
+  "files": [
+    {
+      "path": "script/launcher.sh",
+      "sha256": "3bc31f4391b5614eb927250e3e60f8f8df0e4f93ac4b77f7572bdec64b793a3a"
+    },
+    {
+      "path": "script/setup-claude-code-nodeclaw.ps1",
+      "sha256": "641e7acca5023e84db2aaa41060c50e4df2bf995d35a309f422708bfa615424d"
+    },
+    {
+      "path": "script/setup-claude-code-nodeclaw.sh",
+      "sha256": "472100751e84198ba898a2d0264a13bf336723931bb18171e96ea281e74972de"
+    },
+    {
+      "path": "script/setup-codex-nodeclaw.ps1",
+      "sha256": "7f582599c5d084fc419ca8808b38a38b78bef8fd512bc73f105e1635023ecf94"
+    },
+    {
+      "path": "script/setup-codex-nodeclaw.sh",
+      "sha256": "b5e5145e181747b14ddabefbed4ee10302dc76585257454fb93d76d088645b18"
+    },
+    {
+      "path": "script/setup-nodeclaw-ide.ps1",
+      "sha256": "7463e0f100f8458d5727f01f7a2a870a39403116a10ffb5d6baf4ff01b3099a7"
+    },
+    {
+      "path": "script/setup-nodeclaw-ide.sh",
+      "sha256": "01163d16266b4fc542259fba3e1f9e8a577ac905164415e8360ff2ae4702db32"
+    },
+    {
+      "path": "script/setup-openclaw-nodeclaw.ps1",
+      "sha256": "aed4b8feb8d1f5697dc8703bef25da848e32591b41261d840a34e29e8e29d257"
+    },
+    {
+      "path": "script/setup-openclaw-nodeclaw.sh",
+      "sha256": "2d0e23ec60d4b935b83c1937e52f23325c55090757a97b01ff78dc3110e2b641"
+    },
+    {
+      "path": "script/setup-opencode-nodeclaw.ps1",
+      "sha256": "619ab1f0e6be3658467ff1105b741c74fcfd16bbe95978ebbae3dc5699d8ba51"
+    },
+    {
+      "path": "script/setup-opencode-nodeclaw.sh",
+      "sha256": "59487222315c4f389a98b019ccb08391ac5a6a579519fcf061e78e9e9ca85ce6"
+    },
+    {
+      "path": "script/setup-zed-nodeclaw.ps1",
+      "sha256": "a17c3c7d1fc4c3cd7464877bee3301483af4909b0c187dea36b3e99e242c8f5e"
+    },
+    {
+      "path": "script/setup-zed-nodeclaw.sh",
+      "sha256": "8f724fc90e574c0241d944f64ffc84843c39eedfb1e303c02a2a073b8a230115"
+    }
+  ]
+}
