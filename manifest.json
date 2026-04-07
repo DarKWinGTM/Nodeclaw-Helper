@@ -12,6 +12,10 @@
       "sha256": "3bc31f4391b5614eb927250e3e60f8f8df0e4f93ac4b77f7572bdec64b793a3a"
     },
     {
+      "path": "script/launcher.ps1",
+      "sha256": "f7ed745217cd73b71c72ad907aabb8e4c5b8f65158d1f25b77148c186d67ce02"
+    },
+    {
       "path": "script/setup-claude-code-nodeclaw.ps1",
       "sha256": "641e7acca5023e84db2aaa41060c50e4df2bf995d35a309f422708bfa615424d"
     },
@@ -26,10 +30,6 @@
     {
       "path": "script/setup-codex-nodeclaw.sh",
       "sha256": "b5e5145e181747b14ddabefbed4ee10302dc76585257454fb93d76d088645b18"
-    },
-    {
-      "path": "script/launcher.ps1",
-      "sha256": "f7ed745217cd73b71c72ad907aabb8e4c5b8f65158d1f25b77148c186d67ce02"
     },
     {
       "path": "script/setup-openclaw-nodeclaw.ps1",

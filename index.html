@@ -44,8 +44,6 @@
       .warning { border-color: rgba(251, 191, 36, 0.3); background: rgba(120, 53, 15, 0.18); }
       [data-lang] { display:none; }
       html.lang-en [data-lang="en"], html.lang-th [data-lang="th"] { display:block; }
-      html.lang-en [data-lang-inline="en"], html.lang-th [data-lang-inline="th"] { display:inline; }
-      [data-lang-inline] { display:none; }
     </style>
   </head>
   <body>
@@ -116,7 +114,7 @@
       <section class="card" style="margin-top:18px;">
         <h2 data-lang="en">Start here</h2>
         <h2 data-lang="th">เริ่มตรงนี้</h2>
-        <pre><code>$ bash ./launcher.sh list
+        <pre><code>$ bash ./script/launcher.sh list
 Supported tools:
   - claude-code
   - codex
@@ -130,7 +128,7 @@ Supported tools:
       <section class="card" style="margin-top:18px;">
         <h2 data-lang="en">Real terminal example</h2>
         <h2 data-lang="th">ตัวอย่าง terminal จริง</h2>
-        <pre><code>$ NODECLAW_API_KEY="test-key" bash ./launcher.sh dry-run --tool claude-code
+        <pre><code>$ NODECLAW_API_KEY="test-key" bash ./script/launcher.sh dry-run --tool claude-code
 Target Claude Code settings: /tmp/claude-settings-readme.json
 
 Dry run only. Planned Claude Code settings:
@@ -148,7 +146,7 @@ Dry run only. Planned Claude Code settings:
       <section class="card" style="margin-top:18px;">
         <h2 data-lang="en">Codex terminal example</h2>
         <h2 data-lang="th">ตัวอย่าง terminal ของ Codex</h2>
-        <pre><code>$ CODEX_CONFIG_PATH="/tmp/codex-readme.toml" bash ./launcher.sh dry-run --tool codex
+        <pre><code>$ CODEX_CONFIG_PATH="/tmp/codex-readme.toml" bash ./script/launcher.sh dry-run --tool codex
 Target Codex config: /tmp/codex-readme.toml
 Provider mode: simple
 Base URL: https://payg.nodenetwork.ovh/v1
@@ -166,11 +164,11 @@ openai_base_url = "https://payg.nodenetwork.ovh/v1"
       <section class="card" style="margin-top:18px;">
         <h2 data-lang="en">Launcher entrypoints</h2>
         <h2 data-lang="th">Launcher entrypoints</h2>
-        <p data-lang="en">Use launcher as the main generic interface. It relies on sibling files in the same <code>script/</code> directory, so use it from a repo checkout or a downloaded script folder.</p>
-        <p data-lang="th">ให้ใช้ launcher เป็น generic interface หลัก โดย launcher อาศัยไฟล์ sibling ในโฟลเดอร์ <code>script/</code> เดียวกัน ดังนั้นควรใช้จาก repo checkout หรือโฟลเดอร์ script ที่ดาวน์โหลดมาครบชุด</p>
+        <p data-lang="en">Use launcher as the main generic interface.</p>
+        <p data-lang="th">ให้ใช้ launcher เป็น generic interface หลัก</p>
         <div class="downloads">
-          <a class="download" href="./launcher.sh">launcher.sh<small data-lang="en">Shell launcher</small><small data-lang="th">launcher ฝั่ง shell</small></a>
-          <a class="download" href="./launcher.ps1">launcher.ps1<small data-lang="en">PowerShell launcher</small><small data-lang="th">launcher ฝั่ง PowerShell</small></a>
+          <a class="download" href="./script/launcher.sh">launcher.sh<small data-lang="en">Shell launcher</small><small data-lang="th">launcher ฝั่ง shell</small></a>
+          <a class="download" href="./script/launcher.ps1">launcher.ps1<small data-lang="en">PowerShell launcher</small><small data-lang="th">launcher ฝั่ง PowerShell</small></a>
         </div>
       </section>
 
@@ -185,11 +183,11 @@ openai_base_url = "https://payg.nodenetwork.ovh/v1"
         <p class="muted" data-lang="en">Linux and macOS share the same direct shell helper files.</p>
         <p class="muted" data-lang="th">Linux และ macOS ใช้ไฟล์ helper ฝั่ง shell ชุดเดียวกัน</p>
         <div class="downloads">
-          <a class="download" href="./setup-claude-code-nodeclaw.sh">setup-claude-code-nodeclaw.sh<small data-lang="en">Claude Code shell helper</small><small data-lang="th">helper ฝั่ง shell สำหรับ Claude Code</small></a>
-          <a class="download" href="./setup-codex-nodeclaw.sh">setup-codex-nodeclaw.sh<small data-lang="en">Codex shell helper</small><small data-lang="th">helper ฝั่ง shell สำหรับ Codex</small></a>
-          <a class="download" href="./setup-openclaw-nodeclaw.sh">setup-openclaw-nodeclaw.sh<small data-lang="en">OpenClaw shell helper</small><small data-lang="th">helper ฝั่ง shell สำหรับ OpenClaw</small></a>
-          <a class="download" href="./setup-opencode-nodeclaw.sh">setup-opencode-nodeclaw.sh<small data-lang="en">OpenCode shell helper</small><small data-lang="th">helper ฝั่ง shell สำหรับ OpenCode</small></a>
-          <a class="download" href="./setup-zed-nodeclaw.sh">setup-zed-nodeclaw.sh<small data-lang="en">Zed shell helper</small><small data-lang="th">helper ฝั่ง shell สำหรับ Zed</small></a>
+          <a class="download" href="./script/setup-claude-code-nodeclaw.sh">setup-claude-code-nodeclaw.sh<small data-lang="en">Claude Code shell helper</small><small data-lang="th">helper ฝั่ง shell สำหรับ Claude Code</small></a>
+          <a class="download" href="./script/setup-codex-nodeclaw.sh">setup-codex-nodeclaw.sh<small data-lang="en">Codex shell helper</small><small data-lang="th">helper ฝั่ง shell สำหรับ Codex</small></a>
+          <a class="download" href="./script/setup-openclaw-nodeclaw.sh">setup-openclaw-nodeclaw.sh<small data-lang="en">OpenClaw shell helper</small><small data-lang="th">helper ฝั่ง shell สำหรับ OpenClaw</small></a>
+          <a class="download" href="./script/setup-opencode-nodeclaw.sh">setup-opencode-nodeclaw.sh<small data-lang="en">OpenCode shell helper</small><small data-lang="th">helper ฝั่ง shell สำหรับ OpenCode</small></a>
+          <a class="download" href="./script/setup-zed-nodeclaw.sh">setup-zed-nodeclaw.sh<small data-lang="en">Zed shell helper</small><small data-lang="th">helper ฝั่ง shell สำหรับ Zed</small></a>
         </div>
 
         <h3 style="margin-top:18px;" data-lang="en">Windows PowerShell helpers</h3>
@@ -197,11 +195,11 @@ openai_base_url = "https://payg.nodenetwork.ovh/v1"
         <p class="muted" data-lang="en">Current checked boundary: PowerShell remains scaffold-first and dry-run-only.</p>
         <p class="muted" data-lang="th">ขอบเขตที่ตรวจแล้วตอนนี้คือ PowerShell ยังเป็น scaffold-first และ dry-run-only</p>
         <div class="downloads">
-          <a class="download" href="./setup-claude-code-nodeclaw.ps1">setup-claude-code-nodeclaw.ps1<small data-lang="en">Claude Code PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ Claude Code</small></a>
-          <a class="download" href="./setup-codex-nodeclaw.ps1">setup-codex-nodeclaw.ps1<small data-lang="en">Codex PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ Codex</small></a>
-          <a class="download" href="./setup-openclaw-nodeclaw.ps1">setup-openclaw-nodeclaw.ps1<small data-lang="en">OpenClaw PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ OpenClaw</small></a>
-          <a class="download" href="./setup-opencode-nodeclaw.ps1">setup-opencode-nodeclaw.ps1<small data-lang="en">OpenCode PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ OpenCode</small></a>
-          <a class="download" href="./setup-zed-nodeclaw.ps1">setup-zed-nodeclaw.ps1<small data-lang="en">Zed PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ Zed</small></a>
+          <a class="download" href="./script/setup-claude-code-nodeclaw.ps1">setup-claude-code-nodeclaw.ps1<small data-lang="en">Claude Code PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ Claude Code</small></a>
+          <a class="download" href="./script/setup-codex-nodeclaw.ps1">setup-codex-nodeclaw.ps1<small data-lang="en">Codex PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ Codex</small></a>
+          <a class="download" href="./script/setup-openclaw-nodeclaw.ps1">setup-openclaw-nodeclaw.ps1<small data-lang="en">OpenClaw PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ OpenClaw</small></a>
+          <a class="download" href="./script/setup-opencode-nodeclaw.ps1">setup-opencode-nodeclaw.ps1<small data-lang="en">OpenCode PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ OpenCode</small></a>
+          <a class="download" href="./script/setup-zed-nodeclaw.ps1">setup-zed-nodeclaw.ps1<small data-lang="en">Zed PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ Zed</small></a>
         </div>
       </section>
 
@@ -227,8 +225,8 @@ openai_base_url = "https://payg.nodenetwork.ovh/v1"
         <h2 data-lang="th">ที่มาของ release นี้</h2>
         <ul>
           <li><a href="./manifest.json">manifest.json</a></li>
-          <li><a href="../README.md">release subtree README</a></li>
-          <li><a href="../PUBLISHING.md">publishing notes</a></li>
+          <li><a href="./README.md">README</a></li>
+          <li><a href="./PUBLISHING.md">publishing notes</a></li>
         </ul>
       </section>
     </div>
