@@ -1,21 +1,21 @@
 # Publishing Nodeclaw-Helper
 
-This repository is a public distribution mirror for the helper scripts in `NodeClaw-platform/script/`.
+This subtree is the in-platform publication basis for the public `Nodeclaw-Helper` distribution repo.
 
 ## Source authority
 
 Do all functional script work in:
 - `/home/node/workplace/AWCLOUD/CLAUDE/NodeClaw-platform/script/`
 
-Do not treat this repository as the primary authoring location for helper behavior.
+Do not treat the public GitHub repo as the primary authoring location for helper behavior.
 
 ## Publish flow
 
 1. Edit and verify scripts in `NodeClaw-platform/script/`.
-2. Copy the checked script tree into `Nodeclaw-Helper/script/`.
+2. Copy the checked script tree into `NodeClaw-platform/script/Nodeclaw-Helper/script/`.
 3. Update `script/manifest.json` with the source commit and mirrored file metadata.
 4. Update `README.md`, `script/index.html`, and `script/manifest.json` only if the public usage/support contract changed.
-5. Commit and push `main`.
+5. Sync this subtree into the public `Nodeclaw-Helper` GitHub repository.
 6. Verify:
    - `https://darkwingtm.github.io/Nodeclaw-Helper/`
    - helper files published from the `script/` directory

@@ -4,7 +4,7 @@ Public distribution mirror for the helper scripts that live in `NodeClaw-platfor
 
 - GitHub Pages release surface: `Nodeclaw-Helper/script/`
 - Source authority remains: `NodeClaw-platform/script/`
-- `script/` in this repo is mirrored publication content, not the primary authoring location
+- `script/` in this publication subtree is mirrored release content, not the primary authoring location
 - The live site is intended to be deployed from the `script/` directory, not the repository root
 
 ## Included helpers
