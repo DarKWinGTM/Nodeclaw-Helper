@@ -4,12 +4,7 @@ Public helper distribution for NodeClaw integrations.
 
 This release surface exists so users can access the checked helper scripts more directly, while the broader product/docs surface is part of the main `https://nodenetwork.ovh` domain.
 
-Current checked preview/dev examples may still appear under the temporary subdomain:
-- `https://claw-frontend-dev.nodenetwork.ovh`
-- `https://claw-frontend-dev.nodenetwork.ovh/docs`
-- `https://claw-frontend-dev.nodenetwork.ovh/docs/tools`
-
-But the real domain basis should be read as:
+The broader product/docs surface is part of the main domain basis:
 - `https://nodenetwork.ovh`
 - `https://nodenetwork.ovh/docs`
 - `https://nodenetwork.ovh/docs/tools`
@@ -98,19 +93,34 @@ openai_base_url = "https://payg.nodenetwork.ovh/v1"
 
 ## Direct per-tool helpers
 
-Tool-specific shell and PowerShell scripts remain available when a direct tool path is clearer than the generic launcher.
+Tool-specific scripts remain available when a direct tool path is clearer than the generic launcher.
 
-Included helpers:
+### Linux / macOS shell helpers
+
+These `.sh` helpers are the direct shell-side tool-specific entrypoints.
+
 - `script/setup-claude-code-nodeclaw.sh`
-- `script/setup-claude-code-nodeclaw.ps1`
 - `script/setup-codex-nodeclaw.sh`
-- `script/setup-codex-nodeclaw.ps1`
 - `script/setup-openclaw-nodeclaw.sh`
-- `script/setup-openclaw-nodeclaw.ps1`
 - `script/setup-opencode-nodeclaw.sh`
-- `script/setup-opencode-nodeclaw.ps1`
 - `script/setup-zed-nodeclaw.sh`
+
+### Windows PowerShell helpers
+
+These `.ps1` helpers are the direct PowerShell-side tool-specific entrypoints.
+Current checked boundary: PowerShell remains scaffold-first and dry-run-only.
+
+- `script/setup-claude-code-nodeclaw.ps1`
+- `script/setup-codex-nodeclaw.ps1`
+- `script/setup-openclaw-nodeclaw.ps1`
+- `script/setup-opencode-nodeclaw.ps1`
 - `script/setup-zed-nodeclaw.ps1`
+
+### Platform note
+
+- Linux and macOS share the same shell helper files.
+- Windows uses the PowerShell helper files.
+- If you want one generic cross-tool entrypoint, use `launcher.sh` or `launcher.ps1` instead.
 
 ## Current support boundary
 
