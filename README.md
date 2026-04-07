@@ -2,10 +2,17 @@
 
 Public helper distribution for NodeClaw integrations.
 
-This release surface exists so users can access the checked helper scripts more directly, while the main product/docs surface still lives under:
+This release surface exists so users can access the checked helper scripts more directly, while the broader product/docs surface is part of the main `https://nodenetwork.ovh` domain.
+
+Current checked preview/dev examples may still appear under the temporary subdomain:
 - `https://claw-frontend-dev.nodenetwork.ovh`
 - `https://claw-frontend-dev.nodenetwork.ovh/docs`
 - `https://claw-frontend-dev.nodenetwork.ovh/docs/tools`
+
+But the real domain basis should be read as:
+- `https://nodenetwork.ovh`
+- `https://nodenetwork.ovh/docs`
+- `https://nodenetwork.ovh/docs/tools`
 
 ## What this release is for
 
