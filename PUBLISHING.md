@@ -12,23 +12,39 @@ Do not treat the public GitHub repo as the primary authoring location for helper
 ## Publish flow
 
 1. Edit and verify scripts in `NodeClaw-platform/script/`.
-2. Copy the checked script tree into `NodeClaw-platform/script/Nodeclaw-Helper/script/`.
-3. Update `script/manifest.json` with the source commit and mirrored file metadata.
-4. Update `README.md`, `script/index.html`, and `script/manifest.json` only if the public usage/support contract changed.
-5. Sync this subtree into the public `Nodeclaw-Helper` GitHub repository.
-6. Verify:
+2. Copy the checked script payload into `NodeClaw-platform/script/Nodeclaw-Helper/script/`.
+3. Update root release files when needed:
+   - `README.md`
+   - `index.html`
+   - `manifest.json`
+   - `PUBLISHING.md`
+4. Sync this subtree into the public `Nodeclaw-Helper` GitHub repository.
+5. Verify:
    - `https://darkwingtm.github.io/Nodeclaw-Helper/`
-   - helper files published from the `script/` directory
+   - helper files under `/script/`
+   - launcher-first guidance and current hosted-contract wording
 
 ## Current Pages model
 
 - GitHub Pages is deployed by GitHub Actions
-- the deployment artifact is `./script`
-- `script/index.html` is the intended homepage
-- helper files in `script/` are published directly at the site root
+- the deployment artifact is `./`
+- `index.html` is the intended homepage
+- `manifest.json` lives at the repository root
+- helper payload files remain under `script/`
+
+## Hosted quick-start contract
+
+Current checked truth:
+- launcher-first repo/distribution usage is real today
+- the site can expose launcher help, wizard guidance, and direct helper downloads
+- hosted remote `curl | bash` wording remains placeholder-scoped only
+
+Current not-yet-proven truth:
+- a single-file hosted launcher/bootstrap contract is not yet verified strongly enough to be promoted as a live hero quick-start path on Home and `/docs`
 
 ## Boundary notes
 
-- Do not imply that hosted `curl | bash` is officially live unless the helper contract is redesigned for that purpose.
-- Treat launcher entrypoints like `launcher.sh` and `launcher.ps1` as repo-folder entrypoints, not guaranteed standalone single-file remote installers.
+- Do not imply that hosted `curl | bash` is officially live unless the hosted launcher/bootstrap contract is truly verified.
+- Treat `launcher.sh` and `launcher.ps1` as repo-folder entrypoints that still rely on sibling files in `script/`.
+- Keep wizard/help honest about target files and real command behavior.
 - Keep PowerShell wording honest: scaffold-first and dry-run-only.

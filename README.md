@@ -29,16 +29,20 @@ Use this release when you want:
 Shell launcher:
 
 ```bash
+bash ./script/launcher.sh help
 bash ./script/launcher.sh list
 bash ./script/launcher.sh dry-run --tool <claude-code|codex|openclaw|opencode|zed>
 bash ./script/launcher.sh apply --tool <claude-code|codex|openclaw|opencode|zed>
+bash ./script/launcher.sh wizard
 ```
 
 PowerShell launcher:
 
 ```powershell
+.\script\launcher.ps1 -Command help
 .\script\launcher.ps1 -Command list
 .\script\launcher.ps1 -Command dry-run -Tool <claude-code|codex|openclaw|opencode|zed>
+.\script\launcher.ps1 -Command wizard
 ```
 
 ## Real terminal example
@@ -126,6 +130,7 @@ Current checked boundary: PowerShell remains scaffold-first and dry-run-only.
 
 - Shell helper paths can apply changes where the checked script supports it.
 - PowerShell helper paths remain scaffold-first and dry-run-only.
+- Launcher help and wizard are now available, but they still reveal the real command flow and do not replace dry-run-first visibility.
 - Hosted remote install flow is not declared as fully live here yet.
 - `openclaw` helper requires the `openclaw` command to already exist in `PATH`.
 - Default checked NodeClaw base URL in several helpers is `https://payg.nodenetwork.ovh/v1`.
@@ -134,12 +139,14 @@ Current checked boundary: PowerShell remains scaffold-first and dry-run-only.
 ## Recommended usage order
 
 1. Start from the main NodeClaw docs/product surface when you want the full context.
-2. Use `launcher.sh` or `launcher.ps1` as the generic helper entrypoint.
-3. Run `dry-run` first.
-4. Use direct per-tool scripts only when you want a more explicit tool-specific entrypoint.
+2. Run `launcher.sh help` or `launcher.ps1 -Command help` first if you are unsure.
+3. Use `launcher.sh` or `launcher.ps1` as the generic helper entrypoint.
+4. Run `dry-run` first.
+5. Use `wizard` when you want a guided setup flow that still shows the real command and target file.
+6. Use direct per-tool scripts only when you want a more explicit tool-specific entrypoint.
 
 ## Related release files
 
-- `script/index.html`
-- `script/manifest.json`
+- `index.html`
+- `manifest.json`
 - `PUBLISHING.md`
