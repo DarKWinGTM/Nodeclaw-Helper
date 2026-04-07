@@ -30,5 +30,5 @@ Do not treat the public GitHub repo as the primary authoring location for helper
 ## Boundary notes
 
 - Do not imply that hosted `curl | bash` is officially live unless the helper contract is redesigned for that purpose.
-- Treat bundle-structured entrypoints like `launcher.sh` and `setup-nodeclaw-ide.*` as repo-folder entrypoints, not guaranteed standalone single-file remote installers.
+- Treat launcher entrypoints like `launcher.sh` and `launcher.ps1` as repo-folder entrypoints, not guaranteed standalone single-file remote installers.
 - Keep PowerShell wording honest: scaffold-first and dry-run-only.

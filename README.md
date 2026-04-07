@@ -10,8 +10,7 @@ Public distribution mirror for the helper scripts that live in `NodeClaw-platfor
 ## Included helpers
 
 - `script/launcher.sh`
-- `script/setup-nodeclaw-ide.sh`
-- `script/setup-nodeclaw-ide.ps1`
+- `script/launcher.ps1`
 - `script/setup-claude-code-nodeclaw.sh`
 - `script/setup-claude-code-nodeclaw.ps1`
 - `script/setup-codex-nodeclaw.sh`
@@ -39,18 +38,21 @@ bash ./script/launcher.sh dry-run --tool claude-code
 bash ./script/launcher.sh apply --tool claude-code
 ```
 
-## Wrapper entrypoints
+## Launcher entrypoints
 
 Shell:
 
 ```bash
-bash ./script/setup-nodeclaw-ide.sh --tool <claude-code|codex|openclaw|opencode|zed> [--dry-run]
+bash ./script/launcher.sh list
+bash ./script/launcher.sh dry-run --tool <claude-code|codex|openclaw|opencode|zed>
+bash ./script/launcher.sh apply --tool <claude-code|codex|openclaw|opencode|zed>
 ```
 
 PowerShell:
 
 ```powershell
-.\script\setup-nodeclaw-ide.ps1 -Tool <claude-code|codex|openclaw|opencode|zed> [-DryRun]
+.\script\launcher.ps1 -Command list
+.\script\launcher.ps1 -Command dry-run -Tool <claude-code|codex|openclaw|opencode|zed>
 ```
 
 ## Current support boundary

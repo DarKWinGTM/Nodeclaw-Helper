@@ -2,10 +2,33 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-WRAPPER_SH="$SCRIPT_DIR/setup-nodeclaw-ide.sh"
-WRAPPER_PS1="$SCRIPT_DIR/setup-nodeclaw-ide.ps1"
-
 TOOLS=("claude-code" "codex" "openclaw" "opencode" "zed")
+
+get_shell_target() {
+  case "$1" in
+    claude-code)
+      printf '%s\n' "$SCRIPT_DIR/setup-claude-code-nodeclaw.sh"
+      ;;
+    codex)
+      printf '%s\n' "$SCRIPT_DIR/setup-codex-nodeclaw.sh"
+      ;;
+    openclaw)
+      printf '%s\n' "$SCRIPT_DIR/setup-openclaw-nodeclaw.sh"
+      ;;
+    opencode)
+      printf '%s\n' "$SCRIPT_DIR/setup-opencode-nodeclaw.sh"
+      ;;
+    zed)
+      printf '%s\n' "$SCRIPT_DIR/setup-zed-nodeclaw.sh"
+      ;;
+    *)
+      printf 'Unsupported tool: %s\n' "$1" >&2
+      exit 1
+      ;;
+  esac
+}
+
+LAUNCHER_PS1="$SCRIPT_DIR/launcher.ps1"
 
 usage() {
   cat <<'EOF'
@@ -19,13 +42,13 @@ Commands:
       Show supported tools.
 
   dry-run --tool <tool>
-      Run the shell helper in dry-run mode.
+      Run the tool-specific shell helper in dry-run mode.
 
   apply --tool <tool>
-      Run the shell helper in apply mode.
+      Run the tool-specific shell helper in apply mode.
 
   windows-dry-run --tool <tool>
-      Run the PowerShell helper in dry-run mode.
+      Run the tool-specific PowerShell helper in dry-run mode.
 
   help
       Show this help message.
@@ -106,15 +129,17 @@ cmd_list() {
 }
 
 cmd_dry_run() {
-  local tool
+  local tool target
   tool="$(parse_tool_flag "$@")"
-  bash "$WRAPPER_SH" --tool "$tool" --dry-run
+  target="$(get_shell_target "$tool")"
+  bash "$target" --dry-run
 }
 
 cmd_apply() {
-  local tool
+  local tool target
   tool="$(parse_tool_flag "$@")"
-  bash "$WRAPPER_SH" --tool "$tool"
+  target="$(get_shell_target "$tool")"
+  bash "$target"
 }
 
 cmd_windows_dry_run() {
@@ -132,7 +157,7 @@ cmd_windows_dry_run() {
     ps_bin="powershell"
   fi
 
-  "$ps_bin" -File "$WRAPPER_PS1" -Tool "$tool" -DryRun
+  "$ps_bin" -File "$LAUNCHER_PS1" -Command dry-run -Tool "$tool"
 }
 
 main() {
