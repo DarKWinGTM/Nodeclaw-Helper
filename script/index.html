@@ -19,6 +19,10 @@
       body { margin: 0; font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: linear-gradient(180deg, #08111f 0%, #0b1324 100%); color: var(--text); line-height: 1.6; }
       .wrap { max-width: 1120px; margin: 0 auto; padding: 40px 20px 64px; }
       .hero { background: linear-gradient(135deg, rgba(37, 99, 235, 0.18), rgba(34, 211, 238, 0.12)); border: 1px solid rgba(96, 165, 250, 0.22); border-radius: 24px; padding: 28px; margin-bottom: 24px; }
+      .topbar { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:14px; flex-wrap:wrap; }
+      .lang-switch { display:inline-flex; gap:8px; }
+      .lang-btn { border:1px solid var(--line); background:rgba(15,23,42,.72); color:var(--text); border-radius:999px; padding:8px 14px; cursor:pointer; font:inherit; }
+      .lang-btn.active { background:rgba(96,165,250,.18); border-color:rgba(96,165,250,.34); color:#dbeafe; }
       .eyebrow { color: var(--accent2); text-transform: uppercase; letter-spacing: .08em; font-size: 12px; font-weight: 700; margin: 0 0 10px; }
       h1,h2,h3 { line-height: 1.2; margin: 0 0 12px; }
       h1 { font-size: clamp(32px, 5vw, 52px); }
@@ -38,24 +42,51 @@
       .muted { color: var(--muted); }
       .pill { display: inline-block; margin: 4px 8px 0 0; padding: 6px 10px; border-radius: 999px; border: 1px solid var(--line); color: #dbeafe; background: rgba(96, 165, 250, 0.12); }
       .warning { border-color: rgba(251, 191, 36, 0.3); background: rgba(120, 53, 15, 0.18); }
+      [data-lang] { display:none; }
+      html.lang-en [data-lang="en"], html.lang-th [data-lang="th"] { display:block; }
+      html.lang-en [data-lang-inline="en"], html.lang-th [data-lang-inline="th"] { display:inline; }
+      [data-lang-inline] { display:none; }
     </style>
   </head>
   <body>
     <div class="wrap">
       <section class="hero">
-        <p class="eyebrow">NodeClaw Helper Scripts</p>
-        <h1>Launcher-first helper distribution for NodeClaw</h1>
-        <p>This release surface exists for the helper scripts that support the broader NodeClaw docs and tool setup flow.</p>
-        <p>The real broader product/docs domain basis is:</p>
-        <ul>
-          <li><a href="https://nodenetwork.ovh">nodenetwork.ovh</a></li>
-          <li><a href="https://nodenetwork.ovh/docs">nodenetwork.ovh/docs</a></li>
-          <li><a href="https://nodenetwork.ovh/docs/tools">nodenetwork.ovh/docs/tools</a></li>
-        </ul>
+        <div class="topbar">
+          <p class="eyebrow" data-lang="en">NodeClaw Helper Scripts</p>
+          <p class="eyebrow" data-lang="th">สคริปต์ตัวช่วยของ NodeClaw</p>
+          <div class="lang-switch" aria-label="Language switch">
+            <button class="lang-btn active" data-set-lang="en" type="button">English</button>
+            <button class="lang-btn" data-set-lang="th" type="button">ไทย</button>
+          </div>
+        </div>
+
+        <div data-lang="en">
+          <h1>Launcher-first helper distribution for NodeClaw</h1>
+          <p>This release surface exists for the helper scripts that support the broader NodeClaw docs and tool setup flow.</p>
+          <p>The broader product/docs domain basis is:</p>
+          <ul>
+            <li><a href="https://nodenetwork.ovh">nodenetwork.ovh</a></li>
+            <li><a href="https://nodenetwork.ovh/docs">nodenetwork.ovh/docs</a></li>
+            <li><a href="https://nodenetwork.ovh/docs/tools">nodenetwork.ovh/docs/tools</a></li>
+          </ul>
+        </div>
+
+        <div data-lang="th">
+          <h1>ศูนย์แจกจ่าย helper แบบ launcher-first สำหรับ NodeClaw</h1>
+          <p>หน้านี้มีไว้สำหรับสคริปต์ตัวช่วยที่รองรับ flow การตั้งค่าเครื่องมือและ docs ของ NodeClaw ในภาพรวม</p>
+          <p>โดเมนหลักของ product/docs คือ:</p>
+          <ul>
+            <li><a href="https://nodenetwork.ovh">nodenetwork.ovh</a></li>
+            <li><a href="https://nodenetwork.ovh/docs">nodenetwork.ovh/docs</a></li>
+            <li><a href="https://nodenetwork.ovh/docs/tools">nodenetwork.ovh/docs/tools</a></li>
+          </ul>
+        </div>
       </section>
+
       <div class="grid two">
         <section class="card">
-          <h2>Supported tools</h2>
+          <h2 data-lang="en">Supported tools</h2>
+          <h2 data-lang="th">เครื่องมือที่รองรับ</h2>
           <div>
             <span class="pill">claude-code</span>
             <span class="pill">codex</span>
@@ -65,17 +96,26 @@
           </div>
         </section>
         <section class="card warning">
-          <h2>Current support boundary</h2>
-          <ul>
+          <h2 data-lang="en">Current support boundary</h2>
+          <h2 data-lang="th">ขอบเขตการรองรับปัจจุบัน</h2>
+          <ul data-lang="en">
             <li>Shell helper paths can apply changes where the checked script supports it.</li>
             <li>PowerShell helper paths remain scaffold-first and dry-run-only.</li>
             <li>Do not assume hosted <code>curl | bash</code> install is officially live.</li>
             <li><code>openclaw</code> requires the local <code>openclaw</code> command to already exist in <code>PATH</code>.</li>
           </ul>
+          <ul data-lang="th">
+            <li>ฝั่ง shell สามารถ apply ได้ในจุดที่สคริปต์ที่ตรวจรองรับจริง</li>
+            <li>ฝั่ง PowerShell ยังเป็นแนว scaffold-first และ dry-run-only</li>
+            <li>อย่าตีความว่า hosted <code>curl | bash</code> เปิดใช้งานจริงแล้ว</li>
+            <li><code>openclaw</code> ต้องมีคำสั่ง <code>openclaw</code> อยู่ใน <code>PATH</code> ก่อน</li>
+          </ul>
         </section>
       </div>
+
       <section class="card" style="margin-top:18px;">
-        <h2>Start here</h2>
+        <h2 data-lang="en">Start here</h2>
+        <h2 data-lang="th">เริ่มตรงนี้</h2>
         <pre><code>$ bash ./launcher.sh list
 Supported tools:
   - claude-code
@@ -83,10 +123,13 @@ Supported tools:
   - openclaw
   - opencode
   - zed</code></pre>
-        <p class="muted">Use launcher as the main generic entrypoint. Start with <code>dry-run</code> first before apply mode.</p>
+        <p class="muted" data-lang="en">Use launcher as the main generic entrypoint. Start with <code>dry-run</code> first before apply mode.</p>
+        <p class="muted" data-lang="th">ให้ใช้ launcher เป็น generic entrypoint หลัก และเริ่มจาก <code>dry-run</code> ก่อนทุกครั้งถ้ายังไม่แน่ใจ</p>
       </section>
+
       <section class="card" style="margin-top:18px;">
-        <h2>Real terminal example</h2>
+        <h2 data-lang="en">Real terminal example</h2>
+        <h2 data-lang="th">ตัวอย่าง terminal จริง</h2>
         <pre><code>$ NODECLAW_API_KEY="test-key" bash ./launcher.sh dry-run --tool claude-code
 Target Claude Code settings: /tmp/claude-settings-readme.json
 
@@ -101,8 +144,10 @@ Dry run only. Planned Claude Code settings:
   }
 }</code></pre>
       </section>
+
       <section class="card" style="margin-top:18px;">
-        <h2>Codex terminal example</h2>
+        <h2 data-lang="en">Codex terminal example</h2>
+        <h2 data-lang="th">ตัวอย่าง terminal ของ Codex</h2>
         <pre><code>$ CODEX_CONFIG_PATH="/tmp/codex-readme.toml" bash ./launcher.sh dry-run --tool codex
 Target Codex config: /tmp/codex-readme.toml
 Provider mode: simple
@@ -117,47 +162,69 @@ openai_base_url = "https://payg.nodenetwork.ovh/v1"
 
 [model_providers]</code></pre>
       </section>
+
       <section class="card" style="margin-top:18px;">
-        <h2>Launcher entrypoints</h2>
-        <p>Use launcher as the main generic interface. It relies on sibling files in the same <code>script/</code> directory, so use it from a repo checkout or a downloaded script folder.</p>
+        <h2 data-lang="en">Launcher entrypoints</h2>
+        <h2 data-lang="th">Launcher entrypoints</h2>
+        <p data-lang="en">Use launcher as the main generic interface. It relies on sibling files in the same <code>script/</code> directory, so use it from a repo checkout or a downloaded script folder.</p>
+        <p data-lang="th">ให้ใช้ launcher เป็น generic interface หลัก โดย launcher อาศัยไฟล์ sibling ในโฟลเดอร์ <code>script/</code> เดียวกัน ดังนั้นควรใช้จาก repo checkout หรือโฟลเดอร์ script ที่ดาวน์โหลดมาครบชุด</p>
         <div class="downloads">
-          <a class="download" href="./launcher.sh">launcher.sh<small>Shell launcher</small></a>
-          <a class="download" href="./launcher.ps1">launcher.ps1<small>PowerShell launcher</small></a>
+          <a class="download" href="./launcher.sh">launcher.sh<small data-lang="en">Shell launcher</small><small data-lang="th">launcher ฝั่ง shell</small></a>
+          <a class="download" href="./launcher.ps1">launcher.ps1<small data-lang="en">PowerShell launcher</small><small data-lang="th">launcher ฝั่ง PowerShell</small></a>
         </div>
       </section>
+
       <section class="card" style="margin-top:18px;">
-        <h2>Direct per-tool helpers</h2>
-        <p>Tool-specific scripts remain available when a direct tool path is clearer than the generic launcher.</p>
-        <h3>Linux / macOS shell helpers</h3>
-        <p class="muted">Linux and macOS share the same direct shell helper files.</p>
+        <h2 data-lang="en">Direct per-tool helpers</h2>
+        <h2 data-lang="th">Direct per-tool helpers</h2>
+        <p data-lang="en">Tool-specific scripts remain available when a direct tool path is clearer than the generic launcher.</p>
+        <p data-lang="th">สคริปต์แบบแยกตามเครื่องมือยังมีให้ใช้ เมื่อคุณต้องการทางตรงที่ชัดกว่า generic launcher</p>
+
+        <h3 data-lang="en">Linux / macOS shell helpers</h3>
+        <h3 data-lang="th">ตัวช่วยฝั่ง shell สำหรับ Linux / macOS</h3>
+        <p class="muted" data-lang="en">Linux and macOS share the same direct shell helper files.</p>
+        <p class="muted" data-lang="th">Linux และ macOS ใช้ไฟล์ helper ฝั่ง shell ชุดเดียวกัน</p>
         <div class="downloads">
-          <a class="download" href="./setup-claude-code-nodeclaw.sh">setup-claude-code-nodeclaw.sh<small>Claude Code shell helper</small></a>
-          <a class="download" href="./setup-codex-nodeclaw.sh">setup-codex-nodeclaw.sh<small>Codex shell helper</small></a>
-          <a class="download" href="./setup-openclaw-nodeclaw.sh">setup-openclaw-nodeclaw.sh<small>OpenClaw shell helper</small></a>
-          <a class="download" href="./setup-opencode-nodeclaw.sh">setup-opencode-nodeclaw.sh<small>OpenCode shell helper</small></a>
-          <a class="download" href="./setup-zed-nodeclaw.sh">setup-zed-nodeclaw.sh<small>Zed shell helper</small></a>
+          <a class="download" href="./setup-claude-code-nodeclaw.sh">setup-claude-code-nodeclaw.sh<small data-lang="en">Claude Code shell helper</small><small data-lang="th">helper ฝั่ง shell สำหรับ Claude Code</small></a>
+          <a class="download" href="./setup-codex-nodeclaw.sh">setup-codex-nodeclaw.sh<small data-lang="en">Codex shell helper</small><small data-lang="th">helper ฝั่ง shell สำหรับ Codex</small></a>
+          <a class="download" href="./setup-openclaw-nodeclaw.sh">setup-openclaw-nodeclaw.sh<small data-lang="en">OpenClaw shell helper</small><small data-lang="th">helper ฝั่ง shell สำหรับ OpenClaw</small></a>
+          <a class="download" href="./setup-opencode-nodeclaw.sh">setup-opencode-nodeclaw.sh<small data-lang="en">OpenCode shell helper</small><small data-lang="th">helper ฝั่ง shell สำหรับ OpenCode</small></a>
+          <a class="download" href="./setup-zed-nodeclaw.sh">setup-zed-nodeclaw.sh<small data-lang="en">Zed shell helper</small><small data-lang="th">helper ฝั่ง shell สำหรับ Zed</small></a>
         </div>
-        <h3 style="margin-top:18px;">Windows PowerShell helpers</h3>
-        <p class="muted">Current checked boundary: PowerShell remains scaffold-first and dry-run-only.</p>
+
+        <h3 style="margin-top:18px;" data-lang="en">Windows PowerShell helpers</h3>
+        <h3 style="margin-top:18px;" data-lang="th">ตัวช่วยฝั่ง PowerShell สำหรับ Windows</h3>
+        <p class="muted" data-lang="en">Current checked boundary: PowerShell remains scaffold-first and dry-run-only.</p>
+        <p class="muted" data-lang="th">ขอบเขตที่ตรวจแล้วตอนนี้คือ PowerShell ยังเป็น scaffold-first และ dry-run-only</p>
         <div class="downloads">
-          <a class="download" href="./setup-claude-code-nodeclaw.ps1">setup-claude-code-nodeclaw.ps1<small>Claude Code PowerShell helper</small></a>
-          <a class="download" href="./setup-codex-nodeclaw.ps1">setup-codex-nodeclaw.ps1<small>Codex PowerShell helper</small></a>
-          <a class="download" href="./setup-openclaw-nodeclaw.ps1">setup-openclaw-nodeclaw.ps1<small>OpenClaw PowerShell helper</small></a>
-          <a class="download" href="./setup-opencode-nodeclaw.ps1">setup-opencode-nodeclaw.ps1<small>OpenCode PowerShell helper</small></a>
-          <a class="download" href="./setup-zed-nodeclaw.ps1">setup-zed-nodeclaw.ps1<small>Zed PowerShell helper</small></a>
+          <a class="download" href="./setup-claude-code-nodeclaw.ps1">setup-claude-code-nodeclaw.ps1<small data-lang="en">Claude Code PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ Claude Code</small></a>
+          <a class="download" href="./setup-codex-nodeclaw.ps1">setup-codex-nodeclaw.ps1<small data-lang="en">Codex PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ Codex</small></a>
+          <a class="download" href="./setup-openclaw-nodeclaw.ps1">setup-openclaw-nodeclaw.ps1<small data-lang="en">OpenClaw PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ OpenClaw</small></a>
+          <a class="download" href="./setup-opencode-nodeclaw.ps1">setup-opencode-nodeclaw.ps1<small data-lang="en">OpenCode PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ OpenCode</small></a>
+          <a class="download" href="./setup-zed-nodeclaw.ps1">setup-zed-nodeclaw.ps1<small data-lang="en">Zed PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ Zed</small></a>
         </div>
       </section>
+
       <section class="card" style="margin-top:18px;">
-        <h2>Recommended usage order</h2>
-        <ul>
+        <h2 data-lang="en">Recommended usage order</h2>
+        <h2 data-lang="th">ลำดับการใช้งานที่แนะนำ</h2>
+        <ul data-lang="en">
           <li>Start from the main NodeClaw docs surface when you want the full product context.</li>
           <li>Use <code>launcher.sh</code> or <code>launcher.ps1</code> as the generic helper entrypoint.</li>
           <li>Run <code>dry-run</code> first.</li>
           <li>Use direct per-tool scripts only when a more explicit tool-specific entrypoint is better.</li>
         </ul>
+        <ul data-lang="th">
+          <li>เริ่มจากหน้า docs หลักของ NodeClaw ก่อน หากคุณต้องการ context ของ product ที่ครบกว่า</li>
+          <li>ใช้ <code>launcher.sh</code> หรือ <code>launcher.ps1</code> เป็น generic helper entrypoint หลัก</li>
+          <li>รัน <code>dry-run</code> ก่อน</li>
+          <li>ใช้ direct per-tool scripts เมื่อคุณต้องการ entrypoint ที่เฉพาะเจาะจงกับเครื่องมือนั้นมากกว่า</li>
+        </ul>
       </section>
+
       <section class="card" style="margin-top:18px;">
-        <h2>Provenance</h2>
+        <h2 data-lang="en">Provenance</h2>
+        <h2 data-lang="th">ที่มาของ release นี้</h2>
         <ul>
           <li><a href="./manifest.json">manifest.json</a></li>
           <li><a href="../README.md">release subtree README</a></li>
@@ -165,5 +232,23 @@ openai_base_url = "https://payg.nodenetwork.ovh/v1"
         </ul>
       </section>
     </div>
+
+    <script>
+      const root = document.documentElement;
+      const buttons = document.querySelectorAll('[data-set-lang]');
+      const applyLang = (lang) => {
+        root.classList.remove('lang-en', 'lang-th');
+        root.classList.add(`lang-${lang}`);
+        root.lang = lang === 'th' ? 'th' : 'en';
+        buttons.forEach((button) => {
+          button.classList.toggle('active', button.dataset.setLang === lang);
+          button.setAttribute('aria-pressed', button.dataset.setLang === lang ? 'true' : 'false');
+        });
+      };
+      buttons.forEach((button) => {
+        button.addEventListener('click', () => applyLang(button.dataset.setLang));
+      });
+      applyLang('en');
+    </script>
   </body>
 </html>
