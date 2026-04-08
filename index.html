@@ -87,6 +87,7 @@
           <h2 data-lang="th">เครื่องมือที่รองรับ</h2>
           <div>
             <span class="pill">claude-code</span>
+            <span class="pill">gemini-cli</span>
             <span class="pill">codex</span>
             <span class="pill">openclaw</span>
             <span class="pill">opencode</span>
@@ -101,28 +102,25 @@
             <li>PowerShell helper paths remain scaffold-first and dry-run-only.</li>
             <li>Do not assume hosted <code>curl | bash</code> install is officially live.</li>
             <li><code>openclaw</code> requires the local <code>openclaw</code> command to already exist in <code>PATH</code>.</li>
+            <li><code>gemini-cli</code> is visible in the public tool set, but remains manual-first / gateway-capable rather than launcher-helper-capable in this release surface.</li>
           </ul>
           <ul data-lang="th">
             <li>ฝั่ง shell สามารถ apply ได้ในจุดที่สคริปต์ที่ตรวจรองรับจริง</li>
             <li>ฝั่ง PowerShell ยังเป็นแนว scaffold-first และ dry-run-only</li>
             <li>อย่าตีความว่า hosted <code>curl | bash</code> เปิดใช้งานจริงแล้ว</li>
             <li><code>openclaw</code> ต้องมีคำสั่ง <code>openclaw</code> อยู่ใน <code>PATH</code> ก่อน</li>
+            <li><code>gemini-cli</code> ถูกแสดงในชุดเครื่องมือสาธารณะได้ แต่ใน release surface นี้ยังคงเป็น manual-first / gateway-capable ไม่ใช่ launcher-helper-capable</li>
           </ul>
         </section>
       </div>
 
       <section class="card" style="margin-top:18px;">
-        <h2 data-lang="en">Start here</h2>
-        <h2 data-lang="th">เริ่มตรงนี้</h2>
-        <pre><code>$ bash ./script/launcher.sh list
-Supported tools:
-  - claude-code
-  - codex
-  - openclaw
-  - opencode
-  - zed</code></pre>
-        <p class="muted" data-lang="en">Use launcher as the main generic entrypoint. Start with <code>dry-run</code> first before apply mode.</p>
-        <p class="muted" data-lang="th">ให้ใช้ launcher เป็น generic entrypoint หลัก และเริ่มจาก <code>dry-run</code> ก่อนทุกครั้งถ้ายังไม่แน่ใจ</p>
+        <h2 data-lang="en">Quick start</h2>
+        <h2 data-lang="th">Quick start</h2>
+        <pre><code>$ curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- wizard</code></pre>
+        <p class="muted" data-lang="en">Remote usage should call launcher only. Launcher fetches the helper payload it needs automatically. Use dry-run-first flow when you are not ready to apply.</p>
+        <p class="muted" data-lang="th">การใช้งานแบบ remote ควรเรียก launcher อย่างเดียว แล้ว launcher จะไปดึง helper payload ที่ต้องใช้ให้อัตโนมัติ และควรเริ่มจาก flow แบบ dry-run-first เมื่อยังไม่พร้อม apply</p>
+        <pre><code>powershell -ExecutionPolicy Bypass -c "irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"</code></pre>
       </section>
 
       <section class="card" style="margin-top:18px;">
@@ -159,6 +157,24 @@ model = "gpt-5.4"
 openai_base_url = "https://payg.nodenetwork.ovh/v1"
 
 [model_providers]</code></pre>
+      </section>
+
+      <section class="card" style="margin-top:18px;">
+        <h2 data-lang="en">Gemini CLI boundary</h2>
+        <h2 data-lang="th">ขอบเขตของ Gemini CLI</h2>
+        <p data-lang="en">Gemini CLI is part of the broader public NodeClaw tool set, but the checked current fit here is still <strong>manual-first / gateway-capable</strong>.</p>
+        <p data-lang="th">Gemini CLI อยู่ในชุดเครื่องมือสาธารณะของ NodeClaw ได้แล้ว แต่ขอบเขตที่ตรวจตอนนี้ใน release surface นี้ยังเป็น <strong>manual-first / gateway-capable</strong></p>
+        <pre><code data-lang="en">Use the official Gemini CLI install path first.
+Then wire NodeClaw through ACP gateway metadata with:
+- baseUrl = https://payg.nodenetwork.ovh/v1beta
+- Authorization: Bearer &lt;nodeclaw_access_key&gt;
+
+Do not read this page as proof of launcher-helper automation for Gemini CLI.</code><code data-lang="th">ให้ติดตั้ง Gemini CLI จาก upstream ทางการก่อน
+จากนั้นค่อยผูก NodeClaw ผ่าน ACP gateway metadata โดยใช้:
+- baseUrl = https://payg.nodenetwork.ovh/v1beta
+- Authorization: Bearer &lt;nodeclaw_access_key&gt;
+
+อย่าอ่านหน้านี้ว่าเป็นหลักฐานของ launcher-helper automation สำหรับ Gemini CLI</code></pre>
       </section>
 
       <section class="card" style="margin-top:18px;">

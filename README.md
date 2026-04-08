@@ -13,16 +13,21 @@ The broader product/docs surface is part of the main domain basis:
 
 Use this release when you want:
 - the launcher-first helper entrypoints
-- direct per-tool helper scripts
+- one remote launcher entrypoint that can fetch the helper payload automatically
+- direct per-tool helper scripts when you need an explicit tool-specific path
 - a lightweight public distribution surface separate from the larger app repo experience
 
 ## Supported tools
 
+Helper-capable targets:
 - `claude-code`
 - `codex`
 - `openclaw`
 - `opencode`
 - `zed`
+
+Additional bounded public target:
+- `gemini-cli` — manual-first / gateway-capable only in the checked scope; do not read this as a launcher-helper target
 
 ## Main entrypoints
 
@@ -34,6 +39,25 @@ bash ./script/launcher.sh list
 bash ./script/launcher.sh dry-run --tool <claude-code|codex|openclaw|opencode|zed>
 bash ./script/launcher.sh apply --tool <claude-code|codex|openclaw|opencode|zed>
 bash ./script/launcher.sh wizard
+```
+
+Remote launcher-first usage:
+
+```bash
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- wizard
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool <claude-code|codex|openclaw|opencode|zed>
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- apply --tool <claude-code|codex|openclaw|opencode|zed>
+```
+
+Bounded Gemini CLI note:
+
+```text
+Gemini CLI is visible in the broader public tool set, but its checked current posture is manual-first / gateway-capable.
+Use the official Gemini CLI install path first, then wire NodeClaw through ACP gateway metadata instead of expecting launcher-helper automation here.
+```
+
+```powershell
+powershell -ExecutionPolicy Bypass -c "irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
 ```
 
 PowerShell launcher:
@@ -133,7 +157,9 @@ Current checked boundary: PowerShell remains scaffold-first and dry-run-only.
 - Launcher help and wizard are now available, but they still reveal the real command flow and do not replace dry-run-first visibility.
 - Hosted remote install flow is not declared as fully live here yet.
 - `openclaw` helper requires the `openclaw` command to already exist in `PATH`.
+- `gemini-cli` is not a helper-capable target in this release surface; its checked current fit is manual-first / gateway-capable only.
 - Default checked NodeClaw base URL in several helpers is `https://payg.nodenetwork.ovh/v1`.
+- The checked public Google / Gemini-shaped lane uses `https://payg.nodenetwork.ovh/v1beta`.
 - Default checked model used in several helpers is `gpt-5.4`.
 
 ## Recommended usage order

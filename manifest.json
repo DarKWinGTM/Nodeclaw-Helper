@@ -3,17 +3,20 @@
     "repo": "NodeClaw-platform",
     "path": "script/",
     "localPath": "/home/node/workplace/AWCLOUD/CLAUDE/NodeClaw-platform/script/",
-    "commit": "8f3b421231ee"
+    "commit": "8f3b421"
   },
-  "publishedAt": "2026-04-07",
+  "publishedAt": "2026-04-08",
+  "notes": {
+    "geminiCli": "Visible in the public tool set with manual-first / gateway-capable wording only; not a launcher-helper target in the checked release surface."
+  },
   "files": [
     {
       "path": "script/launcher.sh",
-      "sha256": "3bc31f4391b5614eb927250e3e60f8f8df0e4f93ac4b77f7572bdec64b793a3a"
+      "sha256": "a85e524319e8ae5375c7d982538e06c78522472b27effc0a5d18afcfa146aafb"
     },
     {
       "path": "script/launcher.ps1",
-      "sha256": "f7ed745217cd73b71c72ad907aabb8e4c5b8f65158d1f25b77148c186d67ce02"
+      "sha256": "b3cc49ffebffbf7aab55725e40f9a49640d69813d973cba99a75c2ae14a80039"
     },
     {
       "path": "script/setup-claude-code-nodeclaw.ps1",
@@ -54,6 +57,13 @@
     {
       "path": "script/setup-zed-nodeclaw.sh",
       "sha256": "8f724fc90e574c0241d944f64ffc84843c39eedfb1e303c02a2a073b8a230115"
+    }
+  ],
+  "manualTargets": [
+    {
+      "id": "gemini-cli",
+      "support": "manual-first / gateway-capable",
+      "baseUrl": "https://payg.nodenetwork.ovh/v1beta"
     }
   ]
 }
