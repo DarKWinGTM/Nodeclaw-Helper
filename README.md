@@ -132,6 +132,7 @@ These `.sh` helpers are the direct shell-side tool-specific entrypoints.
 - `script/setup-openclaw-nodeclaw.sh`
 - `script/setup-opencode-nodeclaw.sh`
 - `script/setup-zed-nodeclaw.sh`
+- `script/setup-gemini-cli-nodeclaw.sh` — bounded Gemini CLI gateway contract preview only
 
 ### Windows PowerShell helpers
 
@@ -143,6 +144,7 @@ Current checked boundary: PowerShell remains scaffold-first and dry-run-only.
 - `script/setup-openclaw-nodeclaw.ps1`
 - `script/setup-opencode-nodeclaw.ps1`
 - `script/setup-zed-nodeclaw.ps1`
+- `script/setup-gemini-cli-nodeclaw.ps1` — bounded Gemini CLI gateway contract preview only
 
 ### Platform note
 
