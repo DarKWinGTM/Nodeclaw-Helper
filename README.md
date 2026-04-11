@@ -60,6 +60,28 @@ Remote PowerShell launcher:
 powershell -ExecutionPolicy Bypass -c "irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
 ```
 
+## Claude Code CLI setup posture
+
+`claude-code` uses an env-first helper path through the checked `ANTHROPIC_*` environment contract.
+
+Primary setup contract:
+
+```bash
+export ANTHROPIC_BASE_URL="https://payg.nodenetwork.ovh/v1"
+export ANTHROPIC_AUTH_TOKEN="<nodeclaw_access_key>"
+claude
+```
+
+What the helper manages:
+- `~/.claude/settings.json` generation/update
+- the same `ANTHROPIC_BASE_URL` + `ANTHROPIC_AUTH_TOKEN` env contract
+- helper-guided dry-run/apply flow for that same env-based setup
+
+Important boundary:
+- Claude helper writes the checked Claude Code settings file instead of only printing a profile snippet
+- shell helper can apply the settings path directly
+- PowerShell helper remains dry-run-first in the current checked scope
+
 ## Gemini CLI setup posture
 
 `gemini-cli` now uses an env-first custom-endpoint helper path.

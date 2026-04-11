@@ -124,6 +124,25 @@ curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bas
       </section>
 
       <section class="card" style="margin-top:18px;">
+        <h2 data-lang="en">Claude Code CLI helper path</h2>
+        <h2 data-lang="th">เส้นทาง helper ของ Claude Code CLI</h2>
+        <div data-lang="en">
+          <p>Primary setup story:</p>
+          <pre><code>export ANTHROPIC_BASE_URL="https://payg.nodenetwork.ovh/v1"
+export ANTHROPIC_AUTH_TOKEN="&lt;nodeclaw_access_key&gt;"
+claude</code></pre>
+          <p class="muted">The helper manages the same env-based Claude contract through the checked `~/.claude/settings.json` path, while Windows remains dry-run-first in the current checked scope.</p>
+        </div>
+        <div data-lang="th">
+          <p>เส้นทางหลักของการตั้งค่า:</p>
+          <pre><code>export ANTHROPIC_BASE_URL="https://payg.nodenetwork.ovh/v1"
+export ANTHROPIC_AUTH_TOKEN="&lt;nodeclaw_access_key&gt;"
+claude</code></pre>
+          <p class="muted">helper จะจัดการ Claude env contract เดียวกันนี้ผ่าน path `~/.claude/settings.json` ที่ตรวจแล้ว โดยฝั่ง Windows ยังเป็น dry-run-first ในขอบเขตที่ตรวจตอนนี้</p>
+        </div>
+      </section>
+
+      <section class="card" style="margin-top:18px;">
         <h2 data-lang="en">Gemini CLI helper path</h2>
         <h2 data-lang="th">เส้นทาง helper ของ Gemini CLI</h2>
         <div data-lang="en">

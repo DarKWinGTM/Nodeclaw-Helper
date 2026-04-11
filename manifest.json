@@ -7,6 +7,7 @@
   },
   "publishedAt": "2026-04-11",
   "notes": {
+    "claudeCode": "Helper-guided env-first path through ~/.claude/settings.json. The checked env contract is ANTHROPIC_BASE_URL=https://payg.nodenetwork.ovh/v1 plus ANTHROPIC_AUTH_TOKEN=<nodeclaw_access_key>.",
     "geminiCli": "Helper-guided env-first path. Set GOOGLE_GEMINI_BASE_URL=https://payg.nodenetwork.ovh and GEMINI_API_KEY=<nodeclaw_access_key>; the effective Google / Gemini-shaped route family still resolves under v1beta."
   },
   "files": [
