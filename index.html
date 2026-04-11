@@ -60,7 +60,7 @@
 
         <div data-lang="en">
           <h1>Launcher-first helper distribution for NodeClaw</h1>
-          <p>This release surface exists for the helper scripts that support the broader NodeClaw docs and tool setup flow.</p>
+          <p>This release surface exposes the checked helper scripts that support the broader NodeClaw docs and tool-setup flow.</p>
           <p>The broader product/docs domain basis is:</p>
           <ul>
             <li><a href="https://nodenetwork.ovh">nodenetwork.ovh</a></li>
@@ -71,7 +71,7 @@
 
         <div data-lang="th">
           <h1>ศูนย์แจกจ่าย helper แบบ launcher-first สำหรับ NodeClaw</h1>
-          <p>หน้านี้มีไว้สำหรับสคริปต์ตัวช่วยที่รองรับ flow การตั้งค่าเครื่องมือและ docs ของ NodeClaw ในภาพรวม</p>
+          <p>หน้านี้เปิดเผยสคริปต์ helper ที่ตรวจแล้ว ซึ่งรองรับ flow การตั้งค่าเครื่องมือและ docs ของ NodeClaw ในภาพรวม</p>
           <p>โดเมนหลักของ product/docs คือ:</p>
           <ul>
             <li><a href="https://nodenetwork.ovh">nodenetwork.ovh</a></li>
@@ -99,17 +99,15 @@
           <h2 data-lang="th">ขอบเขตการรองรับปัจจุบัน</h2>
           <ul data-lang="en">
             <li>Shell helper paths can apply changes where the checked script supports it.</li>
-            <li>PowerShell helper paths remain scaffold-first and dry-run-only.</li>
-            <li>Do not assume hosted <code>curl | bash</code> install is officially live.</li>
-            <li><code>openclaw</code> requires the local <code>openclaw</code> command to already exist in <code>PATH</code>.</li>
-            <li><code>gemini-cli</code> is visible in the public tool set, but remains manual-first / gateway-capable rather than launcher-helper-capable in this release surface.</li>
+            <li>PowerShell launcher paths remain scaffold-first and dry-run-only.</li>
+            <li><code>gemini-cli</code> helper support is env/snippet/profile oriented.</li>
+            <li><code>openclaw</code> still requires the local <code>openclaw</code> command in <code>PATH</code>.</li>
           </ul>
           <ul data-lang="th">
             <li>ฝั่ง shell สามารถ apply ได้ในจุดที่สคริปต์ที่ตรวจรองรับจริง</li>
-            <li>ฝั่ง PowerShell ยังเป็นแนว scaffold-first และ dry-run-only</li>
-            <li>อย่าตีความว่า hosted <code>curl | bash</code> เปิดใช้งานจริงแล้ว</li>
-            <li><code>openclaw</code> ต้องมีคำสั่ง <code>openclaw</code> อยู่ใน <code>PATH</code> ก่อน</li>
-            <li><code>gemini-cli</code> ถูกแสดงในชุดเครื่องมือสาธารณะได้ แต่ใน release surface นี้ยังคงเป็น manual-first / gateway-capable ไม่ใช่ launcher-helper-capable</li>
+            <li>launcher ฝั่ง PowerShell ยังเป็น scaffold-first และ dry-run-only</li>
+            <li>helper ของ <code>gemini-cli</code> เป็นแนวจัดการ env/snippet/profile</li>
+            <li><code>openclaw</code> ยังต้องมีคำสั่ง <code>openclaw</code> อยู่ใน <code>PATH</code></li>
           </ul>
         </section>
       </div>
@@ -117,71 +115,36 @@
       <section class="card" style="margin-top:18px;">
         <h2 data-lang="en">Quick start</h2>
         <h2 data-lang="th">Quick start</h2>
-        <pre><code>$ curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- wizard</code></pre>
-        <p class="muted" data-lang="en">Remote usage should call launcher only. Launcher fetches the helper payload it needs automatically. Use dry-run-first flow when you are not ready to apply.</p>
-        <p class="muted" data-lang="th">การใช้งานแบบ remote ควรเรียก launcher อย่างเดียว แล้ว launcher จะไปดึง helper payload ที่ต้องใช้ให้อัตโนมัติ และควรเริ่มจาก flow แบบ dry-run-first เมื่อยังไม่พร้อม apply</p>
+        <pre><code>curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- wizard
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool gemini-cli
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- apply --tool gemini-cli</code></pre>
+        <p class="muted" data-lang="en">Remote usage should call launcher only. Launcher fetches the helper payload it needs automatically.</p>
+        <p class="muted" data-lang="th">การใช้งานแบบ remote ควรเรียก launcher อย่างเดียว แล้ว launcher จะไปดึง helper payload ที่ต้องใช้ให้อัตโนมัติ</p>
         <pre><code>powershell -ExecutionPolicy Bypass -c "irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"</code></pre>
       </section>
 
       <section class="card" style="margin-top:18px;">
-        <h2 data-lang="en">Real terminal example</h2>
-        <h2 data-lang="th">ตัวอย่าง terminal จริง</h2>
-        <pre><code>$ NODECLAW_API_KEY="test-key" bash ./script/launcher.sh dry-run --tool claude-code
-Target Claude Code settings: /tmp/claude-settings-readme.json
-
-Dry run only. Planned Claude Code settings:
-
-{
-  "env": {
-    "ANTHROPIC_BASE_URL": "https://payg.nodenetwork.ovh/v1",
-    "ANTHROPIC_AUTH_TOKEN": "test-key",
-    "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS": "1",
-    "DISABLE_INTERLEAVED_THINKING": "1"
-  }
-}</code></pre>
-      </section>
-
-      <section class="card" style="margin-top:18px;">
-        <h2 data-lang="en">Codex terminal example</h2>
-        <h2 data-lang="th">ตัวอย่าง terminal ของ Codex</h2>
-        <pre><code>$ CODEX_CONFIG_PATH="/tmp/codex-readme.toml" bash ./script/launcher.sh dry-run --tool codex
-Target Codex config: /tmp/codex-readme.toml
-Provider mode: simple
-Base URL: https://payg.nodenetwork.ovh/v1
-Model: gpt-5.4
-Auth env: OPENAI_API_KEY
-
-Dry run only. Planned Codex config:
-
-model = "gpt-5.4"
-openai_base_url = "https://payg.nodenetwork.ovh/v1"
-
-[model_providers]</code></pre>
-      </section>
-
-      <section class="card" style="margin-top:18px;">
-        <h2 data-lang="en">Gemini CLI boundary</h2>
-        <h2 data-lang="th">ขอบเขตของ Gemini CLI</h2>
-        <p data-lang="en">Gemini CLI is part of the broader public NodeClaw tool set, but the checked current fit here is still <strong>manual-first / gateway-capable</strong>.</p>
-        <p data-lang="th">Gemini CLI อยู่ในชุดเครื่องมือสาธารณะของ NodeClaw ได้แล้ว แต่ขอบเขตที่ตรวจตอนนี้ใน release surface นี้ยังเป็น <strong>manual-first / gateway-capable</strong></p>
-        <pre><code data-lang="en">Use the official Gemini CLI install path first.
-Then wire NodeClaw through ACP gateway metadata with:
-- baseUrl = https://payg.nodenetwork.ovh/v1beta
-- Authorization: Bearer &lt;nodeclaw_access_key&gt;
-
-Do not read this page as proof of launcher-helper automation for Gemini CLI.</code><code data-lang="th">ให้ติดตั้ง Gemini CLI จาก upstream ทางการก่อน
-จากนั้นค่อยผูก NodeClaw ผ่าน ACP gateway metadata โดยใช้:
-- baseUrl = https://payg.nodenetwork.ovh/v1beta
-- Authorization: Bearer &lt;nodeclaw_access_key&gt;
-
-อย่าอ่านหน้านี้ว่าเป็นหลักฐานของ launcher-helper automation สำหรับ Gemini CLI</code></pre>
+        <h2 data-lang="en">Gemini CLI helper path</h2>
+        <h2 data-lang="th">เส้นทาง helper ของ Gemini CLI</h2>
+        <div data-lang="en">
+          <p>Primary setup story:</p>
+          <pre><code>export GOOGLE_GEMINI_BASE_URL="https://payg.nodenetwork.ovh"
+export GEMINI_API_KEY="&lt;nodeclaw_access_key&gt;"
+gemini</code></pre>
+          <p class="muted">Effective Google / Gemini-shaped route family still resolves under <code>v1beta</code>. The helper manages the same env-based path through a generated snippet/profile block.</p>
+        </div>
+        <div data-lang="th">
+          <p>เส้นทางหลักของการตั้งค่า:</p>
+          <pre><code>export GOOGLE_GEMINI_BASE_URL="https://payg.nodenetwork.ovh"
+export GEMINI_API_KEY="&lt;nodeclaw_access_key&gt;"
+gemini</code></pre>
+          <p class="muted">route family แบบ Google / Gemini จะวิ่งอยู่ใต้ <code>v1beta</code> ส่วน helper มีหน้าที่จัด env/snippet/profile สำหรับ path เดียวกันนี้</p>
+        </div>
       </section>
 
       <section class="card" style="margin-top:18px;">
         <h2 data-lang="en">Launcher entrypoints</h2>
         <h2 data-lang="th">Launcher entrypoints</h2>
-        <p data-lang="en">Use launcher as the main generic interface.</p>
-        <p data-lang="th">ให้ใช้ launcher เป็น generic interface หลัก</p>
         <div class="downloads">
           <a class="download" href="./script/launcher.sh">launcher.sh<small data-lang="en">Shell launcher</small><small data-lang="th">launcher ฝั่ง shell</small></a>
           <a class="download" href="./script/launcher.ps1">launcher.ps1<small data-lang="en">PowerShell launcher</small><small data-lang="th">launcher ฝั่ง PowerShell</small></a>
@@ -191,51 +154,20 @@ Do not read this page as proof of launcher-helper automation for Gemini CLI.</co
       <section class="card" style="margin-top:18px;">
         <h2 data-lang="en">Direct per-tool helpers</h2>
         <h2 data-lang="th">Direct per-tool helpers</h2>
-        <p data-lang="en">Tool-specific scripts remain available when a direct tool path is clearer than the generic launcher.</p>
-        <p data-lang="th">สคริปต์แบบแยกตามเครื่องมือยังมีให้ใช้ เมื่อคุณต้องการทางตรงที่ชัดกว่า generic launcher</p>
-
-        <h3 data-lang="en">Linux / macOS shell helpers</h3>
-        <h3 data-lang="th">ตัวช่วยฝั่ง shell สำหรับ Linux / macOS</h3>
-        <p class="muted" data-lang="en">Linux and macOS share the same direct shell helper files.</p>
-        <p class="muted" data-lang="th">Linux และ macOS ใช้ไฟล์ helper ฝั่ง shell ชุดเดียวกัน</p>
         <div class="downloads">
           <a class="download" href="./script/setup-claude-code-nodeclaw.sh">setup-claude-code-nodeclaw.sh<small data-lang="en">Claude Code shell helper</small><small data-lang="th">helper ฝั่ง shell สำหรับ Claude Code</small></a>
+          <a class="download" href="./script/setup-gemini-cli-nodeclaw.sh">setup-gemini-cli-nodeclaw.sh<small data-lang="en">Gemini CLI shell helper</small><small data-lang="th">helper ฝั่ง shell สำหรับ Gemini CLI</small></a>
           <a class="download" href="./script/setup-codex-nodeclaw.sh">setup-codex-nodeclaw.sh<small data-lang="en">Codex shell helper</small><small data-lang="th">helper ฝั่ง shell สำหรับ Codex</small></a>
           <a class="download" href="./script/setup-openclaw-nodeclaw.sh">setup-openclaw-nodeclaw.sh<small data-lang="en">OpenClaw shell helper</small><small data-lang="th">helper ฝั่ง shell สำหรับ OpenClaw</small></a>
           <a class="download" href="./script/setup-opencode-nodeclaw.sh">setup-opencode-nodeclaw.sh<small data-lang="en">OpenCode shell helper</small><small data-lang="th">helper ฝั่ง shell สำหรับ OpenCode</small></a>
           <a class="download" href="./script/setup-zed-nodeclaw.sh">setup-zed-nodeclaw.sh<small data-lang="en">Zed shell helper</small><small data-lang="th">helper ฝั่ง shell สำหรับ Zed</small></a>
-          <a class="download" href="./script/setup-gemini-cli-nodeclaw.sh">setup-gemini-cli-nodeclaw.sh<small data-lang="en">Gemini CLI shell contract preview</small><small data-lang="th">contract preview ฝั่ง shell สำหรับ Gemini CLI</small></a>
-        </div>
-
-        <h3 style="margin-top:18px;" data-lang="en">Windows PowerShell helpers</h3>
-        <h3 style="margin-top:18px;" data-lang="th">ตัวช่วยฝั่ง PowerShell สำหรับ Windows</h3>
-        <p class="muted" data-lang="en">Current checked boundary: PowerShell remains scaffold-first and dry-run-only.</p>
-        <p class="muted" data-lang="th">ขอบเขตที่ตรวจแล้วตอนนี้คือ PowerShell ยังเป็น scaffold-first และ dry-run-only</p>
-        <div class="downloads">
           <a class="download" href="./script/setup-claude-code-nodeclaw.ps1">setup-claude-code-nodeclaw.ps1<small data-lang="en">Claude Code PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ Claude Code</small></a>
+          <a class="download" href="./script/setup-gemini-cli-nodeclaw.ps1">setup-gemini-cli-nodeclaw.ps1<small data-lang="en">Gemini CLI PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ Gemini CLI</small></a>
           <a class="download" href="./script/setup-codex-nodeclaw.ps1">setup-codex-nodeclaw.ps1<small data-lang="en">Codex PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ Codex</small></a>
           <a class="download" href="./script/setup-openclaw-nodeclaw.ps1">setup-openclaw-nodeclaw.ps1<small data-lang="en">OpenClaw PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ OpenClaw</small></a>
           <a class="download" href="./script/setup-opencode-nodeclaw.ps1">setup-opencode-nodeclaw.ps1<small data-lang="en">OpenCode PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ OpenCode</small></a>
           <a class="download" href="./script/setup-zed-nodeclaw.ps1">setup-zed-nodeclaw.ps1<small data-lang="en">Zed PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ Zed</small></a>
-          <a class="download" href="./script/setup-gemini-cli-nodeclaw.ps1">setup-gemini-cli-nodeclaw.ps1<small data-lang="en">Gemini CLI PowerShell contract preview</small><small data-lang="th">contract preview ฝั่ง PowerShell สำหรับ Gemini CLI</small></a>
         </div>
-      </section>
-
-      <section class="card" style="margin-top:18px;">
-        <h2 data-lang="en">Recommended usage order</h2>
-        <h2 data-lang="th">ลำดับการใช้งานที่แนะนำ</h2>
-        <ul data-lang="en">
-          <li>Start from the main NodeClaw docs surface when you want the full product context.</li>
-          <li>Use <code>launcher.sh</code> or <code>launcher.ps1</code> as the generic helper entrypoint.</li>
-          <li>Run <code>dry-run</code> first.</li>
-          <li>Use direct per-tool scripts only when a more explicit tool-specific entrypoint is better.</li>
-        </ul>
-        <ul data-lang="th">
-          <li>เริ่มจากหน้า docs หลักของ NodeClaw ก่อน หากคุณต้องการ context ของ product ที่ครบกว่า</li>
-          <li>ใช้ <code>launcher.sh</code> หรือ <code>launcher.ps1</code> เป็น generic helper entrypoint หลัก</li>
-          <li>รัน <code>dry-run</code> ก่อน</li>
-          <li>ใช้ direct per-tool scripts เมื่อคุณต้องการ entrypoint ที่เฉพาะเจาะจงกับเครื่องมือนั้นมากกว่า</li>
-        </ul>
       </section>
 
       <section class="card" style="margin-top:18px;">
@@ -244,7 +176,7 @@ Do not read this page as proof of launcher-helper automation for Gemini CLI.</co
         <ul>
           <li><a href="./manifest.json">manifest.json</a></li>
           <li><a href="./README.md">README</a></li>
-          <li><a href="./PUBLISHING.md">publishing notes</a></li>
+          <li><a href="./PUBLISHING.md">PUBLISHING.md</a></li>
         </ul>
       </section>
     </div>
@@ -261,9 +193,7 @@ Do not read this page as proof of launcher-helper automation for Gemini CLI.</co
           button.setAttribute('aria-pressed', button.dataset.setLang === lang ? 'true' : 'false');
         });
       };
-      buttons.forEach((button) => {
-        button.addEventListener('click', () => applyLang(button.dataset.setLang));
-      });
+      buttons.forEach((button) => button.addEventListener('click', () => applyLang(button.dataset.setLang)));
       applyLang('en');
     </script>
   </body>

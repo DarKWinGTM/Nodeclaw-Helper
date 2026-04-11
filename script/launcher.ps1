@@ -45,7 +45,7 @@ Notes:
 - PowerShell helper paths remain scaffold-first and dry-run-only in the current checked scope.
 - Remote launcher usage can fetch the helper payload it needs automatically.
 - Use direct per-tool scripts if you want a tool-specific entrypoint.
-- Gemini CLI stays manual-first / gateway-capable; the launcher can preview its bounded ACP gateway contract but does not provide a helper-managed apply path.
+- Gemini CLI stays manual-first, but the launcher can now preview or apply the helper-guided custom-endpoint env setup instead of routing users through ACP wording.
 "@
     }
 
@@ -92,7 +92,7 @@ Notes:
 
         switch ($SelectedTool) {
             'claude-code' { return 'edits ~/.claude/settings.json and writes ANTHROPIC_* env values' }
-            'gemini-cli' { return 'prints the bounded ACP gateway contract for Gemini CLI and keeps setup manual-first' }
+            'gemini-cli' { return 'writes a managed Gemini env snippet/profile source block for the custom-endpoint path and keeps launch helper-guided' }
             'codex' { return 'edits ~/.codex/config.toml and keeps auth in OPENAI_API_KEY' }
             'openclaw' { return 'runs the OpenClaw onboard flow and validates the resulting config' }
             'opencode' { return 'edits opencode.json provider/model configuration' }
@@ -106,7 +106,7 @@ Notes:
 
         switch ($SelectedTool) {
             'claude-code' { return '~/.claude/settings.json' }
-            'gemini-cli' { return 'manual ACP gateway payload + optional ~/.gemini/settings.json auth-type selection' }
+            'gemini-cli' { return '~/.gemini/nodeclaw-gemini-env.ps1 + PowerShell profile source block' }
             'codex' { return '~/.codex/config.toml' }
             'openclaw' { return 'OpenClaw onboard command flow + resulting OpenClaw config' }
             'opencode' { return '~/.config/opencode/opencode.json' }
@@ -229,19 +229,6 @@ Notes:
         Write-Host "  Tool: $Tool"
         Write-Host "  Summary: $(Describe-Tool -SelectedTool $Tool)"
         Write-Host "  Target: $(Describe-Target -SelectedTool $Tool)"
-
-        if ($Tool -eq 'gemini-cli') {
-            Write-Host ''
-            Write-Host 'Step 3/4 — Preview first'
-            Write-Host '  Gemini CLI stays manual-first / gateway-capable in the current checked scope.'
-            Write-Host '  Launcher will show the bounded ACP gateway contract instead of applying helper-managed config.'
-            Write-Host ''
-            & (Resolve-TargetScript -SelectedTool $Tool) -DryRun
-            Write-Host ''
-            Write-Host 'Step 4/4 — Apply'
-            Write-Host '  No helper-managed apply path exists for Gemini CLI in the current checked scope.'
-            return
-        }
 
         $Target = Resolve-TargetScript -SelectedTool $Tool
         Write-Host ''

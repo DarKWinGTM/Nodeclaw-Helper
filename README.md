@@ -2,9 +2,7 @@
 
 Public helper distribution for NodeClaw integrations.
 
-This release surface exists so users can access the checked helper scripts more directly, while the broader product/docs surface is part of the main `https://nodenetwork.ovh` domain.
-
-The broader product/docs surface is part of the main domain basis:
+This release surface exists so users can access the checked helper scripts more directly, while the broader product/docs surface remains on:
 - `https://nodenetwork.ovh`
 - `https://nodenetwork.ovh/docs`
 - `https://nodenetwork.ovh/docs/tools`
@@ -19,15 +17,13 @@ Use this release when you want:
 
 ## Supported tools
 
-Helper-capable targets:
+Helper-guided targets:
 - `claude-code`
+- `gemini-cli`
 - `codex`
 - `openclaw`
 - `opencode`
 - `zed`
-
-Additional bounded public target:
-- `gemini-cli` — manual-first / gateway-capable only in the checked scope; do not read this as a launcher-helper target
 
 ## Main entrypoints
 
@@ -36,8 +32,8 @@ Shell launcher:
 ```bash
 bash ./script/launcher.sh help
 bash ./script/launcher.sh list
-bash ./script/launcher.sh dry-run --tool <claude-code|codex|openclaw|opencode|zed>
-bash ./script/launcher.sh apply --tool <claude-code|codex|openclaw|opencode|zed>
+bash ./script/launcher.sh dry-run --tool <claude-code|gemini-cli|codex|openclaw|opencode|zed>
+bash ./script/launcher.sh apply --tool <claude-code|gemini-cli|codex|openclaw|opencode|zed>
 bash ./script/launcher.sh wizard
 ```
 
@@ -45,19 +41,8 @@ Remote launcher-first usage:
 
 ```bash
 curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- wizard
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool <claude-code|codex|openclaw|opencode|zed>
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- apply --tool <claude-code|codex|openclaw|opencode|zed>
-```
-
-Bounded Gemini CLI note:
-
-```text
-Gemini CLI is visible in the broader public tool set, but its checked current posture is manual-first / gateway-capable.
-Use the official Gemini CLI install path first, then wire NodeClaw through ACP gateway metadata instead of expecting launcher-helper automation here.
-```
-
-```powershell
-powershell -ExecutionPolicy Bypass -c "irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool gemini-cli
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- apply --tool gemini-cli
 ```
 
 PowerShell launcher:
@@ -65,113 +50,75 @@ PowerShell launcher:
 ```powershell
 .\script\launcher.ps1 -Command help
 .\script\launcher.ps1 -Command list
-.\script\launcher.ps1 -Command dry-run -Tool <claude-code|codex|openclaw|opencode|zed>
+.\script\launcher.ps1 -Command dry-run -Tool <claude-code|gemini-cli|codex|openclaw|opencode|zed>
 .\script\launcher.ps1 -Command wizard
 ```
 
-## Real terminal example
+Remote PowerShell launcher:
 
-Launcher tool list:
-
-```text
-$ bash ./script/launcher.sh list
-Supported tools:
-  - claude-code
-  - codex
-  - openclaw
-  - opencode
-  - zed
+```powershell
+powershell -ExecutionPolicy Bypass -c "irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
 ```
 
-Claude Code dry-run through launcher:
+## Gemini CLI setup posture
 
-```text
-$ NODECLAW_API_KEY="test-key" bash ./script/launcher.sh dry-run --tool claude-code
-Target Claude Code settings: /tmp/claude-settings-readme.json
+`gemini-cli` now uses an env-first custom-endpoint helper path.
 
-Dry run only. Planned Claude Code settings:
+Primary setup contract:
 
-{
-  "env": {
-    "ANTHROPIC_BASE_URL": "https://payg.nodenetwork.ovh/v1",
-    "ANTHROPIC_AUTH_TOKEN": "test-key",
-    "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS": "1",
-    "DISABLE_INTERLEAVED_THINKING": "1"
-  }
-}
+```bash
+export GOOGLE_GEMINI_BASE_URL="https://payg.nodenetwork.ovh"
+export GEMINI_API_KEY="<nodeclaw_access_key>"
+gemini
 ```
 
-Codex dry-run through launcher:
+What the helper manages:
+- shell/PowerShell env snippet generation
+- profile source block generation
+- helper-guided preview/apply flow for that same env-based setup
 
-```text
-$ CODEX_CONFIG_PATH="/tmp/codex-readme.toml" bash ./script/launcher.sh dry-run --tool codex
-Target Codex config: /tmp/codex-readme.toml
-Provider mode: simple
-Base URL: https://payg.nodenetwork.ovh/v1
-Model: gpt-5.4
-Auth env: OPENAI_API_KEY
-
-Dry run only. Planned Codex config:
-
-model = "gpt-5.4"
-openai_base_url = "https://payg.nodenetwork.ovh/v1"
-
-[model_providers]
-```
+Important boundary:
+- effective Google / Gemini-shaped route family still resolves under `v1beta`
+- the helper does **not** use ACP as the setup story anymore
+- shell helper can apply the managed env/profile path
+- PowerShell launcher remains dry-run-first, but the direct Gemini PowerShell helper can write the managed env/profile files
 
 ## Direct per-tool helpers
 
-Tool-specific scripts remain available when a direct tool path is clearer than the generic launcher.
-
-### Linux / macOS shell helpers
-
-These `.sh` helpers are the direct shell-side tool-specific entrypoints.
-
+Linux / macOS shell helpers:
 - `script/setup-claude-code-nodeclaw.sh`
+- `script/setup-gemini-cli-nodeclaw.sh`
 - `script/setup-codex-nodeclaw.sh`
 - `script/setup-openclaw-nodeclaw.sh`
 - `script/setup-opencode-nodeclaw.sh`
 - `script/setup-zed-nodeclaw.sh`
-- `script/setup-gemini-cli-nodeclaw.sh` — bounded Gemini CLI gateway contract preview only
 
-### Windows PowerShell helpers
-
-These `.ps1` helpers are the direct PowerShell-side tool-specific entrypoints.
-Current checked boundary: PowerShell remains scaffold-first and dry-run-only.
-
+Windows PowerShell helpers:
 - `script/setup-claude-code-nodeclaw.ps1`
+- `script/setup-gemini-cli-nodeclaw.ps1`
 - `script/setup-codex-nodeclaw.ps1`
 - `script/setup-openclaw-nodeclaw.ps1`
 - `script/setup-opencode-nodeclaw.ps1`
 - `script/setup-zed-nodeclaw.ps1`
-- `script/setup-gemini-cli-nodeclaw.ps1` — bounded Gemini CLI gateway contract preview only
-
-### Platform note
-
-- Linux and macOS share the same shell helper files.
-- Windows uses the PowerShell helper files.
-- If you want one generic cross-tool entrypoint, use `launcher.sh` or `launcher.ps1` instead.
 
 ## Current support boundary
 
+- Launcher remains the generic entrypoint.
 - Shell helper paths can apply changes where the checked script supports it.
-- PowerShell helper paths remain scaffold-first and dry-run-only.
-- Launcher help and wizard are now available, but they still reveal the real command flow and do not replace dry-run-first visibility.
-- Hosted remote install flow is not declared as fully live here yet.
-- `openclaw` helper requires the `openclaw` command to already exist in `PATH`.
-- `gemini-cli` is not a helper-capable target in this release surface; its checked current fit is manual-first / gateway-capable only.
-- Default checked NodeClaw base URL in several helpers is `https://payg.nodenetwork.ovh/v1`.
-- The checked public Google / Gemini-shaped lane uses `https://payg.nodenetwork.ovh/v1beta`.
-- Default checked model used in several helpers is `gpt-5.4`.
+- PowerShell launcher paths remain dry-run-first.
+- Gemini helper support is env/snippet/profile oriented, not file-mutation-first like some other tools.
+- `openclaw` still requires the local `openclaw` command to already exist in `PATH`.
+- Default checked OpenAI-compatible helper base in several tools is `https://payg.nodenetwork.ovh/v1`.
+- Gemini helper examples use the service root `https://payg.nodenetwork.ovh`, while the effective Google / Gemini-shaped route family still resolves under `v1beta`.
+- Default checked model used in several helpers remains `gpt-5.4` unless the target tool expects another provider-native model id.
 
 ## Recommended usage order
 
 1. Start from the main NodeClaw docs/product surface when you want the full context.
-2. Run `launcher.sh help` or `launcher.ps1 -Command help` first if you are unsure.
-3. Use `launcher.sh` or `launcher.ps1` as the generic helper entrypoint.
-4. Run `dry-run` first.
-5. Use `wizard` when you want a guided setup flow that still shows the real command and target file.
-6. Use direct per-tool scripts only when you want a more explicit tool-specific entrypoint.
+2. Use `launcher.sh` or `launcher.ps1` as the generic helper entrypoint.
+3. Run `dry-run` first.
+4. Use `wizard` when you want a guided setup flow that still shows the real command and target output.
+5. Use direct per-tool scripts only when you want a more explicit tool-specific entrypoint.
 
 ## Related release files
 

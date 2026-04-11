@@ -5,65 +5,74 @@
     "localPath": "/home/node/workplace/AWCLOUD/CLAUDE/NodeClaw-platform/script/",
     "commit": "8f3b421"
   },
-  "publishedAt": "2026-04-08",
+  "publishedAt": "2026-04-11",
   "notes": {
-    "geminiCli": "Visible in the public tool set with manual-first / gateway-capable wording only; not a launcher-helper target in the checked release surface."
+    "geminiCli": "Helper-guided env-first path. Set GOOGLE_GEMINI_BASE_URL=https://payg.nodenetwork.ovh and GEMINI_API_KEY=<nodeclaw_access_key>; the effective Google / Gemini-shaped route family still resolves under v1beta."
   },
   "files": [
     {
       "path": "script/launcher.sh",
-      "sha256": "a85e524319e8ae5375c7d982538e06c78522472b27effc0a5d18afcfa146aafb"
+      "sha256": "e83bb5ec57b6061cb0126e69b1705e2c0672c1a41f57581de3c5ab4220f33acc"
     },
     {
       "path": "script/launcher.ps1",
-      "sha256": "b3cc49ffebffbf7aab55725e40f9a49640d69813d973cba99a75c2ae14a80039"
-    },
-    {
-      "path": "script/setup-claude-code-nodeclaw.ps1",
-      "sha256": "641e7acca5023e84db2aaa41060c50e4df2bf995d35a309f422708bfa615424d"
+      "sha256": "db9dbafb335794c9471311cbf11b09b551ce253a1c50622e8f64a3d4a0deaa26"
     },
     {
       "path": "script/setup-claude-code-nodeclaw.sh",
       "sha256": "472100751e84198ba898a2d0264a13bf336723931bb18171e96ea281e74972de"
     },
     {
-      "path": "script/setup-codex-nodeclaw.ps1",
-      "sha256": "7f582599c5d084fc419ca8808b38a38b78bef8fd512bc73f105e1635023ecf94"
+      "path": "script/setup-claude-code-nodeclaw.ps1",
+      "sha256": "641e7acca5023e84db2aaa41060c50e4df2bf995d35a309f422708bfa615424d"
+    },
+    {
+      "path": "script/setup-gemini-cli-nodeclaw.sh",
+      "sha256": "d230010a9bf626c01c363a7cedb564a57557181fdc88a513cd0a92f7b9613044"
+    },
+    {
+      "path": "script/setup-gemini-cli-nodeclaw.ps1",
+      "sha256": "df7802ccf021bc44838f1a235df79ff9d71fcb255678453ff7c49b787cc44f86"
     },
     {
       "path": "script/setup-codex-nodeclaw.sh",
       "sha256": "b5e5145e181747b14ddabefbed4ee10302dc76585257454fb93d76d088645b18"
     },
     {
-      "path": "script/setup-openclaw-nodeclaw.ps1",
-      "sha256": "aed4b8feb8d1f5697dc8703bef25da848e32591b41261d840a34e29e8e29d257"
+      "path": "script/setup-codex-nodeclaw.ps1",
+      "sha256": "7f582599c5d084fc419ca8808b38a38b78bef8fd512bc73f105e1635023ecf94"
     },
     {
       "path": "script/setup-openclaw-nodeclaw.sh",
       "sha256": "2d0e23ec60d4b935b83c1937e52f23325c55090757a97b01ff78dc3110e2b641"
     },
     {
-      "path": "script/setup-opencode-nodeclaw.ps1",
-      "sha256": "619ab1f0e6be3658467ff1105b741c74fcfd16bbe95978ebbae3dc5699d8ba51"
+      "path": "script/setup-openclaw-nodeclaw.ps1",
+      "sha256": "aed4b8feb8d1f5697dc8703bef25da848e32591b41261d840a34e29e8e29d257"
     },
     {
       "path": "script/setup-opencode-nodeclaw.sh",
       "sha256": "59487222315c4f389a98b019ccb08391ac5a6a579519fcf061e78e9e9ca85ce6"
     },
     {
-      "path": "script/setup-zed-nodeclaw.ps1",
-      "sha256": "a17c3c7d1fc4c3cd7464877bee3301483af4909b0c187dea36b3e99e242c8f5e"
+      "path": "script/setup-opencode-nodeclaw.ps1",
+      "sha256": "619ab1f0e6be3658467ff1105b741c74fcfd16bbe95978ebbae3dc5699d8ba51"
     },
     {
       "path": "script/setup-zed-nodeclaw.sh",
       "sha256": "8f724fc90e574c0241d944f64ffc84843c39eedfb1e303c02a2a073b8a230115"
+    },
+    {
+      "path": "script/setup-zed-nodeclaw.ps1",
+      "sha256": "a17c3c7d1fc4c3cd7464877bee3301483af4909b0c187dea36b3e99e242c8f5e"
     }
   ],
-  "manualTargets": [
-    {
-      "id": "gemini-cli",
-      "support": "manual-first / gateway-capable",
-      "baseUrl": "https://payg.nodenetwork.ovh/v1beta"
-    }
+  "helperTargets": [
+    "claude-code",
+    "gemini-cli",
+    "codex",
+    "openclaw",
+    "opencode",
+    "zed"
   ]
 }

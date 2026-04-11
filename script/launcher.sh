@@ -94,7 +94,7 @@ describe_tool() {
       printf '%s\n' 'edits ~/.claude/settings.json and writes ANTHROPIC_* env values'
       ;;
     gemini-cli)
-      printf '%s\n' 'prints the bounded ACP gateway contract for Gemini CLI and keeps setup manual-first'
+      printf '%s\n' 'writes a managed Gemini env snippet/profile source block for the custom-endpoint path and keeps launch helper-guided'
       ;;
     codex)
       printf '%s\n' 'edits ~/.codex/config.toml and keeps auth in OPENAI_API_KEY'
@@ -120,7 +120,7 @@ describe_target() {
       printf '%s\n' '~/.claude/settings.json'
       ;;
     gemini-cli)
-      printf '%s\n' 'manual ACP gateway payload + optional ~/.gemini/settings.json auth-type selection'
+      printf '%s\n' '~/.gemini/nodeclaw-gemini-env.sh + shell profile source block'
       ;;
     codex)
       printf '%s\n' '~/.codex/config.toml'
@@ -174,7 +174,7 @@ Commands
 
   apply --tool <tool>
       Apply the config change for the selected tool.
-      Apply is currently supported for: claude-code, codex, openclaw, opencode, zed.
+      Apply is currently supported for: claude-code, gemini-cli, codex, openclaw, opencode, zed.
 
   wizard [--tool <tool>]
       Guided setup mode. Helps choose tool, shows what will change,
@@ -272,10 +272,6 @@ cmd_dry_run() {
 cmd_apply() {
   local tool target
   tool="$(parse_tool_flag "$@")"
-  if [ "$tool" = 'gemini-cli' ]; then
-    printf 'Gemini CLI remains manual-first / gateway-capable in the current checked scope. No helper-managed apply path exists.\n' >&2
-    exit 1
-  fi
   target="$(resolve_shell_target "$tool")"
   printf 'Launcher target: %s\n' "$target"
   bash "$target"
@@ -306,7 +302,13 @@ cmd_wizard() {
   printf '  [6] zed\n\n'
 
   local selection tool target run_cmd apply_now
-  selection="$(prompt_choice 'Select tool: ')"
+  if [ $# -gt 0 ]; then
+    tool="$(parse_tool_flag "$@")"
+    selection="$tool"
+    printf 'Preselected tool: %s\n' "$tool"
+  else
+    selection="$(prompt_choice 'Select tool: ')"
+  fi
 
   case "$selection" in
     1|claude-code) tool='claude-code' ;;
@@ -325,17 +327,6 @@ cmd_wizard() {
   printf '  Tool: %s\n' "$tool"
   printf '  Summary: %s\n' "$(describe_tool "$tool")"
   printf '  Target: %s\n' "$(describe_target "$tool")"
-
-  if [ "$tool" = 'gemini-cli' ]; then
-    printf '\nStep 3/4 — Preview first\n'
-    printf '  Gemini CLI stays manual-first / gateway-capable in the current checked scope.\n'
-    printf '  Launcher will show the bounded ACP gateway contract instead of applying helper-managed config.\n'
-    printf '\nRunning dry-run now...\n\n'
-    bash "$SCRIPT_DIR/setup-gemini-cli-nodeclaw.sh" --dry-run
-    printf '\nStep 4/4 — Apply\n'
-    printf '  No helper-managed apply path exists for Gemini CLI in the current checked scope.\n'
-    return
-  fi
 
   target="$(resolve_shell_target "$tool")"
 
@@ -405,7 +396,7 @@ main() {
       cmd_apply "$@"
       ;;
     wizard)
-      cmd_wizard
+      cmd_wizard "$@"
       ;;
     windows-dry-run)
       cmd_windows_dry_run "$@"
