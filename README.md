@@ -21,6 +21,7 @@ Helper-guided targets:
 - `claude-code`
 - `gemini-cli`
 - `codex`
+- `hermes`
 - `openclaw`
 - `opencode`
 - `zed`
@@ -32,8 +33,8 @@ Shell launcher:
 ```bash
 bash ./script/launcher.sh help
 bash ./script/launcher.sh list
-bash ./script/launcher.sh dry-run --tool <claude-code|gemini-cli|codex|openclaw|opencode|zed>
-bash ./script/launcher.sh apply --tool <claude-code|gemini-cli|codex|openclaw|opencode|zed>
+bash ./script/launcher.sh dry-run --tool <claude-code|gemini-cli|codex|hermes|openclaw|opencode|zed>
+bash ./script/launcher.sh apply --tool <claude-code|gemini-cli|codex|hermes|openclaw|opencode|zed>
 bash ./script/launcher.sh wizard
 ```
 
@@ -43,6 +44,8 @@ Remote launcher-first usage:
 curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- wizard
 curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool gemini-cli
 curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- apply --tool gemini-cli
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool hermes
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- apply --tool hermes
 ```
 
 PowerShell launcher:
@@ -50,7 +53,7 @@ PowerShell launcher:
 ```powershell
 .\script\launcher.ps1 -Command help
 .\script\launcher.ps1 -Command list
-.\script\launcher.ps1 -Command dry-run -Tool <claude-code|gemini-cli|codex|openclaw|opencode|zed>
+.\script\launcher.ps1 -Command dry-run -Tool <claude-code|gemini-cli|codex|hermes|openclaw|opencode|zed>
 .\script\launcher.ps1 -Command wizard
 ```
 
@@ -105,12 +108,38 @@ Important boundary:
 - shell helper can apply the managed env/profile path
 - PowerShell launcher remains dry-run-first, but the direct Gemini PowerShell helper can write the managed env/profile files
 
+## Hermes helper path
+
+`hermes` now has a dedicated helper-guided profile path for the NodeClaw custom endpoint.
+
+Primary helper contract:
+
+```bash
+export HERMES_NODECLAW_API_KEY="<nodeclaw_access_key>"
+bash ./script/setup-hermes-nodeclaw.sh --dry-run
+bash ./script/setup-hermes-nodeclaw.sh
+```
+
+What the helper manages:
+- one dedicated Hermes profile such as `~/.hermes/profiles/nodeclaw-hermes`
+- profile-local `.env`
+- profile-local `config.yaml`
+- profile-local `SOUL.md`
+- optional clone-based bootstrap from another Hermes profile before the NodeClaw-specific files are rewritten
+
+Important boundary:
+- the helper assumes Hermes profiles are separate Hermes home directories
+- the first-wave helper target is still inventory-first and does not by itself promote Hermes into Home or the main `/docs` onboarding flow
+- PowerShell launcher stays dry-run-first, but the direct Hermes PowerShell helper can write the profile-local files now
+- this release wave does not claim that Hermes has been installed or live-tested against a real target service yet; the current proof boundary is docs-first + helper-payload accuracy
+
 ## Direct per-tool helpers
 
 Linux / macOS shell helpers:
 - `script/setup-claude-code-nodeclaw.sh`
 - `script/setup-gemini-cli-nodeclaw.sh`
 - `script/setup-codex-nodeclaw.sh`
+- `script/setup-hermes-nodeclaw.sh`
 - `script/setup-openclaw-nodeclaw.sh`
 - `script/setup-opencode-nodeclaw.sh`
 - `script/setup-zed-nodeclaw.sh`
@@ -119,6 +148,7 @@ Windows PowerShell helpers:
 - `script/setup-claude-code-nodeclaw.ps1`
 - `script/setup-gemini-cli-nodeclaw.ps1`
 - `script/setup-codex-nodeclaw.ps1`
+- `script/setup-hermes-nodeclaw.ps1`
 - `script/setup-openclaw-nodeclaw.ps1`
 - `script/setup-opencode-nodeclaw.ps1`
 - `script/setup-zed-nodeclaw.ps1`
@@ -129,7 +159,9 @@ Windows PowerShell helpers:
 - Shell helper paths can apply changes where the checked script supports it.
 - PowerShell launcher paths remain dry-run-first.
 - Gemini helper support is env/snippet/profile oriented, not file-mutation-first like some other tools.
+- Hermes helper support is profile-local and writes `.env` / `config.yaml` / `SOUL.md` for one dedicated Hermes home/profile path.
 - `openclaw` still requires the local `openclaw` command to already exist in `PATH`.
+- `hermes` helper needs the local `hermes` command when apply mode is used for real profile creation outside a custom-home-only write path.
 - Default checked OpenAI-compatible helper base in several tools is `https://payg.nodenetwork.ovh/v1`.
 - Gemini helper examples use the service root `https://payg.nodenetwork.ovh`, while the effective Google / Gemini-shaped route family still resolves under `v1beta`.
 - Default checked model used in several helpers remains `gpt-5.4` unless the target tool expects another provider-native model id.

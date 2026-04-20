@@ -89,6 +89,7 @@
             <span class="pill">claude-code</span>
             <span class="pill">gemini-cli</span>
             <span class="pill">codex</span>
+            <span class="pill">hermes</span>
             <span class="pill">openclaw</span>
             <span class="pill">opencode</span>
             <span class="pill">zed</span>
@@ -101,12 +102,14 @@
             <li>Shell helper paths can apply changes where the checked script supports it.</li>
             <li>PowerShell launcher paths remain scaffold-first and dry-run-only.</li>
             <li><code>gemini-cli</code> helper support is env/snippet/profile oriented.</li>
+            <li><code>hermes</code> helper support is profile-local and writes <code>.env</code>, <code>config.yaml</code>, and <code>SOUL.md</code> for one dedicated Hermes profile path.</li>
             <li><code>openclaw</code> still requires the local <code>openclaw</code> command in <code>PATH</code>.</li>
           </ul>
           <ul data-lang="th">
             <li>ฝั่ง shell สามารถ apply ได้ในจุดที่สคริปต์ที่ตรวจรองรับจริง</li>
             <li>launcher ฝั่ง PowerShell ยังเป็น scaffold-first และ dry-run-only</li>
             <li>helper ของ <code>gemini-cli</code> เป็นแนวจัดการ env/snippet/profile</li>
+            <li>helper ของ <code>hermes</code> จะเขียน <code>.env</code>, <code>config.yaml</code> และ <code>SOUL.md</code> ให้ใน profile path เฉพาะของ Hermes</li>
             <li><code>openclaw</code> ยังต้องมีคำสั่ง <code>openclaw</code> อยู่ใน <code>PATH</code></li>
           </ul>
         </section>
@@ -117,7 +120,9 @@
         <h2 data-lang="th">Quick start</h2>
         <pre><code>curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- wizard
 curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool gemini-cli
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- apply --tool gemini-cli</code></pre>
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- apply --tool gemini-cli
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool hermes
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- apply --tool hermes</code></pre>
         <p class="muted" data-lang="en">Remote usage should call launcher only. Launcher fetches the helper payload it needs automatically.</p>
         <p class="muted" data-lang="th">การใช้งานแบบ remote ควรเรียก launcher อย่างเดียว แล้ว launcher จะไปดึง helper payload ที่ต้องใช้ให้อัตโนมัติ</p>
         <pre><code>powershell -ExecutionPolicy Bypass -c "irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"</code></pre>
@@ -162,6 +167,25 @@ gemini</code></pre>
       </section>
 
       <section class="card" style="margin-top:18px;">
+        <h2 data-lang="en">Hermes helper path</h2>
+        <h2 data-lang="th">เส้นทาง helper ของ Hermes</h2>
+        <div data-lang="en">
+          <p>Primary helper contract:</p>
+          <pre><code>export HERMES_NODECLAW_API_KEY="&lt;nodeclaw_access_key&gt;"
+bash ./script/setup-hermes-nodeclaw.sh --dry-run
+bash ./script/setup-hermes-nodeclaw.sh</code></pre>
+          <p class="muted">The helper creates or updates a dedicated Hermes profile path and writes profile-local <code>.env</code>, <code>config.yaml</code>, and <code>SOUL.md</code> for the NodeClaw custom endpoint contract. This release does not claim live Hermes installation or real endpoint proof yet.</p>
+        </div>
+        <div data-lang="th">
+          <p>เส้นทางหลักของ helper:</p>
+          <pre><code>export HERMES_NODECLAW_API_KEY="&lt;nodeclaw_access_key&gt;"
+bash ./script/setup-hermes-nodeclaw.sh --dry-run
+bash ./script/setup-hermes-nodeclaw.sh</code></pre>
+          <p class="muted">helper จะสร้างหรืออัปเดต profile path ของ Hermes โดยเขียน <code>.env</code>, <code>config.yaml</code> และ <code>SOUL.md</code> แบบ profile-local สำหรับ contract ของ custom endpoint ฝั่ง NodeClaw โดย release รอบนี้ยังไม่ได้อ้างว่า install Hermes จริงหรือพิสูจน์ endpoint จริงแล้ว</p>
+        </div>
+      </section>
+
+      <section class="card" style="margin-top:18px;">
         <h2 data-lang="en">Launcher entrypoints</h2>
         <h2 data-lang="th">Launcher entrypoints</h2>
         <div class="downloads">
@@ -184,6 +208,7 @@ gemini</code></pre>
           <a class="download" href="./script/setup-claude-code-nodeclaw.sh">setup-claude-code-nodeclaw.sh<small data-lang="en">Claude Code shell helper</small><small data-lang="th">helper ฝั่ง shell สำหรับ Claude Code</small></a>
           <a class="download" href="./script/setup-gemini-cli-nodeclaw.sh">setup-gemini-cli-nodeclaw.sh<small data-lang="en">Gemini CLI shell helper</small><small data-lang="th">helper ฝั่ง shell สำหรับ Gemini CLI</small></a>
           <a class="download" href="./script/setup-codex-nodeclaw.sh">setup-codex-nodeclaw.sh<small data-lang="en">Codex shell helper</small><small data-lang="th">helper ฝั่ง shell สำหรับ Codex</small></a>
+          <a class="download" href="./script/setup-hermes-nodeclaw.sh">setup-hermes-nodeclaw.sh<small data-lang="en">Hermes shell helper</small><small data-lang="th">helper ฝั่ง shell สำหรับ Hermes</small></a>
           <a class="download" href="./script/setup-openclaw-nodeclaw.sh">setup-openclaw-nodeclaw.sh<small data-lang="en">OpenClaw shell helper</small><small data-lang="th">helper ฝั่ง shell สำหรับ OpenClaw</small></a>
           <a class="download" href="./script/setup-opencode-nodeclaw.sh">setup-opencode-nodeclaw.sh<small data-lang="en">OpenCode shell helper</small><small data-lang="th">helper ฝั่ง shell สำหรับ OpenCode</small></a>
           <a class="download" href="./script/setup-zed-nodeclaw.sh">setup-zed-nodeclaw.sh<small data-lang="en">Zed shell helper</small><small data-lang="th">helper ฝั่ง shell สำหรับ Zed</small></a>
@@ -197,6 +222,7 @@ gemini</code></pre>
           <a class="download" href="./script/setup-claude-code-nodeclaw.ps1">setup-claude-code-nodeclaw.ps1<small data-lang="en">Claude Code PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ Claude Code</small></a>
           <a class="download" href="./script/setup-gemini-cli-nodeclaw.ps1">setup-gemini-cli-nodeclaw.ps1<small data-lang="en">Gemini CLI PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ Gemini CLI</small></a>
           <a class="download" href="./script/setup-codex-nodeclaw.ps1">setup-codex-nodeclaw.ps1<small data-lang="en">Codex PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ Codex</small></a>
+          <a class="download" href="./script/setup-hermes-nodeclaw.ps1">setup-hermes-nodeclaw.ps1<small data-lang="en">Hermes PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ Hermes</small></a>
           <a class="download" href="./script/setup-openclaw-nodeclaw.ps1">setup-openclaw-nodeclaw.ps1<small data-lang="en">OpenClaw PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ OpenClaw</small></a>
           <a class="download" href="./script/setup-opencode-nodeclaw.ps1">setup-opencode-nodeclaw.ps1<small data-lang="en">OpenCode PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ OpenCode</small></a>
           <a class="download" href="./script/setup-zed-nodeclaw.ps1">setup-zed-nodeclaw.ps1<small data-lang="en">Zed PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ Zed</small></a>

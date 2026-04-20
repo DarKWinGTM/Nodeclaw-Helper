@@ -14,7 +14,7 @@ $LauncherScriptRoot = if ($LauncherHasLocalScriptPath) { Split-Path -Parent $Lau
     $ScriptPath = $LauncherScriptPath
     $HasLocalScriptPath = $LauncherHasLocalScriptPath
     $ScriptRoot = $LauncherScriptRoot
-    $SupportedTools = @('claude-code', 'gemini-cli', 'codex', 'openclaw', 'opencode', 'zed')
+    $SupportedTools = @('claude-code', 'gemini-cli', 'codex', 'hermes', 'openclaw', 'opencode', 'zed')
     $HelperBaseUrl = if ($env:NODECLAW_HELPER_BASE_URL) { $env:NODECLAW_HELPER_BASE_URL } else { 'https://darkwingtm.github.io/Nodeclaw-Helper/script' }
     $HelperCacheRoot = if ($env:NODECLAW_HELPER_CACHE_DIR) { $env:NODECLAW_HELPER_CACHE_DIR } elseif ($env:XDG_CACHE_HOME) { Join-Path $env:XDG_CACHE_HOME 'nodeclaw-helper' } else { Join-Path $HOME '.cache/nodeclaw-helper' }
 
@@ -35,7 +35,7 @@ Recommended flow
 
 Usage:
   .\script\launcher.ps1 -Command list
-  .\script\launcher.ps1 -Command dry-run -Tool <claude-code|gemini-cli|codex|openclaw|opencode|zed>
+  .\script\launcher.ps1 -Command dry-run -Tool <claude-code|gemini-cli|codex|hermes|openclaw|opencode|zed>
   .\script\launcher.ps1 -Command wizard
 
 Remote example:
@@ -45,7 +45,8 @@ Notes:
 - PowerShell helper paths remain scaffold-first and dry-run-only in the current checked scope.
 - Remote launcher usage can fetch the helper payload it needs automatically.
 - Use direct per-tool scripts if you want a tool-specific entrypoint.
-- Gemini CLI stays manual-first, but the launcher can now preview or apply the helper-guided custom-endpoint env setup instead of routing users through ACP wording.
+- Gemini CLI stays helper-guided on the checked env-first path.
+- Hermes currently has a helper-guided profile-local setup target that the launcher can preview through the same entrypoint family.
 "@
     }
 
@@ -56,6 +57,7 @@ Notes:
             'claude-code' { return (Join-Path $ScriptRoot 'setup-claude-code-nodeclaw.ps1') }
             'gemini-cli' { return (Join-Path $ScriptRoot 'setup-gemini-cli-nodeclaw.ps1') }
             'codex' { return (Join-Path $ScriptRoot 'setup-codex-nodeclaw.ps1') }
+            'hermes' { return (Join-Path $ScriptRoot 'setup-hermes-nodeclaw.ps1') }
             'openclaw' { return (Join-Path $ScriptRoot 'setup-openclaw-nodeclaw.ps1') }
             'opencode' { return (Join-Path $ScriptRoot 'setup-opencode-nodeclaw.ps1') }
             'zed' { return (Join-Path $ScriptRoot 'setup-zed-nodeclaw.ps1') }
@@ -94,6 +96,7 @@ Notes:
             'claude-code' { return 'edits ~/.claude/settings.json and writes ANTHROPIC_* env values' }
             'gemini-cli' { return 'writes a managed Gemini env snippet/profile source block for the custom-endpoint path and keeps launch helper-guided' }
             'codex' { return 'edits ~/.codex/config.toml and keeps auth in OPENAI_API_KEY' }
+            'hermes' { return 'creates or updates a dedicated Hermes profile with profile-local .env, config.yaml, and SOUL.md for the NodeClaw custom endpoint path' }
             'openclaw' { return 'runs the OpenClaw onboard flow and validates the resulting config' }
             'opencode' { return 'edits opencode.json provider/model configuration' }
             'zed' { return 'edits the Zed settings file selected through ZED_SETTINGS_PATH' }
@@ -108,6 +111,7 @@ Notes:
             'claude-code' { return '~/.claude/settings.json' }
             'gemini-cli' { return '~/.gemini/nodeclaw-gemini-env.ps1 + PowerShell profile source block' }
             'codex' { return '~/.codex/config.toml' }
+            'hermes' { return '~/.hermes or ~/.hermes/profiles/<profile> with profile-local .env, config.yaml, and SOUL.md' }
             'openclaw' { return 'OpenClaw onboard command flow + resulting OpenClaw config' }
             'opencode' { return '~/.config/opencode/opencode.json' }
             'zed' { return 'ZED_SETTINGS_PATH target file' }
@@ -132,7 +136,7 @@ Notes:
                 }
                 '-Tool' {
                     if ($i + 1 -ge $RawArgs.Length) {
-                        throw 'Set -Tool to one of: claude-code, codex, openclaw, opencode, zed.'
+                        throw 'Set -Tool to one of: claude-code, gemini-cli, codex, hermes, openclaw, opencode, zed.'
                     }
                     $i++
                     $resolvedTool = $RawArgs[$i]
@@ -202,9 +206,10 @@ Notes:
         Write-Host '  [1] claude-code'
         Write-Host '  [2] gemini-cli'
         Write-Host '  [3] codex'
-        Write-Host '  [4] openclaw'
-        Write-Host '  [5] opencode'
-        Write-Host '  [6] zed'
+        Write-Host '  [4] hermes'
+        Write-Host '  [5] openclaw'
+        Write-Host '  [6] opencode'
+        Write-Host '  [7] zed'
         Write-Host ''
 
         $Selection = if ([string]::IsNullOrWhiteSpace($Tool)) { Read-Host 'Select tool' } else { $Tool }
@@ -212,12 +217,14 @@ Notes:
             '1' { $Tool = 'claude-code' }
             '2' { $Tool = 'gemini-cli' }
             '3' { $Tool = 'codex' }
-            '4' { $Tool = 'openclaw' }
-            '5' { $Tool = 'opencode' }
-            '6' { $Tool = 'zed' }
+            '4' { $Tool = 'hermes' }
+            '5' { $Tool = 'openclaw' }
+            '6' { $Tool = 'opencode' }
+            '7' { $Tool = 'zed' }
             'claude-code' { $Tool = 'claude-code' }
             'gemini-cli' { $Tool = 'gemini-cli' }
             'codex' { $Tool = 'codex' }
+            'hermes' { $Tool = 'hermes' }
             'openclaw' { $Tool = 'openclaw' }
             'opencode' { $Tool = 'opencode' }
             'zed' { $Tool = 'zed' }

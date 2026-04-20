@@ -39,7 +39,7 @@ Current checked truth:
 - the site can expose launcher help, wizard guidance, and direct helper downloads
 - the remote contract should call launcher only; launcher may fetch the helper payload it needs automatically
 - hosted remote `curl | bash` wording remains placeholder-scoped until the published launcher URLs are locked strongly enough for promotion
-- additional public tools may still be mentioned here when the evidence is strong enough, but manual-first / gateway-capable entries such as `Gemini CLI` must not be described as launcher-helper-capable
+- additional public tools may still be mentioned here when the evidence is strong enough; current helper-guided targets such as `Gemini CLI` and `Hermes` may be described as launcher-helper-capable only to the extent already verified by the checked helper payloads and docs surface
 
 Current not-yet-proven truth:
 - a single-file hosted launcher/bootstrap contract is not yet verified strongly enough to be promoted as a live hero quick-start path on Home and `/docs`

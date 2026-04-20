@@ -8,16 +8,17 @@
   "publishedAt": "2026-04-11",
   "notes": {
     "claudeCode": "Helper-guided env-first path through ~/.claude/settings.json. The checked env contract is ANTHROPIC_BASE_URL=https://payg.nodenetwork.ovh/v1 plus ANTHROPIC_AUTH_TOKEN=<nodeclaw_access_key>.",
-    "geminiCli": "Helper-guided env-first path. Set GOOGLE_GEMINI_BASE_URL=https://payg.nodenetwork.ovh and GEMINI_API_KEY=<nodeclaw_access_key>; the effective Google / Gemini-shaped route family still resolves under v1beta."
+    "geminiCli": "Helper-guided env-first path. Set GOOGLE_GEMINI_BASE_URL=https://payg.nodenetwork.ovh and GEMINI_API_KEY=<nodeclaw_access_key>; the effective Google / Gemini-shaped route family still resolves under v1beta.",
+    "hermes": "Helper-guided profile-local path. Create or update a dedicated Hermes profile under ~/.hermes/profiles/<profile> with profile-local .env, config.yaml, and SOUL.md, then point the main model route at the NodeClaw custom endpoint via the profile env/config contract."
   },
   "files": [
     {
       "path": "script/launcher.sh",
-      "sha256": "e83bb5ec57b6061cb0126e69b1705e2c0672c1a41f57581de3c5ab4220f33acc"
+      "sha256": "7cd417f11f061a9b7d61701188f5d0dcf51d7742cd512d8c588f6663b889ea7d"
     },
     {
       "path": "script/launcher.ps1",
-      "sha256": "db9dbafb335794c9471311cbf11b09b551ce253a1c50622e8f64a3d4a0deaa26"
+      "sha256": "47219e0f3eb55a0147992c0f32dd1743cb6c252a00de41ce10c61c3bb0c2224d"
     },
     {
       "path": "script/setup-claude-code-nodeclaw.sh",
@@ -66,12 +67,21 @@
     {
       "path": "script/setup-zed-nodeclaw.ps1",
       "sha256": "a17c3c7d1fc4c3cd7464877bee3301483af4909b0c187dea36b3e99e242c8f5e"
+    },
+    {
+      "path": "script/setup-hermes-nodeclaw.sh",
+      "sha256": "c05460465aa16d3376f25d62e2f9b0186e32975d2b0b30b3e873325419b8b646"
+    },
+    {
+      "path": "script/setup-hermes-nodeclaw.ps1",
+      "sha256": "463616ed82a87c8299d5882877352b1f9ecd7df1ffb160fd2842585acc483c94"
     }
   ],
   "helperTargets": [
     "claude-code",
     "gemini-cli",
     "codex",
+    "hermes",
     "openclaw",
     "opencode",
     "zed"

@@ -7,7 +7,7 @@ if [ -n "$SCRIPT_SOURCE" ]; then
 else
   SCRIPT_DIR="$(pwd)"
 fi
-TOOLS=("claude-code" "gemini-cli" "opencode" "openclaw" "zed" "codex")
+TOOLS=("claude-code" "gemini-cli" "opencode" "openclaw" "zed" "codex" "hermes")
 HELPER_BASE_URL="${NODECLAW_HELPER_BASE_URL:-https://darkwingtm.github.io/Nodeclaw-Helper/script}"
 HELPER_CACHE_DIR="${NODECLAW_HELPER_CACHE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/nodeclaw-helper}"
 
@@ -30,6 +30,9 @@ get_shell_target() {
       ;;
     codex)
       printf '%s\n' "$SCRIPT_DIR/setup-codex-nodeclaw.sh"
+      ;;
+    hermes)
+      printf '%s\n' "$SCRIPT_DIR/setup-hermes-nodeclaw.sh"
       ;;
     *)
       printf 'Unsupported tool: %s\n' "$1" >&2
@@ -99,6 +102,9 @@ describe_tool() {
     codex)
       printf '%s\n' 'edits ~/.codex/config.toml and keeps auth in OPENAI_API_KEY'
       ;;
+    hermes)
+      printf '%s\n' 'creates or updates a dedicated Hermes profile with profile-local .env, config.yaml, and SOUL.md for the NodeClaw custom endpoint path'
+      ;;
     openclaw)
       printf '%s\n' 'runs the OpenClaw onboard flow and validates the resulting config'
       ;;
@@ -124,6 +130,9 @@ describe_target() {
       ;;
     codex)
       printf '%s\n' '~/.codex/config.toml'
+      ;;
+    hermes)
+      printf '%s\n' '~/.hermes or ~/.hermes/profiles/<profile> with profile-local .env, config.yaml, and SOUL.md'
       ;;
     openclaw)
       printf '%s\n' 'OpenClaw onboard command flow + resulting OpenClaw config'
@@ -163,6 +172,7 @@ Remote examples
   curl -fsSL <nodeclaw-launcher-url> | bash -s -- dry-run --tool claude-code
   curl -fsSL <nodeclaw-launcher-url> | bash -s -- apply --tool claude-code
   curl -fsSL <nodeclaw-launcher-url> | bash -s -- dry-run --tool gemini-cli
+  curl -fsSL <nodeclaw-launcher-url> | bash -s -- dry-run --tool hermes
 
 Commands
   list
@@ -170,11 +180,11 @@ Commands
 
   dry-run --tool <tool>
       Preview the exact config change without writing files.
-      Supported tools: claude-code, gemini-cli, codex, openclaw, opencode, zed.
+      Supported tools: claude-code, gemini-cli, codex, hermes, openclaw, opencode, zed.
 
   apply --tool <tool>
       Apply the config change for the selected tool.
-      Apply is currently supported for: claude-code, gemini-cli, codex, openclaw, opencode, zed.
+      Apply is currently supported for: claude-code, gemini-cli, codex, hermes, openclaw, opencode, zed.
 
   wizard [--tool <tool>]
       Guided setup mode. Helps choose tool, shows what will change,
@@ -297,9 +307,10 @@ cmd_wizard() {
   printf '  [1] claude-code\n'
   printf '  [2] gemini-cli\n'
   printf '  [3] codex\n'
-  printf '  [4] openclaw\n'
-  printf '  [5] opencode\n'
-  printf '  [6] zed\n\n'
+  printf '  [4] hermes\n'
+  printf '  [5] openclaw\n'
+  printf '  [6] opencode\n'
+  printf '  [7] zed\n\n'
 
   local selection tool target run_cmd apply_now
   if [ $# -gt 0 ]; then
@@ -314,9 +325,10 @@ cmd_wizard() {
     1|claude-code) tool='claude-code' ;;
     2|gemini-cli) tool='gemini-cli' ;;
     3|codex) tool='codex' ;;
-    4|openclaw) tool='openclaw' ;;
-    5|opencode) tool='opencode' ;;
-    6|zed) tool='zed' ;;
+    4|hermes) tool='hermes' ;;
+    5|openclaw) tool='openclaw' ;;
+    6|opencode) tool='opencode' ;;
+    7|zed) tool='zed' ;;
     *)
       printf 'Unsupported selection: %s\n' "$selection" >&2
       exit 1
