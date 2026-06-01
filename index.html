@@ -56,10 +56,14 @@
       .switch input:checked + .slider::before { transform: translateX(24px); background: #dbeafe; }
       .mode-badge { display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 6px 10px; border-radius: 999px; border: 1px solid var(--line); background: rgba(2, 6, 23, 0.5); color: #dbeafe; font-size: 0.9rem; }
       .mode-stack { display: grid; gap: 18px; }
-      .example-group-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
-      .example-group-card { display: grid; gap: 10px; padding: 14px; border-radius: 14px; border: 1px solid var(--line); background: rgba(15, 23, 42, 0.72); }
-      .example-group-label { margin: 0; font-weight: 700; }
-      .example-group-sub { margin: 0; color: var(--muted); font-size: 0.92rem; }
+      .launcher-tool-rows { display: grid; gap: 14px; }
+      .launcher-tool-row { display: grid; gap: 14px; padding: 16px; border-radius: 14px; border: 1px solid var(--line); background: rgba(15, 23, 42, 0.72); }
+      .launcher-tool-header { display: grid; gap: 6px; }
+      .launcher-tool-label { margin: 0; font-weight: 700; }
+      .launcher-tool-sub { margin: 0; color: var(--muted); font-size: 0.92rem; }
+      .launcher-command-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+      .launcher-command-column { display: grid; gap: 8px; }
+      .launcher-command-label { margin: 0; color: #dbeafe; font-size: 0.92rem; font-weight: 600; }
       [data-lang] { display:none; }
       html.lang-en [data-lang="en"], html.lang-th [data-lang="th"] { display:block; }
     </style>
@@ -175,15 +179,11 @@
 
         <div class="mode-stack">
           <div>
-            <p class="muted" data-lang="en">Remote shell launcher examples</p>
-            <p class="muted" data-lang="th">ตัวอย่าง remote shell launcher</p>
-            <div id="quick-start-shell-groups" class="example-group-grid"></div>
-          </div>
-
-          <div>
-            <p class="muted" data-lang="en">Remote PowerShell launcher examples</p>
-            <p class="muted" data-lang="th">ตัวอย่าง remote PowerShell launcher</p>
-            <div id="quick-start-powershell-groups" class="example-group-grid"></div>
+            <p class="muted" data-lang="en">Remote launcher examples by tool</p>
+            <p class="muted" data-lang="th">ตัวอย่าง remote launcher แยกตามเครื่องมือ</p>
+            <p class="muted" data-lang="en">Each tool now stays in one vertical row so shell and PowerShell commands live together and the release page is easier to maintain.</p>
+            <p class="muted" data-lang="th">ตอนนี้แต่ละเครื่องมือจะอยู่ในแถวแนวตั้งของตัวเอง เพื่อให้ shell และ PowerShell อยู่ด้วยกันและดูแลง่ายกว่าเดิม</p>
+            <div id="quick-start-tool-rows" class="launcher-tool-rows"></div>
           </div>
         </div>
 
@@ -323,398 +323,312 @@ gemini</code></pre>
             th: 'ตอนนี้จะแสดงตัวอย่าง Cloudflare-protected เฉพาะ tools ที่ตรวจแล้วว่าใช้ได้ ส่วน Gemini จะคงอยู่บนเส้นทาง direct/native ตาม checked scope ปัจจุบัน',
           },
         },
-        quickStart: {
-          direct: {
-            shell: [
-              {
-                label: { en: 'Wizard', th: 'Wizard' },
-                hint: {
-                  en: 'Use the guided launcher flow when you want the tool choice inside the wizard.',
-                  th: 'ใช้ flow แบบ guided launcher เมื่อต้องการเลือก tool ภายใน wizard',
-                },
-                lines: [
-                  `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
-                  '  wizard',
-                ],
-              },
-              {
-                label: { en: 'Claude Code CLI', th: 'Claude Code CLI' },
-                lines: [
-                  `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
-                  '  dry-run \\',
-                  '  --tool claude-code',
-                ],
-              },
-              {
-                label: { en: 'Codex', th: 'Codex' },
-                lines: [
-                  `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
-                  '  dry-run \\',
-                  '  --tool codex',
-                ],
-              },
-              {
-                label: { en: 'Zed', th: 'Zed' },
-                lines: [
-                  `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
-                  '  dry-run \\',
-                  '  --tool zed',
-                ],
-              },
-              {
-                label: { en: 'OpenClaw', th: 'OpenClaw' },
-                hint: {
-                  en: 'Cloudflare is allowed only when compatibility resolves to openai or anthropic.',
-                  th: 'Cloudflare ใช้ได้เมื่อ compatibility resolve เป็น openai หรือ anthropic เท่านั้น',
-                },
-                lines: [
-                  `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
-                  '  dry-run \\',
-                  '  --tool openclaw',
-                ],
-              },
-              {
-                label: { en: 'Gemini CLI', th: 'Gemini CLI' },
-                hint: {
-                  en: 'Direct-only in the current checked scope because the effective route family still stays on v1beta.',
-                  th: 'เป็น direct-only ใน checked scope ปัจจุบัน เพราะ effective route family ยังอยู่บน v1beta',
-                },
-                lines: [
-                  `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
-                  '  dry-run \\',
-                  '  --tool gemini-cli',
-                ],
-              },
-              {
-                label: { en: 'OpenCode', th: 'OpenCode' },
-                hint: {
-                  en: 'Uses the checked custom-provider-root story rather than a second compatibility doctrine.',
-                  th: 'ใช้ checked custom-provider-root story เดิม โดยไม่เปิด doctrine compatibility ชุดที่สอง',
-                },
-                lines: [
-                  `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
-                  '  dry-run \\',
-                  '  --tool opencode',
-                ],
-              },
-              {
-                label: { en: 'Hermes', th: 'Hermes' },
-                hint: {
-                  en: 'Keeps the same profile-local custom-provider-root story in direct mode.',
-                  th: 'คง profile-local custom-provider-root story เดิมไว้ใน direct mode',
-                },
-                lines: [
-                  `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
-                  '  dry-run \\',
-                  '  --tool hermes',
-                ],
-              },
-            ],
-            powershell: [
-              {
-                label: { en: 'Wizard', th: 'Wizard' },
-                hint: {
-                  en: 'Use the guided launcher flow when you want the tool choice inside the wizard.',
-                  th: 'ใช้ flow แบบ guided launcher เมื่อต้องการเลือก tool ภายใน wizard',
-                },
-                lines: [
-                  'powershell -ExecutionPolicy Bypass -c "',
-                  "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
-                  `  irm ${LAUNCHER_PS1} | iex`,
-                  '"',
-                ],
-              },
-              {
-                label: { en: 'Claude Code CLI', th: 'Claude Code CLI' },
-                lines: [
-                  'powershell -ExecutionPolicy Bypass -c "',
-                  "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
-                  "  $env:NODECLAW_LAUNCHER_TOOL='claude-code'",
-                  `  irm ${LAUNCHER_PS1} | iex`,
-                  '"',
-                ],
-              },
-              {
-                label: { en: 'Codex', th: 'Codex' },
-                lines: [
-                  'powershell -ExecutionPolicy Bypass -c "',
-                  "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
-                  "  $env:NODECLAW_LAUNCHER_TOOL='codex'",
-                  `  irm ${LAUNCHER_PS1} | iex`,
-                  '"',
-                ],
-              },
-              {
-                label: { en: 'Zed', th: 'Zed' },
-                lines: [
-                  'powershell -ExecutionPolicy Bypass -c "',
-                  "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
-                  "  $env:NODECLAW_LAUNCHER_TOOL='zed'",
-                  `  irm ${LAUNCHER_PS1} | iex`,
-                  '"',
-                ],
-              },
-              {
-                label: { en: 'OpenClaw', th: 'OpenClaw' },
-                hint: {
-                  en: 'Cloudflare is allowed only when compatibility resolves to openai or anthropic.',
-                  th: 'Cloudflare ใช้ได้เมื่อ compatibility resolve เป็น openai หรือ anthropic เท่านั้น',
-                },
-                lines: [
-                  'powershell -ExecutionPolicy Bypass -c "',
-                  "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
-                  "  $env:NODECLAW_LAUNCHER_TOOL='openclaw'",
-                  `  irm ${LAUNCHER_PS1} | iex`,
-                  '"',
-                ],
-              },
-              {
-                label: { en: 'Gemini CLI', th: 'Gemini CLI' },
-                hint: {
-                  en: 'Direct-only in the current checked scope because the effective route family still stays on v1beta.',
-                  th: 'เป็น direct-only ใน checked scope ปัจจุบัน เพราะ effective route family ยังอยู่บน v1beta',
-                },
-                lines: [
-                  'powershell -ExecutionPolicy Bypass -c "',
-                  "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
-                  "  $env:NODECLAW_LAUNCHER_TOOL='gemini-cli'",
-                  `  irm ${LAUNCHER_PS1} | iex`,
-                  '"',
-                ],
-              },
-              {
-                label: { en: 'OpenCode', th: 'OpenCode' },
-                hint: {
-                  en: 'Uses the checked custom-provider-root story rather than a second compatibility doctrine.',
-                  th: 'ใช้ checked custom-provider-root story เดิม โดยไม่เปิด doctrine compatibility ชุดที่สอง',
-                },
-                lines: [
-                  'powershell -ExecutionPolicy Bypass -c "',
-                  "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
-                  "  $env:NODECLAW_LAUNCHER_TOOL='opencode'",
-                  `  irm ${LAUNCHER_PS1} | iex`,
-                  '"',
-                ],
-              },
-              {
-                label: { en: 'Hermes', th: 'Hermes' },
-                hint: {
-                  en: 'Keeps the same profile-local custom-provider-root story in direct mode.',
-                  th: 'คง profile-local custom-provider-root story เดิมไว้ใน direct mode',
-                },
-                lines: [
-                  'powershell -ExecutionPolicy Bypass -c "',
-                  "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
-                  "  $env:NODECLAW_LAUNCHER_TOOL='hermes'",
-                  `  irm ${LAUNCHER_PS1} | iex`,
-                  '"',
-                ],
-              },
-            ],
+        quickStartRows: [
+          {
+            id: 'wizard',
+            label: { en: 'Wizard', th: 'Wizard' },
+            hint: {
+              en: 'Use the guided launcher flow when you want the tool choice inside the wizard.',
+              th: 'ใช้ flow แบบ guided launcher เมื่อต้องการเลือก tool ภายใน wizard',
+            },
+            shell: {
+              direct: [
+                `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
+                '  wizard',
+              ],
+              cloudflare: [
+                `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
+                '  wizard \\',
+                '  --route-mode cloudflare',
+              ],
+            },
+            powershell: {
+              direct: [
+                'powershell -ExecutionPolicy Bypass -c "',
+                "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
+                `  irm ${LAUNCHER_PS1} | iex`,
+                '"',
+              ],
+              cloudflare: [
+                'powershell -ExecutionPolicy Bypass -c "',
+                "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
+                "  $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'",
+                `  irm ${LAUNCHER_PS1} | iex`,
+                '"',
+              ],
+            },
           },
-          cloudflare: {
-            shell: [
-              {
-                label: { en: 'Wizard', th: 'Wizard' },
-                hint: {
-                  en: 'Guided launcher flow with Cloudflare-protected mode preselected.',
-                  th: 'guided launcher flow โดย preselect Cloudflare-protected mode ไว้แล้ว',
-                },
-                lines: [
-                  `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
-                  '  wizard \\',
-                  '  --route-mode cloudflare',
-                ],
-              },
-              {
-                label: { en: 'Claude Code CLI', th: 'Claude Code CLI' },
-                lines: [
-                  `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
-                  '  dry-run \\',
-                  '  --tool claude-code \\',
-                  '  --route-mode cloudflare',
-                ],
-              },
-              {
-                label: { en: 'Codex', th: 'Codex' },
-                lines: [
-                  `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
-                  '  dry-run \\',
-                  '  --tool codex \\',
-                  '  --route-mode cloudflare',
-                ],
-              },
-              {
-                label: { en: 'Zed', th: 'Zed' },
-                lines: [
-                  `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
-                  '  dry-run \\',
-                  '  --tool zed \\',
-                  '  --route-mode cloudflare',
-                ],
-              },
-              {
-                label: { en: 'OpenClaw', th: 'OpenClaw' },
-                hint: {
-                  en: 'Cloudflare applies only when compatibility resolves to openai or anthropic.',
-                  th: 'Cloudflare ใช้ได้เมื่อ compatibility resolve เป็น openai หรือ anthropic เท่านั้น',
-                },
-                lines: [
-                  `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
-                  '  dry-run \\',
-                  '  --tool openclaw \\',
-                  '  --route-mode cloudflare',
-                ],
-              },
-              {
-                label: { en: 'Gemini CLI', th: 'Gemini CLI' },
-                hint: {
-                  en: 'Still direct-only in the current checked scope. The launcher keeps the command on the native v1beta path here too.',
-                  th: 'ยังเป็น direct-only ใน checked scope ปัจจุบัน และ launcher จะคงคำสั่งไว้บน native v1beta path เหมือนเดิม',
-                },
-                lines: [
-                  `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
-                  '  dry-run \\',
-                  '  --tool gemini-cli',
-                ],
-              },
-              {
-                label: { en: 'OpenCode', th: 'OpenCode' },
-                hint: {
-                  en: 'Uses the checked custom-provider-root story when Cloudflare opt-in is enabled.',
-                  th: 'ใช้ checked custom-provider-root story เดิมเมื่อเปิด Cloudflare opt-in',
-                },
-                lines: [
-                  `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
-                  '  dry-run \\',
-                  '  --tool opencode \\',
-                  '  --route-mode cloudflare',
-                ],
-              },
-              {
-                label: { en: 'Hermes', th: 'Hermes' },
-                hint: {
-                  en: 'Keeps the same profile-local custom-provider-root story when Cloudflare opt-in is enabled.',
-                  th: 'คง profile-local custom-provider-root story เดิมไว้เมื่อเปิด Cloudflare opt-in',
-                },
-                lines: [
-                  `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
-                  '  dry-run \\',
-                  '  --tool hermes \\',
-                  '  --route-mode cloudflare',
-                ],
-              },
-            ],
-            powershell: [
-              {
-                label: { en: 'Wizard', th: 'Wizard' },
-                hint: {
-                  en: 'Guided launcher flow with Cloudflare-protected mode preselected.',
-                  th: 'guided launcher flow โดย preselect Cloudflare-protected mode ไว้แล้ว',
-                },
-                lines: [
-                  'powershell -ExecutionPolicy Bypass -c "',
-                  "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
-                  "  $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'",
-                  `  irm ${LAUNCHER_PS1} | iex`,
-                  '"',
-                ],
-              },
-              {
-                label: { en: 'Claude Code CLI', th: 'Claude Code CLI' },
-                lines: [
-                  'powershell -ExecutionPolicy Bypass -c "',
-                  "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
-                  "  $env:NODECLAW_LAUNCHER_TOOL='claude-code'",
-                  "  $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'",
-                  `  irm ${LAUNCHER_PS1} | iex`,
-                  '"',
-                ],
-              },
-              {
-                label: { en: 'Codex', th: 'Codex' },
-                lines: [
-                  'powershell -ExecutionPolicy Bypass -c "',
-                  "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
-                  "  $env:NODECLAW_LAUNCHER_TOOL='codex'",
-                  "  $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'",
-                  `  irm ${LAUNCHER_PS1} | iex`,
-                  '"',
-                ],
-              },
-              {
-                label: { en: 'Zed', th: 'Zed' },
-                lines: [
-                  'powershell -ExecutionPolicy Bypass -c "',
-                  "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
-                  "  $env:NODECLAW_LAUNCHER_TOOL='zed'",
-                  "  $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'",
-                  `  irm ${LAUNCHER_PS1} | iex`,
-                  '"',
-                ],
-              },
-              {
-                label: { en: 'OpenClaw', th: 'OpenClaw' },
-                hint: {
-                  en: 'Cloudflare applies only when compatibility resolves to openai or anthropic.',
-                  th: 'Cloudflare ใช้ได้เมื่อ compatibility resolve เป็น openai หรือ anthropic เท่านั้น',
-                },
-                lines: [
-                  'powershell -ExecutionPolicy Bypass -c "',
-                  "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
-                  "  $env:NODECLAW_LAUNCHER_TOOL='openclaw'",
-                  "  $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'",
-                  `  irm ${LAUNCHER_PS1} | iex`,
-                  '"',
-                ],
-              },
-              {
-                label: { en: 'Gemini CLI', th: 'Gemini CLI' },
-                hint: {
-                  en: 'Still direct-only in the current checked scope. The launcher keeps the command on the native v1beta path here too.',
-                  th: 'ยังเป็น direct-only ใน checked scope ปัจจุบัน และ launcher จะคงคำสั่งไว้บน native v1beta path เหมือนเดิม',
-                },
-                lines: [
-                  'powershell -ExecutionPolicy Bypass -c "',
-                  "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
-                  "  $env:NODECLAW_LAUNCHER_TOOL='gemini-cli'",
-                  `  irm ${LAUNCHER_PS1} | iex`,
-                  '"',
-                ],
-              },
-              {
-                label: { en: 'OpenCode', th: 'OpenCode' },
-                hint: {
-                  en: 'Uses the checked custom-provider-root story when Cloudflare opt-in is enabled.',
-                  th: 'ใช้ checked custom-provider-root story เดิมเมื่อเปิด Cloudflare opt-in',
-                },
-                lines: [
-                  'powershell -ExecutionPolicy Bypass -c "',
-                  "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
-                  "  $env:NODECLAW_LAUNCHER_TOOL='opencode'",
-                  "  $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'",
-                  `  irm ${LAUNCHER_PS1} | iex`,
-                  '"',
-                ],
-              },
-              {
-                label: { en: 'Hermes', th: 'Hermes' },
-                hint: {
-                  en: 'Keeps the same profile-local custom-provider-root story when Cloudflare opt-in is enabled.',
-                  th: 'คง profile-local custom-provider-root story เดิมไว้เมื่อเปิด Cloudflare opt-in',
-                },
-                lines: [
-                  'powershell -ExecutionPolicy Bypass -c "',
-                  "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
-                  "  $env:NODECLAW_LAUNCHER_TOOL='hermes'",
-                  "  $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'",
-                  `  irm ${LAUNCHER_PS1} | iex`,
-                  '"',
-                ],
-              },
-            ],
+          {
+            id: 'claude-code',
+            label: { en: 'Claude Code CLI', th: 'Claude Code CLI' },
+            shell: {
+              direct: [
+                `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
+                '  dry-run \\',
+                '  --tool claude-code',
+              ],
+              cloudflare: [
+                `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
+                '  dry-run \\',
+                '  --tool claude-code \\',
+                '  --route-mode cloudflare',
+              ],
+            },
+            powershell: {
+              direct: [
+                'powershell -ExecutionPolicy Bypass -c "',
+                "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
+                "  $env:NODECLAW_LAUNCHER_TOOL='claude-code'",
+                `  irm ${LAUNCHER_PS1} | iex`,
+                '"',
+              ],
+              cloudflare: [
+                'powershell -ExecutionPolicy Bypass -c "',
+                "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
+                "  $env:NODECLAW_LAUNCHER_TOOL='claude-code'",
+                "  $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'",
+                `  irm ${LAUNCHER_PS1} | iex`,
+                '"',
+              ],
+            },
           },
-        },
+          {
+            id: 'codex',
+            label: { en: 'Codex', th: 'Codex' },
+            shell: {
+              direct: [
+                `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
+                '  dry-run \\',
+                '  --tool codex',
+              ],
+              cloudflare: [
+                `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
+                '  dry-run \\',
+                '  --tool codex \\',
+                '  --route-mode cloudflare',
+              ],
+            },
+            powershell: {
+              direct: [
+                'powershell -ExecutionPolicy Bypass -c "',
+                "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
+                "  $env:NODECLAW_LAUNCHER_TOOL='codex'",
+                `  irm ${LAUNCHER_PS1} | iex`,
+                '"',
+              ],
+              cloudflare: [
+                'powershell -ExecutionPolicy Bypass -c "',
+                "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
+                "  $env:NODECLAW_LAUNCHER_TOOL='codex'",
+                "  $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'",
+                `  irm ${LAUNCHER_PS1} | iex`,
+                '"',
+              ],
+            },
+          },
+          {
+            id: 'zed',
+            label: { en: 'Zed', th: 'Zed' },
+            shell: {
+              direct: [
+                `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
+                '  dry-run \\',
+                '  --tool zed',
+              ],
+              cloudflare: [
+                `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
+                '  dry-run \\',
+                '  --tool zed \\',
+                '  --route-mode cloudflare',
+              ],
+            },
+            powershell: {
+              direct: [
+                'powershell -ExecutionPolicy Bypass -c "',
+                "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
+                "  $env:NODECLAW_LAUNCHER_TOOL='zed'",
+                `  irm ${LAUNCHER_PS1} | iex`,
+                '"',
+              ],
+              cloudflare: [
+                'powershell -ExecutionPolicy Bypass -c "',
+                "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
+                "  $env:NODECLAW_LAUNCHER_TOOL='zed'",
+                "  $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'",
+                `  irm ${LAUNCHER_PS1} | iex`,
+                '"',
+              ],
+            },
+          },
+          {
+            id: 'openclaw',
+            label: { en: 'OpenClaw', th: 'OpenClaw' },
+            hint: {
+              en: 'Cloudflare applies only when compatibility resolves to openai or anthropic.',
+              th: 'Cloudflare ใช้ได้เมื่อ compatibility resolve เป็น openai หรือ anthropic เท่านั้น',
+            },
+            shell: {
+              direct: [
+                `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
+                '  dry-run \\',
+                '  --tool openclaw',
+              ],
+              cloudflare: [
+                `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
+                '  dry-run \\',
+                '  --tool openclaw \\',
+                '  --route-mode cloudflare',
+              ],
+            },
+            powershell: {
+              direct: [
+                'powershell -ExecutionPolicy Bypass -c "',
+                "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
+                "  $env:NODECLAW_LAUNCHER_TOOL='openclaw'",
+                `  irm ${LAUNCHER_PS1} | iex`,
+                '"',
+              ],
+              cloudflare: [
+                'powershell -ExecutionPolicy Bypass -c "',
+                "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
+                "  $env:NODECLAW_LAUNCHER_TOOL='openclaw'",
+                "  $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'",
+                `  irm ${LAUNCHER_PS1} | iex`,
+                '"',
+              ],
+            },
+          },
+          {
+            id: 'gemini-cli',
+            label: { en: 'Gemini CLI', th: 'Gemini CLI' },
+            modeHint: {
+              direct: {
+                en: 'Direct-only in the current checked scope because the effective route family still stays on v1beta.',
+                th: 'เป็น direct-only ใน checked scope ปัจจุบัน เพราะ effective route family ยังอยู่บน v1beta',
+              },
+              cloudflare: {
+                en: 'Still direct-only in the current checked scope. The launcher keeps the command on the native v1beta path here too.',
+                th: 'ยังเป็น direct-only ใน checked scope ปัจจุบัน และ launcher จะคงคำสั่งไว้บน native v1beta path เหมือนเดิม',
+              },
+            },
+            shell: {
+              direct: [
+                `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
+                '  dry-run \\',
+                '  --tool gemini-cli',
+              ],
+              cloudflare: [
+                `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
+                '  dry-run \\',
+                '  --tool gemini-cli',
+              ],
+            },
+            powershell: {
+              direct: [
+                'powershell -ExecutionPolicy Bypass -c "',
+                "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
+                "  $env:NODECLAW_LAUNCHER_TOOL='gemini-cli'",
+                `  irm ${LAUNCHER_PS1} | iex`,
+                '"',
+              ],
+              cloudflare: [
+                'powershell -ExecutionPolicy Bypass -c "',
+                "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
+                "  $env:NODECLAW_LAUNCHER_TOOL='gemini-cli'",
+                `  irm ${LAUNCHER_PS1} | iex`,
+                '"',
+              ],
+            },
+          },
+          {
+            id: 'opencode',
+            label: { en: 'OpenCode', th: 'OpenCode' },
+            modeHint: {
+              direct: {
+                en: 'Uses the checked custom-provider-root story rather than a second compatibility doctrine.',
+                th: 'ใช้ checked custom-provider-root story เดิม โดยไม่เปิด doctrine compatibility ชุดที่สอง',
+              },
+              cloudflare: {
+                en: 'Uses the checked custom-provider-root story when Cloudflare opt-in is enabled.',
+                th: 'ใช้ checked custom-provider-root story เดิมเมื่อเปิด Cloudflare opt-in',
+              },
+            },
+            shell: {
+              direct: [
+                `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
+                '  dry-run \\',
+                '  --tool opencode',
+              ],
+              cloudflare: [
+                `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
+                '  dry-run \\',
+                '  --tool opencode \\',
+                '  --route-mode cloudflare',
+              ],
+            },
+            powershell: {
+              direct: [
+                'powershell -ExecutionPolicy Bypass -c "',
+                "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
+                "  $env:NODECLAW_LAUNCHER_TOOL='opencode'",
+                `  irm ${LAUNCHER_PS1} | iex`,
+                '"',
+              ],
+              cloudflare: [
+                'powershell -ExecutionPolicy Bypass -c "',
+                "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
+                "  $env:NODECLAW_LAUNCHER_TOOL='opencode'",
+                "  $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'",
+                `  irm ${LAUNCHER_PS1} | iex`,
+                '"',
+              ],
+            },
+          },
+          {
+            id: 'hermes',
+            label: { en: 'Hermes', th: 'Hermes' },
+            modeHint: {
+              direct: {
+                en: 'Keeps the same profile-local custom-provider-root story in direct mode.',
+                th: 'คง profile-local custom-provider-root story เดิมไว้ใน direct mode',
+              },
+              cloudflare: {
+                en: 'Keeps the same profile-local custom-provider-root story when Cloudflare opt-in is enabled.',
+                th: 'คง profile-local custom-provider-root story เดิมไว้เมื่อเปิด Cloudflare opt-in',
+              },
+            },
+            shell: {
+              direct: [
+                `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
+                '  dry-run \\',
+                '  --tool hermes',
+              ],
+              cloudflare: [
+                `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
+                '  dry-run \\',
+                '  --tool hermes \\',
+                '  --route-mode cloudflare',
+              ],
+            },
+            powershell: {
+              direct: [
+                'powershell -ExecutionPolicy Bypass -c "',
+                "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
+                "  $env:NODECLAW_LAUNCHER_TOOL='hermes'",
+                `  irm ${LAUNCHER_PS1} | iex`,
+                '"',
+              ],
+              cloudflare: [
+                'powershell -ExecutionPolicy Bypass -c "',
+                "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
+                "  $env:NODECLAW_LAUNCHER_TOOL='hermes'",
+                "  $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'",
+                `  irm ${LAUNCHER_PS1} | iex`,
+                '"',
+              ],
+            },
+          },
+        ],
         claude: {
           direct: `export ANTHROPIC_BASE_URL="${DIRECT_ROOT}"
 export ANTHROPIC_AUTH_TOKEN="&lt;nodeclaw_access_key&gt;"
@@ -780,34 +694,65 @@ bash ./script/setup-hermes-nodeclaw.sh`,
         if (target) target.textContent = value;
       };
 
-      const renderCommandGroups = (containerId, entries, lang) => {
+      const harnessLabels = {
+        shell: { en: 'Shell launcher', th: 'launcher ฝั่ง shell' },
+        powershell: { en: 'PowerShell launcher', th: 'launcher ฝั่ง PowerShell' },
+      };
+
+      const getToolRowHint = (entry, mode, lang) => {
+        return entry.modeHint?.[mode]?.[lang] ?? entry.hint?.[lang] ?? '';
+      };
+
+      const renderToolRows = (containerId, rows, mode, lang) => {
         const container = document.getElementById(containerId);
         if (!container) return;
         container.innerHTML = '';
 
-        entries.forEach((entry) => {
-          const card = document.createElement('section');
-          card.className = 'example-group-card';
+        rows.forEach((entry) => {
+          const row = document.createElement('section');
+          row.className = 'launcher-tool-row';
+
+          const header = document.createElement('div');
+          header.className = 'launcher-tool-header';
 
           const label = document.createElement('p');
-          label.className = 'example-group-label';
+          label.className = 'launcher-tool-label';
           label.textContent = entry.label[lang];
-          card.appendChild(label);
+          header.appendChild(label);
 
-          if (entry.hint?.[lang]) {
+          const hintText = getToolRowHint(entry, mode, lang);
+          if (hintText) {
             const hint = document.createElement('p');
-            hint.className = 'example-group-sub';
-            hint.textContent = entry.hint[lang];
-            card.appendChild(hint);
+            hint.className = 'launcher-tool-sub';
+            hint.textContent = hintText;
+            header.appendChild(hint);
           }
 
-          const pre = document.createElement('pre');
-          const code = document.createElement('code');
-          code.textContent = entry.lines.join('\n');
-          pre.appendChild(code);
-          card.appendChild(pre);
+          row.appendChild(header);
 
-          container.appendChild(card);
+          const commandGrid = document.createElement('div');
+          commandGrid.className = 'launcher-command-grid';
+
+          ['shell', 'powershell'].forEach((harness) => {
+            const column = document.createElement('div');
+            column.className = 'launcher-command-column';
+
+            const harnessLabel = document.createElement('p');
+            harnessLabel.className = 'launcher-command-label';
+            harnessLabel.textContent = harnessLabels[harness][lang];
+            column.appendChild(harnessLabel);
+
+            const pre = document.createElement('pre');
+            const code = document.createElement('code');
+            code.textContent = entry[harness][mode].join('\n');
+            pre.appendChild(code);
+            column.appendChild(pre);
+
+            commandGrid.appendChild(column);
+          });
+
+          row.appendChild(commandGrid);
+          container.appendChild(row);
         });
       };
 
@@ -819,8 +764,7 @@ bash ./script/setup-hermes-nodeclaw.sh`,
         routeModeBadge.textContent = content.badge[mode][lang];
         setText('route-mode-note-en', content.note[mode].en);
         setText('route-mode-note-th', content.note[mode].th);
-        renderCommandGroups('quick-start-shell-groups', content.quickStart[mode].shell, lang);
-        renderCommandGroups('quick-start-powershell-groups', content.quickStart[mode].powershell, lang);
+        renderToolRows('quick-start-tool-rows', content.quickStartRows, mode, lang);
         setText('claude-setup-contract', content.claude[mode]);
         setText('claude-setup-contract-th', content.claude[mode]);
         setText('claude-setup-note-en', content.claude.note[mode].en);
