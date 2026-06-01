@@ -61,8 +61,9 @@
       .launcher-tool-header { display: grid; gap: 6px; }
       .launcher-tool-label { margin: 0; font-weight: 700; }
       .launcher-tool-sub { margin: 0; color: var(--muted); font-size: 0.92rem; }
-      .launcher-command-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
-      .launcher-command-column { display: grid; gap: 8px; }
+      .launcher-command-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); align-items: stretch; }
+      .launcher-command-column { display: grid; gap: 8px; grid-template-rows: auto minmax(0, 1fr); align-self: stretch; }
+      .launcher-command-column pre { height: 100%; }
       .launcher-command-label { margin: 0; color: #dbeafe; font-size: 0.92rem; font-weight: 600; }
       [data-lang] { display:none; }
       html.lang-en [data-lang="en"], html.lang-th [data-lang="th"] { display:block; }
