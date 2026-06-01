@@ -7,6 +7,7 @@
   },
   "publishedAt": "2026-04-11",
   "notes": {
+    "releasePage": "Hosted release-page command rendering is direct-native first and exposes Cloudflare only as an explicit opt-in toggle. Gemini stays on the direct/native command even when Cloudflare examples are shown for other eligible tools.",
     "claudeCode": "Launcher-first helper path through ~/.claude/settings.json. Route mode defaults to direct; Cloudflare is explicit opt-in for checked Anthropic-compatible targets, and the owner-field base stays at the custom-provider root without endpoint suffixes.",
     "geminiCli": "Launcher-first helper path. GOOGLE_GEMINI_BASE_URL stays on the direct service root, and a Cloudflare request must resolve back to direct in checked scope because the effective Google / Gemini-shaped route family still runs under v1beta.",
     "opencode": "Helper-guided custom-provider path. OpenCode now keeps one checked custom-provider root contract in both direct and Cloudflare modes, and the launcher only swaps which root/base gets injected without appending endpoint suffixes.",

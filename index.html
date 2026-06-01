@@ -42,6 +42,18 @@
       .muted { color: var(--muted); }
       .pill { display: inline-block; margin: 4px 8px 0 0; padding: 6px 10px; border-radius: 999px; border: 1px solid var(--line); color: #dbeafe; background: rgba(96, 165, 250, 0.12); }
       .warning { border-color: rgba(251, 191, 36, 0.3); background: rgba(120, 53, 15, 0.18); }
+      .toggle-card { display: grid; gap: 12px; margin-bottom: 14px; padding: 14px; border-radius: 14px; border: 1px solid rgba(96, 165, 250, 0.22); background: rgba(15, 23, 42, 0.72); }
+      .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+      .toggle-copy { display: grid; gap: 6px; min-width: 260px; }
+      .toggle-title { font-weight: 700; }
+      .switch { position: relative; width: 56px; height: 32px; display: inline-block; }
+      .switch input { opacity: 0; width: 0; height: 0; }
+      .slider { position: absolute; inset: 0; cursor: pointer; background: rgba(30, 41, 59, 0.92); border: 1px solid rgba(148, 163, 184, 0.3); transition: 0.2s ease; border-radius: 999px; }
+      .slider::before { content: ""; position: absolute; width: 24px; height: 24px; left: 3px; top: 3px; background: #e2e8f0; transition: 0.2s ease; border-radius: 999px; }
+      .switch input:checked + .slider { background: rgba(96, 165, 250, 0.35); border-color: rgba(96, 165, 250, 0.55); }
+      .switch input:checked + .slider::before { transform: translateX(24px); background: #dbeafe; }
+      .mode-badge { display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 6px 10px; border-radius: 999px; border: 1px solid var(--line); background: rgba(2, 6, 23, 0.5); color: #dbeafe; font-size: 0.9rem; }
+      .mode-stack { display: grid; gap: 12px; }
       [data-lang] { display:none; }
       html.lang-en [data-lang="en"], html.lang-th [data-lang="th"] { display:block; }
     </style>
@@ -128,13 +140,39 @@
       <section class="card" style="margin-top:18px;">
         <h2 data-lang="en">Quick start</h2>
         <h2 data-lang="th">Quick start</h2>
-        <pre><code>curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- wizard
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool claude-code --route-mode cloudflare
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool gemini-cli --route-mode cloudflare
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool hermes --route-mode cloudflare</code></pre>
+
+        <div class="toggle-card" aria-labelledby="route-mode-toggle-heading">
+          <div class="toggle-row">
+            <div class="toggle-copy">
+              <strong id="route-mode-toggle-heading" class="toggle-title" data-lang="en">Use Cloudflare-protected mode (opt-in)</strong>
+              <strong class="toggle-title" data-lang="th">ใช้ Cloudflare-protected mode แบบ opt-in</strong>
+              <span class="mode-badge" id="route-mode-badge"></span>
+            </div>
+            <label class="switch" for="route-mode-toggle">
+              <input id="route-mode-toggle" type="checkbox" role="switch" aria-checked="false" />
+              <span class="slider" aria-hidden="true"></span>
+            </label>
+          </div>
+          <p class="muted" id="route-mode-note-en" data-lang="en"></p>
+          <p class="muted" id="route-mode-note-th" data-lang="th"></p>
+        </div>
+
+        <div class="mode-stack">
+          <div>
+            <p class="muted" data-lang="en">Remote shell launcher examples</p>
+            <p class="muted" data-lang="th">ตัวอย่าง remote shell launcher</p>
+            <pre><code id="quick-start-shell"></code></pre>
+          </div>
+
+          <div>
+            <p class="muted" data-lang="en">Remote PowerShell launcher examples</p>
+            <p class="muted" data-lang="th">ตัวอย่าง remote PowerShell launcher</p>
+            <pre><code id="quick-start-powershell"></code></pre>
+          </div>
+        </div>
+
         <p class="muted" data-lang="en">Remote usage should call launcher only. Launcher fetches the helper payload it needs automatically.</p>
         <p class="muted" data-lang="th">การใช้งานแบบ remote ควรเรียก launcher อย่างเดียว แล้ว launcher จะไปดึง helper payload ที่ต้องใช้ให้อัตโนมัติ</p>
-        <pre><code>powershell -ExecutionPolicy Bypass -c "irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"</code></pre>
       </section>
 
       <section class="card" style="margin-top:18px;">
@@ -142,17 +180,13 @@ curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bas
         <h2 data-lang="th">เส้นทาง helper ของ Claude Code CLI</h2>
         <div data-lang="en">
           <p>Primary setup story:</p>
-          <pre><code>export ANTHROPIC_BASE_URL="https://payg.nodenetwork.ovh/v1"
-export ANTHROPIC_AUTH_TOKEN="&lt;nodeclaw_access_key&gt;"
-claude</code></pre>
-          <p class="muted">The helper manages the same env-based Claude contract through the checked `~/.claude/settings.json` path, while the PowerShell launcher is route-mode-aware and remains dry-run-first in the current checked scope.</p>
+          <pre><code id="claude-setup-contract"></code></pre>
+          <p class="muted" id="claude-setup-note-en"></p>
         </div>
         <div data-lang="th">
           <p>เส้นทางหลักของการตั้งค่า:</p>
-          <pre><code>export ANTHROPIC_BASE_URL="https://payg.nodenetwork.ovh/v1"
-export ANTHROPIC_AUTH_TOKEN="&lt;nodeclaw_access_key&gt;"
-claude</code></pre>
-          <p class="muted">helper จะจัดการ Claude env contract เดียวกันนี้ผ่าน path `~/.claude/settings.json` ที่ตรวจแล้ว โดย launcher ฝั่ง PowerShell รองรับ route mode แล้ว แต่ยังคงเป็น dry-run-first ในขอบเขตที่ตรวจตอนนี้</p>
+          <pre><code id="claude-setup-contract-th"></code></pre>
+          <p class="muted" id="claude-setup-note-th"></p>
         </div>
       </section>
 
@@ -164,14 +198,14 @@ claude</code></pre>
           <pre><code>export GOOGLE_GEMINI_BASE_URL="https://payg.nodenetwork.ovh"
 export GEMINI_API_KEY="&lt;nodeclaw_access_key&gt;"
 gemini</code></pre>
-          <p class="muted">Effective Google / Gemini-shaped route family still resolves under <code>v1beta</code>. The helper manages the same env-based path through a generated snippet/profile block.</p>
+          <p class="muted" id="gemini-setup-note-en"></p>
         </div>
         <div data-lang="th">
           <p>เส้นทางหลักของการตั้งค่า:</p>
           <pre><code>export GOOGLE_GEMINI_BASE_URL="https://payg.nodenetwork.ovh"
 export GEMINI_API_KEY="&lt;nodeclaw_access_key&gt;"
 gemini</code></pre>
-          <p class="muted">route family แบบ Google / Gemini จะวิ่งอยู่ใต้ <code>v1beta</code> ส่วน helper มีหน้าที่จัด env/snippet/profile สำหรับ path เดียวกันนี้</p>
+          <p class="muted" id="gemini-setup-note-th"></p>
         </div>
       </section>
 
@@ -180,17 +214,13 @@ gemini</code></pre>
         <h2 data-lang="th">เส้นทาง helper ของ Hermes</h2>
         <div data-lang="en">
           <p>Primary helper contract:</p>
-          <pre><code>export HERMES_NODECLAW_API_KEY="&lt;nodeclaw_access_key&gt;"
-bash ./script/setup-hermes-nodeclaw.sh --dry-run
-bash ./script/setup-hermes-nodeclaw.sh</code></pre>
-          <p class="muted">The helper creates or updates a dedicated Hermes profile path and writes profile-local <code>.env</code>, <code>config.yaml</code>, and <code>SOUL.md</code> for the NodeClaw custom endpoint contract. This release does not claim live Hermes installation or real endpoint proof yet.</p>
+          <pre><code id="hermes-setup-contract"></code></pre>
+          <p class="muted" id="hermes-setup-note-en"></p>
         </div>
         <div data-lang="th">
           <p>เส้นทางหลักของ helper:</p>
-          <pre><code>export HERMES_NODECLAW_API_KEY="&lt;nodeclaw_access_key&gt;"
-bash ./script/setup-hermes-nodeclaw.sh --dry-run
-bash ./script/setup-hermes-nodeclaw.sh</code></pre>
-          <p class="muted">helper จะสร้างหรืออัปเดต profile path ของ Hermes โดยเขียน <code>.env</code>, <code>config.yaml</code> และ <code>SOUL.md</code> แบบ profile-local สำหรับ contract ของ custom endpoint ฝั่ง NodeClaw โดย release รอบนี้ยังไม่ได้อ้างว่า install Hermes จริงหรือพิสูจน์ endpoint จริงแล้ว</p>
+          <pre><code id="hermes-setup-contract-th"></code></pre>
+          <p class="muted" id="hermes-setup-note-th"></p>
         </div>
       </section>
 
@@ -252,6 +282,109 @@ bash ./script/setup-hermes-nodeclaw.sh</code></pre>
     <script>
       const root = document.documentElement;
       const buttons = document.querySelectorAll('[data-set-lang]');
+      const routeModeToggle = document.getElementById('route-mode-toggle');
+      const routeModeBadge = document.getElementById('route-mode-badge');
+      const routeModeState = { enabled: false };
+
+      const DIRECT_ROOT = 'https://payg.nodenetwork.ovh/v1';
+      const GEMINI_ROOT = 'https://payg.nodenetwork.ovh';
+      const CLOUDFLARE_ROOT = 'https://gateway.ai.cloudflare.com/v1/06b7333b2c174700306d7f931d809765/nodenetwork-nodeclaw-payg/custom-nodenetwork/';
+      const LAUNCHER_SH = 'https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh';
+      const LAUNCHER_PS1 = 'https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1';
+
+      const content = {
+        badge: {
+          direct: { en: 'Direct-native mode (default)', th: 'โหมด direct/native (ค่าเริ่มต้น)' },
+          cloudflare: { en: 'Cloudflare-protected mode (opt-in)', th: 'โหมด Cloudflare-protected (opt-in)' },
+        },
+        note: {
+          direct: {
+            en: 'Default examples stay on the native NodeClaw endpoint first. Turn this on only when you explicitly want the Cloudflare-protected gateway path.',
+            th: 'ตัวอย่างเริ่มต้นจะใช้ native NodeClaw endpoint ก่อน เปิดสวิตช์นี้เมื่อคุณต้องการใช้เส้นทาง Cloudflare-protected แบบ explicit เท่านั้น',
+          },
+          cloudflare: {
+            en: 'Cloudflare-protected examples are now shown only for checked eligible tools. Gemini stays on the direct-native path in the current checked scope.',
+            th: 'ตอนนี้จะแสดงตัวอย่าง Cloudflare-protected เฉพาะ tools ที่ตรวจแล้วว่าใช้ได้ ส่วน Gemini จะคงอยู่บนเส้นทาง direct/native ตาม checked scope ปัจจุบัน',
+          },
+        },
+        quickStart: {
+          shell: {
+            direct: [
+              `curl -fsSL ${LAUNCHER_SH} | bash -s -- wizard`,
+              `curl -fsSL ${LAUNCHER_SH} | bash -s -- dry-run --tool claude-code`,
+              `curl -fsSL ${LAUNCHER_SH} | bash -s -- dry-run --tool openclaw`,
+              `curl -fsSL ${LAUNCHER_SH} | bash -s -- dry-run --tool gemini-cli`,
+              `curl -fsSL ${LAUNCHER_SH} | bash -s -- dry-run --tool opencode`,
+              `curl -fsSL ${LAUNCHER_SH} | bash -s -- dry-run --tool hermes`,
+            ],
+            cloudflare: [
+              `curl -fsSL ${LAUNCHER_SH} | bash -s -- wizard --route-mode cloudflare`,
+              `curl -fsSL ${LAUNCHER_SH} | bash -s -- dry-run --tool claude-code --route-mode cloudflare`,
+              `curl -fsSL ${LAUNCHER_SH} | bash -s -- dry-run --tool openclaw --route-mode cloudflare`,
+              `curl -fsSL ${LAUNCHER_SH} | bash -s -- dry-run --tool gemini-cli`,
+              `curl -fsSL ${LAUNCHER_SH} | bash -s -- dry-run --tool opencode --route-mode cloudflare`,
+              `curl -fsSL ${LAUNCHER_SH} | bash -s -- dry-run --tool hermes --route-mode cloudflare`,
+            ],
+          },
+          powershell: {
+            direct: [
+              `powershell -ExecutionPolicy Bypass -c \"$env:NODECLAW_LAUNCHER_COMMAND='wizard'; irm ${LAUNCHER_PS1} | iex\"`,
+              `powershell -ExecutionPolicy Bypass -c \"$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='claude-code'; irm ${LAUNCHER_PS1} | iex\"`,
+              `powershell -ExecutionPolicy Bypass -c \"$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='openclaw'; irm ${LAUNCHER_PS1} | iex\"`,
+              `powershell -ExecutionPolicy Bypass -c \"$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='gemini-cli'; irm ${LAUNCHER_PS1} | iex\"`,
+              `powershell -ExecutionPolicy Bypass -c \"$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='opencode'; irm ${LAUNCHER_PS1} | iex\"`,
+              `powershell -ExecutionPolicy Bypass -c \"$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='hermes'; irm ${LAUNCHER_PS1} | iex\"`,
+            ],
+            cloudflare: [
+              `powershell -ExecutionPolicy Bypass -c \"$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; irm ${LAUNCHER_PS1} | iex\"`,
+              `powershell -ExecutionPolicy Bypass -c \"$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='claude-code'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; irm ${LAUNCHER_PS1} | iex\"`,
+              `powershell -ExecutionPolicy Bypass -c \"$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='openclaw'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; irm ${LAUNCHER_PS1} | iex\"`,
+              `powershell -ExecutionPolicy Bypass -c \"$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='gemini-cli'; irm ${LAUNCHER_PS1} | iex\"`,
+              `powershell -ExecutionPolicy Bypass -c \"$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='opencode'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; irm ${LAUNCHER_PS1} | iex\"`,
+              `powershell -ExecutionPolicy Bypass -c \"$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='hermes'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; irm ${LAUNCHER_PS1} | iex\"`,
+            ],
+          },
+        },
+        claude: {
+          direct: `export ANTHROPIC_BASE_URL="${DIRECT_ROOT}"\nexport ANTHROPIC_AUTH_TOKEN="&lt;nodeclaw_access_key&gt;"\nclaude`,
+          cloudflare: `export ANTHROPIC_BASE_URL="${CLOUDFLARE_ROOT}"\nexport ANTHROPIC_AUTH_TOKEN="&lt;nodeclaw_access_key&gt;"\nclaude`,
+          note: {
+            direct: {
+              en: 'This is the native/default helper posture. The launcher can still switch the same Claude contract later when you explicitly opt into Cloudflare mode.',
+              th: 'นี่คือ helper posture แบบ native/default โดย launcher ยังสามารถสลับ Claude contract ชุดเดียวกันนี้ได้ภายหลังเมื่อคุณ opt-in เข้า Cloudflare mode แบบ explicit',
+            },
+            cloudflare: {
+              en: 'This is the Cloudflare-protected helper posture. The owner-field base stays on the custom-provider root only and does not append endpoint suffixes.',
+              th: 'นี่คือ helper posture แบบ Cloudflare-protected โดย owner-field base จะคงอยู่ที่ custom-provider root เท่านั้น และไม่ append endpoint suffixes เพิ่ม',
+            },
+          },
+        },
+        gemini: {
+          direct: {
+            en: 'Effective Google / Gemini-shaped route family still resolves under v1beta. The helper manages the same env-based path through a generated snippet/profile block.',
+            th: 'route family แบบ Google / Gemini จะวิ่งอยู่ใต้ v1beta ส่วน helper มีหน้าที่จัด env/snippet/profile สำหรับ path เดียวกันนี้',
+          },
+          cloudflare: {
+            en: 'Cloudflare mode is not exposed for Gemini in the current checked scope, so this helper contract stays on the direct-native path and keeps the v1beta boundary.',
+            th: 'Cloudflare mode ยังไม่เปิดให้ Gemini ใน checked scope ปัจจุบัน ดังนั้น helper contract นี้จะคงอยู่บนเส้นทาง direct/native และรักษา v1beta boundary เดิมไว้',
+          },
+        },
+        hermes: {
+          direct: `export HERMES_NODECLAW_API_KEY="&lt;nodeclaw_access_key&gt;"\nexport HERMES_NODECLAW_BASE_URL="${DIRECT_ROOT}"\nbash ./script/setup-hermes-nodeclaw.sh --dry-run\nbash ./script/setup-hermes-nodeclaw.sh`,
+          cloudflare: `export HERMES_NODECLAW_API_KEY="&lt;nodeclaw_access_key&gt;"\nexport HERMES_NODECLAW_BASE_URL="${CLOUDFLARE_ROOT}"\nbash ./script/setup-hermes-nodeclaw.sh --dry-run\nbash ./script/setup-hermes-nodeclaw.sh`,
+          note: {
+            direct: {
+              en: 'This direct/native example keeps Hermes on the standard NodeClaw custom-provider root. The helper still writes profile-local .env, config.yaml, and SOUL.md.',
+              th: 'ตัวอย่าง direct/native นี้จะคง Hermes ไว้บน NodeClaw custom-provider root ปกติ โดย helper ยังเขียน .env, config.yaml และ SOUL.md แบบ profile-local เหมือนเดิม',
+            },
+            cloudflare: {
+              en: 'This Cloudflare example keeps the same Hermes profile-local contract and only swaps the injected base_url root. It still does not claim live Hermes installation or endpoint proof.',
+              th: 'ตัวอย่าง Cloudflare นี้จะคง Hermes profile-local contract ชุดเดิมไว้ และสลับเฉพาะ base_url root ที่ inject เข้าไปเท่านั้น โดยยังไม่อ้างว่า install Hermes จริงหรือพิสูจน์ endpoint จริงแล้ว',
+            },
+          },
+        },
+      };
+
       const applyLang = (lang) => {
         root.classList.remove('lang-en', 'lang-th');
         root.classList.add(`lang-${lang}`);
@@ -261,8 +394,45 @@ bash ./script/setup-hermes-nodeclaw.sh</code></pre>
           button.setAttribute('aria-pressed', button.dataset.setLang === lang ? 'true' : 'false');
         });
       };
-      buttons.forEach((button) => button.addEventListener('click', () => applyLang(button.dataset.setLang)));
+
+      const setText = (id, value) => {
+        const target = document.getElementById(id);
+        if (target) target.textContent = value;
+      };
+
+      const renderRouteMode = () => {
+        const mode = routeModeState.enabled ? 'cloudflare' : 'direct';
+        routeModeToggle.checked = routeModeState.enabled;
+        routeModeToggle.setAttribute('aria-checked', routeModeState.enabled ? 'true' : 'false');
+        routeModeBadge.textContent = root.classList.contains('lang-th') ? content.badge[mode].th : content.badge[mode].en;
+        setText('route-mode-note-en', content.note[mode].en);
+        setText('route-mode-note-th', content.note[mode].th);
+        setText('quick-start-shell', content.quickStart.shell[mode].join('\n'));
+        setText('quick-start-powershell', content.quickStart.powershell[mode].join('\n'));
+        setText('claude-setup-contract', content.claude[mode]);
+        setText('claude-setup-contract-th', content.claude[mode]);
+        setText('claude-setup-note-en', content.claude.note[mode].en);
+        setText('claude-setup-note-th', content.claude.note[mode].th);
+        setText('gemini-setup-note-en', content.gemini[mode].en);
+        setText('gemini-setup-note-th', content.gemini[mode].th);
+        setText('hermes-setup-contract', content.hermes[mode]);
+        setText('hermes-setup-contract-th', content.hermes[mode]);
+        setText('hermes-setup-note-en', content.hermes.note[mode].en);
+        setText('hermes-setup-note-th', content.hermes.note[mode].th);
+      };
+
+      buttons.forEach((button) => button.addEventListener('click', () => {
+        applyLang(button.dataset.setLang);
+        renderRouteMode();
+      }));
+
+      routeModeToggle.addEventListener('change', () => {
+        routeModeState.enabled = routeModeToggle.checked;
+        renderRouteMode();
+      });
+
       applyLang('en');
+      renderRouteMode();
     </script>
   </body>
 </html>

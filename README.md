@@ -40,12 +40,28 @@ bash ./script/launcher.sh wizard [--tool <claude-code|gemini-cli|codex|hermes|op
 
 Remote launcher-first usage:
 
+Direct-native examples first:
+
 ```bash
 curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- wizard
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool claude-code
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool openclaw
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool gemini-cli
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool opencode
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool hermes
+```
+
+Optional Cloudflare-protected launcher examples:
+
+```bash
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- wizard --route-mode cloudflare
 curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool claude-code --route-mode cloudflare
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool gemini-cli --route-mode cloudflare
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool openclaw --route-mode cloudflare
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool opencode --route-mode cloudflare
 curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool hermes --route-mode cloudflare
 ```
+
+`gemini-cli` stays on the direct/native launcher contract in the current checked scope even when you opt into Cloudflare-protected examples elsewhere.
 
 PowerShell launcher:
 
@@ -58,9 +74,28 @@ PowerShell launcher:
 
 Remote PowerShell launcher:
 
+Direct-native examples first:
+
 ```powershell
-powershell -ExecutionPolicy Bypass -c "irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
+powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
+powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='claude-code'; irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
+powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='openclaw'; irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
+powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='gemini-cli'; irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
+powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='opencode'; irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
+powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='hermes'; irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
 ```
+
+Optional Cloudflare-protected launcher examples:
+
+```powershell
+powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
+powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='claude-code'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
+powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='openclaw'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
+powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='opencode'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
+powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='hermes'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
+```
+
+`gemini-cli` remains direct/native here too, because the current checked route family still stays on the Google / Gemini `v1beta` path.
 
 ## Claude Code CLI setup posture
 
@@ -70,6 +105,14 @@ Primary setup contract:
 
 ```bash
 export ANTHROPIC_BASE_URL="https://payg.nodenetwork.ovh/v1"
+export ANTHROPIC_AUTH_TOKEN="<nodeclaw_access_key>"
+claude
+```
+
+Optional Cloudflare-protected helper posture for the same Claude contract:
+
+```bash
+export ANTHROPIC_BASE_URL="https://gateway.ai.cloudflare.com/v1/06b7333b2c174700306d7f931d809765/nodenetwork-nodeclaw-payg/custom-nodenetwork/"
 export ANTHROPIC_AUTH_TOKEN="<nodeclaw_access_key>"
 claude
 ```
@@ -115,6 +158,16 @@ Primary helper contract:
 
 ```bash
 export HERMES_NODECLAW_API_KEY="<nodeclaw_access_key>"
+export HERMES_NODECLAW_BASE_URL="https://payg.nodenetwork.ovh/v1"
+bash ./script/setup-hermes-nodeclaw.sh --dry-run
+bash ./script/setup-hermes-nodeclaw.sh
+```
+
+Optional Cloudflare-protected helper posture for the same Hermes profile-local contract:
+
+```bash
+export HERMES_NODECLAW_API_KEY="<nodeclaw_access_key>"
+export HERMES_NODECLAW_BASE_URL="https://gateway.ai.cloudflare.com/v1/06b7333b2c174700306d7f931d809765/nodenetwork-nodeclaw-payg/custom-nodenetwork/"
 bash ./script/setup-hermes-nodeclaw.sh --dry-run
 bash ./script/setup-hermes-nodeclaw.sh
 ```

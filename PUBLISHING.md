@@ -39,8 +39,10 @@ Do not treat the public GitHub repo as the primary authoring location for helper
 
 Current checked truth:
 - launcher-first repo/distribution usage is real today
-- the site can expose launcher help, wizard guidance, route-mode examples, and direct helper downloads
+- the site can expose launcher help, wizard guidance, direct-native examples, an opt-in Cloudflare-protected toggle for command rendering, and direct helper downloads
 - the remote contract should call launcher only; launcher may fetch the helper payload it needs automatically
+- the hosted release page should feel native-first by default; Cloudflare wording belongs behind explicit opt-in state rather than as the first visual posture
+- when the hosted release page renders Cloudflare-protected examples, `gemini-cli` must still stay on its direct/native command because the current checked route family remains under Google / Gemini `v1beta`
 - checked local verification now includes focused launcher route-mode coverage plus setup-script dry-run smoke coverage in scope
 - hosted remote `curl | bash` wording remains placeholder-scoped until the published launcher URLs are locked strongly enough for promotion
 - additional public tools may still be mentioned here when the evidence is strong enough; current helper-guided targets such as `OpenCode` and `Hermes` may now be described as Cloudflare-capable only through the checked custom-provider-root contract, while `Gemini CLI` must remain direct-only until a protected `v1beta` doctrine is explicitly proven and selected
