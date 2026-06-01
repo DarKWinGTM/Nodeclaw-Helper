@@ -33,19 +33,18 @@ Shell launcher:
 ```bash
 bash ./script/launcher.sh help
 bash ./script/launcher.sh list
-bash ./script/launcher.sh dry-run --tool <claude-code|gemini-cli|codex|hermes|openclaw|opencode|zed>
-bash ./script/launcher.sh apply --tool <claude-code|gemini-cli|codex|hermes|openclaw|opencode|zed>
-bash ./script/launcher.sh wizard
+bash ./script/launcher.sh dry-run --tool <claude-code|gemini-cli|codex|hermes|openclaw|opencode|zed> --route-mode <direct|cloudflare>
+bash ./script/launcher.sh apply --tool <claude-code|gemini-cli|codex|hermes|openclaw|opencode|zed> --route-mode <direct|cloudflare>
+bash ./script/launcher.sh wizard [--tool <claude-code|gemini-cli|codex|hermes|openclaw|opencode|zed>] [--route-mode <direct|cloudflare>]
 ```
 
 Remote launcher-first usage:
 
 ```bash
 curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- wizard
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool gemini-cli
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- apply --tool gemini-cli
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool hermes
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- apply --tool hermes
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool claude-code --route-mode cloudflare
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool gemini-cli --route-mode cloudflare
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool hermes --route-mode cloudflare
 ```
 
 PowerShell launcher:
@@ -53,8 +52,8 @@ PowerShell launcher:
 ```powershell
 .\script\launcher.ps1 -Command help
 .\script\launcher.ps1 -Command list
-.\script\launcher.ps1 -Command dry-run -Tool <claude-code|gemini-cli|codex|hermes|openclaw|opencode|zed>
-.\script\launcher.ps1 -Command wizard
+.\script\launcher.ps1 -Command dry-run -Tool <claude-code|gemini-cli|codex|hermes|openclaw|opencode|zed> -RouteMode <direct|cloudflare>
+.\script\launcher.ps1 -Command wizard -Tool <claude-code|gemini-cli|codex|hermes|openclaw|opencode|zed> -RouteMode <direct|cloudflare>
 ```
 
 Remote PowerShell launcher:
@@ -83,7 +82,7 @@ What the helper manages:
 Important boundary:
 - Claude helper writes the checked Claude Code settings file instead of only printing a profile snippet
 - shell helper can apply the settings path directly
-- PowerShell helper remains dry-run-first in the current checked scope
+- PowerShell launcher is route-mode-aware and remains dry-run-first in the current checked scope
 
 ## Gemini CLI setup posture
 
@@ -106,7 +105,7 @@ Important boundary:
 - effective Google / Gemini-shaped route family still resolves under `v1beta`
 - the helper does **not** use ACP as the setup story anymore
 - shell helper can apply the managed env/profile path
-- PowerShell launcher remains dry-run-first, but the direct Gemini PowerShell helper can write the managed env/profile files
+- PowerShell launcher is route-mode-aware and remains dry-run-first, while the direct Gemini PowerShell helper can still write the managed env/profile files
 
 ## Hermes helper path
 
@@ -130,7 +129,7 @@ What the helper manages:
 Important boundary:
 - the helper assumes Hermes profiles are separate Hermes home directories
 - the first-wave helper target is still inventory-first and does not by itself promote Hermes into Home or the main `/docs` onboarding flow
-- PowerShell launcher stays dry-run-first, but the direct Hermes PowerShell helper can write the profile-local files now
+- PowerShell launcher is route-mode-aware and stays dry-run-first, but the direct Hermes PowerShell helper can write the profile-local files now
 - this release wave does not claim that Hermes has been installed or live-tested against a real target service yet; the current proof boundary is docs-first + helper-payload accuracy
 
 ## Direct per-tool helpers
@@ -156,8 +155,12 @@ Windows PowerShell helpers:
 ## Current support boundary
 
 - Launcher remains the generic entrypoint.
+- Route mode defaults to `direct`, while `cloudflare` is explicit opt-in at the launcher surface.
+- Checked Cloudflare-capable targets are `claude-code`, `codex`, `zed`, `opencode`, and `hermes`; `openclaw` can use Cloudflare only when `NODECLAW_COMPATIBILITY` is `openai` or `anthropic`.
+- `gemini-cli` remains direct-only in the current checked scope; the launcher may accept `--route-mode cloudflare`, but it must resolve that request back to `direct` with an explicit fallback reason.
+- `opencode` and `hermes` keep the same custom-provider-root contract in both modes; launcher only swaps which root/base gets injected.
 - Shell helper paths can apply changes where the checked script supports it.
-- PowerShell launcher paths remain dry-run-first.
+- PowerShell launcher paths are route-mode-aware and remain dry-run-first.
 - Gemini helper support is env/snippet/profile oriented, not file-mutation-first like some other tools.
 - Hermes helper support is profile-local and writes `.env` / `config.yaml` / `SOUL.md` for one dedicated Hermes home/profile path.
 - `openclaw` still requires the local `openclaw` command to already exist in `PATH`.
@@ -165,6 +168,7 @@ Windows PowerShell helpers:
 - Default checked OpenAI-compatible helper base in several tools is `https://payg.nodenetwork.ovh/v1`.
 - Gemini helper examples use the service root `https://payg.nodenetwork.ovh`, while the effective Google / Gemini-shaped route family still resolves under `v1beta`.
 - Default checked model used in several helpers remains `gpt-5.4` unless the target tool expects another provider-native model id.
+- Checked local smoke coverage now verifies launcher route-mode behavior plus setup-script dry-run contracts in scope; this is not live provider, deploy, or hosted Pages proof.
 
 ## Recommended usage order
 

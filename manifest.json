@@ -7,18 +7,20 @@
   },
   "publishedAt": "2026-04-11",
   "notes": {
-    "claudeCode": "Helper-guided env-first path through ~/.claude/settings.json. The checked env contract is ANTHROPIC_BASE_URL=https://payg.nodenetwork.ovh/v1 plus ANTHROPIC_AUTH_TOKEN=<nodeclaw_access_key>.",
-    "geminiCli": "Helper-guided env-first path. Set GOOGLE_GEMINI_BASE_URL=https://payg.nodenetwork.ovh and GEMINI_API_KEY=<nodeclaw_access_key>; the effective Google / Gemini-shaped route family still resolves under v1beta.",
-    "hermes": "Helper-guided profile-local path. Create or update a dedicated Hermes profile under ~/.hermes/profiles/<profile> with profile-local .env, config.yaml, and SOUL.md, then point the main model route at the NodeClaw custom endpoint via the profile env/config contract."
+    "claudeCode": "Launcher-first helper path through ~/.claude/settings.json. Route mode defaults to direct; Cloudflare is explicit opt-in for checked Anthropic-compatible targets, and the owner-field base stays at the custom-provider root without endpoint suffixes.",
+    "geminiCli": "Launcher-first helper path. GOOGLE_GEMINI_BASE_URL stays on the direct service root, and a Cloudflare request must resolve back to direct in checked scope because the effective Google / Gemini-shaped route family still runs under v1beta.",
+    "opencode": "Helper-guided custom-provider path. OpenCode now keeps one checked custom-provider root contract in both direct and Cloudflare modes, and the launcher only swaps which root/base gets injected without appending endpoint suffixes.",
+    "hermes": "Helper-guided profile-local path. Hermes now keeps one checked custom-provider root contract in both direct and Cloudflare modes: create or update one dedicated profile under ~/.hermes/profiles/<profile> with profile-local .env, config.yaml, and SOUL.md, then let the launcher swap only the injected base_url root without appending endpoint suffixes.",
+    "verification": "Checked local smoke coverage verifies launcher route-mode behavior plus setup-script dry-run contracts in scope. This does not claim live provider, deploy, or hosted Pages proof."
   },
   "files": [
     {
       "path": "script/launcher.sh",
-      "sha256": "7cd417f11f061a9b7d61701188f5d0dcf51d7742cd512d8c588f6663b889ea7d"
+      "sha256": "db94a9f81d4b604eda75b48390f328a90b8f7dabd2aaf5a270e6607f76ee2baa"
     },
     {
       "path": "script/launcher.ps1",
-      "sha256": "47219e0f3eb55a0147992c0f32dd1743cb6c252a00de41ce10c61c3bb0c2224d"
+      "sha256": "1e7d20cc615957ff348c953a42c8c6047c96a255b29489008c6e569ebd451b63"
     },
     {
       "path": "script/setup-claude-code-nodeclaw.sh",

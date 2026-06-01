@@ -17,6 +17,8 @@ $LauncherScriptRoot = if ($LauncherHasLocalScriptPath) { Split-Path -Parent $Lau
     $SupportedTools = @('claude-code', 'gemini-cli', 'codex', 'hermes', 'openclaw', 'opencode', 'zed')
     $HelperBaseUrl = if ($env:NODECLAW_HELPER_BASE_URL) { $env:NODECLAW_HELPER_BASE_URL } else { 'https://darkwingtm.github.io/Nodeclaw-Helper/script' }
     $HelperCacheRoot = if ($env:NODECLAW_HELPER_CACHE_DIR) { $env:NODECLAW_HELPER_CACHE_DIR } elseif ($env:XDG_CACHE_HOME) { Join-Path $env:XDG_CACHE_HOME 'nodeclaw-helper' } else { Join-Path $HOME '.cache/nodeclaw-helper' }
+    $CloudflareCustomProviderBaseUrl = 'https://gateway.ai.cloudflare.com/v1/06b7333b2c174700306d7f931d809765/nodenetwork-nodeclaw-payg/custom-nodenetwork/'
+    $DefaultRouteMode = 'direct'
 
     function Show-Usage {
 @"
@@ -35,17 +37,18 @@ Recommended flow
 
 Usage:
   .\script\launcher.ps1 -Command list
-  .\script\launcher.ps1 -Command dry-run -Tool <claude-code|gemini-cli|codex|hermes|openclaw|opencode|zed>
-  .\script\launcher.ps1 -Command wizard
+  .\script\launcher.ps1 -Command dry-run -Tool <claude-code|gemini-cli|codex|hermes|openclaw|opencode|zed> -RouteMode <direct|cloudflare>
+  .\script\launcher.ps1 -Command wizard [-Tool <claude-code|gemini-cli|codex|hermes|openclaw|opencode|zed>] [-RouteMode <direct|cloudflare>]
 
 Remote example:
   powershell -ExecutionPolicy Bypass -c "irm <nodeclaw-launcher-ps1-url> | iex"
 
 Notes:
 - PowerShell helper paths remain scaffold-first and dry-run-only in the current checked scope.
+- Route mode defaults to direct; Cloudflare mode is explicit opt-in and only resolves for checked eligible helper families.
+- Gemini CLI stays helper-guided on the checked env-first path and remains direct-only in the current checked scope with the effective Google / Gemini route family under v1beta.
 - Remote launcher usage can fetch the helper payload it needs automatically.
 - Use direct per-tool scripts if you want a tool-specific entrypoint.
-- Gemini CLI stays helper-guided on the checked env-first path.
 - Hermes currently has a helper-guided profile-local setup target that the launcher can preview through the same entrypoint family.
 "@
     }
@@ -119,11 +122,118 @@ Notes:
         }
     }
 
+    function Get-CapabilityLabel {
+        param([string]$SelectedTool)
+
+        switch ($SelectedTool) {
+            'claude-code' { return 'cloudflare-capable' }
+            'codex' { return 'cloudflare-capable' }
+            'zed' { return 'cloudflare-capable' }
+            'openclaw' { return 'cloudflare-capable (openai|anthropic only)' }
+            'opencode' { return 'cloudflare-capable (custom-provider root)' }
+            'hermes' { return 'cloudflare-capable (custom-provider root)' }
+            default { return 'direct-only first-wave' }
+        }
+    }
+
+    function Resolve-RouteModeForTool {
+        param(
+            [string]$SelectedTool,
+            [string]$RequestedRouteMode,
+            [string]$Compatibility = $(if ($env:NODECLAW_COMPATIBILITY) { $env:NODECLAW_COMPATIBILITY } else { 'openai' })
+        )
+
+        $directBase = if ($env:NODECLAW_BASE_URL) { $env:NODECLAW_BASE_URL } else { 'https://payg.nodenetwork.ovh/v1' }
+        $geminiRoot = if ($env:NODECLAW_GEMINI_BASE_URL) { $env:NODECLAW_GEMINI_BASE_URL } else { 'https://payg.nodenetwork.ovh' }
+
+        switch ($SelectedTool) {
+            'claude-code' {
+                if ($RequestedRouteMode -eq 'cloudflare') {
+                    return @{ Requested='cloudflare'; Resolved='cloudflare'; Family='anthropic'; Base=$CloudflareCustomProviderBaseUrl; Reason='' }
+                }
+                return @{ Requested='direct'; Resolved='direct'; Family='anthropic'; Base=$directBase; Reason='' }
+            }
+            'codex' {
+                if ($RequestedRouteMode -eq 'cloudflare') {
+                    return @{ Requested='cloudflare'; Resolved='cloudflare'; Family='openai'; Base=$CloudflareCustomProviderBaseUrl; Reason='' }
+                }
+                return @{ Requested='direct'; Resolved='direct'; Family='openai'; Base=$directBase; Reason='' }
+            }
+            'zed' {
+                if ($RequestedRouteMode -eq 'cloudflare') {
+                    return @{ Requested='cloudflare'; Resolved='cloudflare'; Family='openai'; Base=$CloudflareCustomProviderBaseUrl; Reason='' }
+                }
+                return @{ Requested='direct'; Resolved='direct'; Family='openai'; Base=$directBase; Reason='' }
+            }
+            'openclaw' {
+                if ($RequestedRouteMode -eq 'cloudflare' -and $Compatibility -in @('openai', 'anthropic')) {
+                    return @{ Requested='cloudflare'; Resolved='cloudflare'; Family='openai-or-anthropic'; Base=$CloudflareCustomProviderBaseUrl; Reason='' }
+                }
+                if ($RequestedRouteMode -eq 'cloudflare') {
+                    return @{ Requested='cloudflare'; Resolved='direct'; Family='custom-unverified'; Base=$directBase; Reason='OpenClaw can only use Cloudflare mode when NODECLAW_COMPATIBILITY is openai or anthropic.' }
+                }
+                return @{ Requested='direct'; Resolved='direct'; Family='openai-or-anthropic'; Base=$directBase; Reason='' }
+            }
+            'gemini-cli' {
+                if ($RequestedRouteMode -eq 'cloudflare') {
+                    return @{ Requested='cloudflare'; Resolved='direct'; Family='gemini-v1beta'; Base=$geminiRoot; Reason='Cloudflare mode is not exposed for Gemini v1beta in checked scope yet, so the helper keeps the direct Gemini root.' }
+                }
+                return @{ Requested='direct'; Resolved='direct'; Family='gemini-v1beta'; Base=$geminiRoot; Reason='' }
+            }
+            'opencode' {
+                if ($RequestedRouteMode -eq 'cloudflare') {
+                    return @{ Requested='cloudflare'; Resolved='cloudflare'; Family='custom-provider-root'; Base=$CloudflareCustomProviderBaseUrl; Reason='' }
+                }
+                return @{ Requested='direct'; Resolved='direct'; Family='custom-provider-root'; Base=$directBase; Reason='' }
+            }
+            'hermes' {
+                if ($RequestedRouteMode -eq 'cloudflare') {
+                    return @{ Requested='cloudflare'; Resolved='cloudflare'; Family='custom-provider-root'; Base=$CloudflareCustomProviderBaseUrl; Reason='' }
+                }
+                return @{ Requested='direct'; Resolved='direct'; Family='custom-provider-root'; Base=$directBase; Reason='' }
+            }
+            default {
+                throw "Unsupported tool: $SelectedTool"
+            }
+        }
+    }
+
+    function Export-ResolvedRouteEnv {
+        param(
+            [string]$SelectedTool,
+            [hashtable]$Route
+        )
+
+        $env:NODECLAW_REQUESTED_ROUTE_MODE = $Route.Requested
+        $env:NODECLAW_RESOLVED_MODE = $Route.Resolved
+        $env:NODECLAW_EFFECTIVE_COMPATIBILITY_FAMILY = $Route.Family
+        $env:NODECLAW_EFFECTIVE_BASE_URL = $Route.Base
+        $env:NODECLAW_FALLBACK_REASON = $Route.Reason
+        if ($SelectedTool -eq 'gemini-cli') {
+            $env:NODECLAW_GEMINI_BASE_URL = $Route.Base
+        } else {
+            $env:NODECLAW_BASE_URL = $Route.Base
+        }
+    }
+
+    function Write-RouteResolutionSummary {
+        param([hashtable]$Route)
+
+        Write-Host "Requested route mode: $($Route.Requested)"
+        Write-Host "Resolved route mode: $($Route.Resolved)"
+        Write-Host "Compatibility family: $($Route.Family)"
+        Write-Host "Effective base URL: $($Route.Base)"
+        if (-not [string]::IsNullOrWhiteSpace($Route.Reason)) {
+            Write-Host "Fallback reason: $($Route.Reason)"
+        }
+    }
+
     function Parse-LauncherArguments {
         param([string[]]$RawArgs)
 
         $resolvedCommand = if ($env:NODECLAW_LAUNCHER_COMMAND) { $env:NODECLAW_LAUNCHER_COMMAND } else { '' }
         $resolvedTool = if ($env:NODECLAW_LAUNCHER_TOOL) { $env:NODECLAW_LAUNCHER_TOOL } else { '' }
+        $resolvedRouteMode = if ($env:NODECLAW_LAUNCHER_ROUTE_MODE) { $env:NODECLAW_LAUNCHER_ROUTE_MODE } else { $DefaultRouteMode }
 
         for ($i = 0; $i -lt $RawArgs.Length; $i++) {
             switch ($RawArgs[$i]) {
@@ -140,6 +250,13 @@ Notes:
                     }
                     $i++
                     $resolvedTool = $RawArgs[$i]
+                }
+                '-RouteMode' {
+                    if ($i + 1 -ge $RawArgs.Length) {
+                        throw 'Set -RouteMode to one of: direct, cloudflare.'
+                    }
+                    $i++
+                    $resolvedRouteMode = $RawArgs[$i]
                 }
                 default {
                     if ([string]::IsNullOrWhiteSpace($resolvedCommand)) {
@@ -171,15 +288,21 @@ Notes:
             throw 'Set -Tool when using dry-run.'
         }
 
+        if ($resolvedRouteMode -notin @('direct', 'cloudflare')) {
+            throw "Unsupported route mode: $resolvedRouteMode"
+        }
+
         return @{
             Command = $resolvedCommand
             Tool = $resolvedTool
+            RouteMode = $resolvedRouteMode
         }
     }
 
     $parsed = Parse-LauncherArguments -RawArgs $LauncherArgs
     $Command = $parsed.Command
     $Tool = $parsed.Tool
+    $RouteMode = $parsed.RouteMode
 
     if ($Command -eq 'help') {
         Show-Usage
@@ -194,7 +317,7 @@ Notes:
         Write-Host ''
         Write-Host 'What each helper changes:'
         foreach ($Item in $SupportedTools) {
-            Write-Host "  $Item -> $(Describe-Tool -SelectedTool $Item)"
+            Write-Host "  $Item -> $(Describe-Tool -SelectedTool $Item) [$(Get-CapabilityLabel -SelectedTool $Item)]"
         }
         return
     }
@@ -202,7 +325,7 @@ Notes:
     if ($Command -eq 'wizard') {
         Write-Host 'NodeClaw Setup Wizard'
         Write-Host ''
-        Write-Host 'Step 1/4 — Choose tool'
+        Write-Host 'Step 1/5 — Choose tool'
         Write-Host '  [1] claude-code'
         Write-Host '  [2] gemini-cli'
         Write-Host '  [3] codex'
@@ -232,23 +355,44 @@ Notes:
         }
 
         Write-Host ''
-        Write-Host 'Step 2/4 — What this helper does'
+        Write-Host 'Step 2/5 — Choose routing mode'
+        if ($LauncherArgs -contains '-RouteMode' -or -not [string]::IsNullOrWhiteSpace($env:NODECLAW_LAUNCHER_ROUTE_MODE)) {
+            Write-Host "Preselected route mode: $RouteMode"
+        } else {
+            Write-Host '  [1] direct'
+            Write-Host '  [2] cloudflare'
+            Write-Host ''
+            $RouteSelection = Read-Host 'Select routing mode'
+            switch ($RouteSelection) {
+                '1' { $RouteMode = 'direct' }
+                '2' { $RouteMode = 'cloudflare' }
+                'direct' { $RouteMode = 'direct' }
+                'cloudflare' { $RouteMode = 'cloudflare' }
+                default { throw "Unsupported routing mode selection: $RouteSelection" }
+            }
+        }
+
+        Write-Host ''
+        Write-Host 'Step 3/5 — What this helper does'
         Write-Host "  Tool: $Tool"
         Write-Host "  Summary: $(Describe-Tool -SelectedTool $Tool)"
         Write-Host "  Target: $(Describe-Target -SelectedTool $Tool)"
 
+        $Route = Resolve-RouteModeForTool -SelectedTool $Tool -RequestedRouteMode $RouteMode
+        Export-ResolvedRouteEnv -SelectedTool $Tool -Route $Route
         $Target = Resolve-TargetScript -SelectedTool $Tool
         Write-Host ''
-        Write-Host 'Step 3/4 — Preview first'
+        Write-Host 'Step 4/5 — Preview first'
         Write-Host '  Launcher will run:'
         Write-Host "    $Target -DryRun"
         if (-not $HasLocalScriptPath) {
             Write-Host '  Remote launcher will fetch the helper payload automatically when needed.'
         }
         Write-Host ''
+        Write-RouteResolutionSummary -Route $Route
         & $Target -DryRun
         Write-Host ''
-        Write-Host 'Step 4/4 — Apply'
+        Write-Host 'Step 5/5 — Apply'
         Write-Host '  PowerShell helpers remain dry-run-only in the current checked scope.'
         Write-Host '  If you want the apply path today, use the shell launcher for the same tool.'
         return
@@ -261,7 +405,10 @@ Notes:
 
     switch ($Command) {
         'dry-run' {
+            $Route = Resolve-RouteModeForTool -SelectedTool $Tool -RequestedRouteMode $RouteMode
+            Export-ResolvedRouteEnv -SelectedTool $Tool -Route $Route
             Write-Host "Launcher target: $Target"
+            Write-RouteResolutionSummary -Route $Route
             & $Target -DryRun
         }
         default {

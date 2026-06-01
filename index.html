@@ -99,18 +99,28 @@
           <h2 data-lang="en">Current support boundary</h2>
           <h2 data-lang="th">ขอบเขตการรองรับปัจจุบัน</h2>
           <ul data-lang="en">
+            <li>Launcher route mode defaults to <code>direct</code>; <code>cloudflare</code> is explicit opt-in.</li>
+            <li>Checked Cloudflare-capable targets are <code>claude-code</code>, <code>codex</code>, <code>zed</code>, <code>opencode</code>, and <code>hermes</code>; <code>openclaw</code> can use Cloudflare only when compatibility is <code>openai</code> or <code>anthropic</code>.</li>
+            <li><code>gemini-cli</code> stays direct-only in the current checked scope and falls back to <code>direct</code> when Cloudflare is requested.</li>
+            <li><code>opencode</code> and <code>hermes</code> keep the same custom-provider root in both modes; the launcher only swaps which root/base gets injected.</li>
             <li>Shell helper paths can apply changes where the checked script supports it.</li>
-            <li>PowerShell launcher paths remain scaffold-first and dry-run-only.</li>
+            <li>PowerShell launcher paths are route-mode-aware and remain dry-run-first.</li>
             <li><code>gemini-cli</code> helper support is env/snippet/profile oriented.</li>
             <li><code>hermes</code> helper support is profile-local and writes <code>.env</code>, <code>config.yaml</code>, and <code>SOUL.md</code> for one dedicated Hermes profile path.</li>
             <li><code>openclaw</code> still requires the local <code>openclaw</code> command in <code>PATH</code>.</li>
+            <li>Checked local smoke coverage now verifies launcher route-mode behavior plus setup-script dry-run contracts in scope; this is not live provider, deploy, or hosted Pages proof.</li>
           </ul>
           <ul data-lang="th">
+            <li>route mode ของ launcher จะ default เป็น <code>direct</code> และ <code>cloudflare</code> เป็นการ opt-in แบบชัดเจน</li>
+            <li>target ที่ตรวจแล้วว่าใช้ Cloudflare ได้คือ <code>claude-code</code>, <code>codex</code>, <code>zed</code>, <code>opencode</code> และ <code>hermes</code>; ส่วน <code>openclaw</code> จะใช้ได้เมื่อ compatibility เป็น <code>openai</code> หรือ <code>anthropic</code> เท่านั้น</li>
+            <li><code>gemini-cli</code> ยังเป็น direct-only ในขอบเขตที่ตรวจแล้วตอนนี้ และจะ fallback กลับไป <code>direct</code> เมื่อมีการขอ Cloudflare</li>
+            <li><code>opencode</code> และ <code>hermes</code> จะใช้ custom-provider root ชุดเดิมทั้งสองโหมด โดย launcher มีหน้าที่สลับ root/base ที่ inject เข้าไปเท่านั้น</li>
             <li>ฝั่ง shell สามารถ apply ได้ในจุดที่สคริปต์ที่ตรวจรองรับจริง</li>
-            <li>launcher ฝั่ง PowerShell ยังเป็น scaffold-first และ dry-run-only</li>
+            <li>launcher ฝั่ง PowerShell รองรับ route mode แล้ว แต่ยังคงเป็นแนว dry-run-first</li>
             <li>helper ของ <code>gemini-cli</code> เป็นแนวจัดการ env/snippet/profile</li>
             <li>helper ของ <code>hermes</code> จะเขียน <code>.env</code>, <code>config.yaml</code> และ <code>SOUL.md</code> ให้ใน profile path เฉพาะของ Hermes</li>
             <li><code>openclaw</code> ยังต้องมีคำสั่ง <code>openclaw</code> อยู่ใน <code>PATH</code></li>
+            <li>ตอนนี้มี smoke coverage แบบ local สำหรับ route-mode ของ launcher และ dry-run contract ของ setup scripts ในขอบเขตที่ตรวจแล้ว แต่ยังไม่ใช่การพิสูจน์แบบ live provider, deploy หรือ hosted Pages</li>
           </ul>
         </section>
       </div>
@@ -119,10 +129,9 @@
         <h2 data-lang="en">Quick start</h2>
         <h2 data-lang="th">Quick start</h2>
         <pre><code>curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- wizard
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool gemini-cli
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- apply --tool gemini-cli
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool hermes
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- apply --tool hermes</code></pre>
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool claude-code --route-mode cloudflare
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool gemini-cli --route-mode cloudflare
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool hermes --route-mode cloudflare</code></pre>
         <p class="muted" data-lang="en">Remote usage should call launcher only. Launcher fetches the helper payload it needs automatically.</p>
         <p class="muted" data-lang="th">การใช้งานแบบ remote ควรเรียก launcher อย่างเดียว แล้ว launcher จะไปดึง helper payload ที่ต้องใช้ให้อัตโนมัติ</p>
         <pre><code>powershell -ExecutionPolicy Bypass -c "irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"</code></pre>
@@ -136,14 +145,14 @@ curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bas
           <pre><code>export ANTHROPIC_BASE_URL="https://payg.nodenetwork.ovh/v1"
 export ANTHROPIC_AUTH_TOKEN="&lt;nodeclaw_access_key&gt;"
 claude</code></pre>
-          <p class="muted">The helper manages the same env-based Claude contract through the checked `~/.claude/settings.json` path, while Windows remains dry-run-first in the current checked scope.</p>
+          <p class="muted">The helper manages the same env-based Claude contract through the checked `~/.claude/settings.json` path, while the PowerShell launcher is route-mode-aware and remains dry-run-first in the current checked scope.</p>
         </div>
         <div data-lang="th">
           <p>เส้นทางหลักของการตั้งค่า:</p>
           <pre><code>export ANTHROPIC_BASE_URL="https://payg.nodenetwork.ovh/v1"
 export ANTHROPIC_AUTH_TOKEN="&lt;nodeclaw_access_key&gt;"
 claude</code></pre>
-          <p class="muted">helper จะจัดการ Claude env contract เดียวกันนี้ผ่าน path `~/.claude/settings.json` ที่ตรวจแล้ว โดยฝั่ง Windows ยังเป็น dry-run-first ในขอบเขตที่ตรวจตอนนี้</p>
+          <p class="muted">helper จะจัดการ Claude env contract เดียวกันนี้ผ่าน path `~/.claude/settings.json` ที่ตรวจแล้ว โดย launcher ฝั่ง PowerShell รองรับ route mode แล้ว แต่ยังคงเป็น dry-run-first ในขอบเขตที่ตรวจตอนนี้</p>
         </div>
       </section>
 
@@ -216,8 +225,8 @@ bash ./script/setup-hermes-nodeclaw.sh</code></pre>
 
         <h3 style="margin-top:18px;" data-lang="en">Windows PowerShell helpers</h3>
         <h3 style="margin-top:18px;" data-lang="th">ตัวช่วยฝั่ง PowerShell สำหรับ Windows</h3>
-        <p class="muted" data-lang="en">PowerShell launcher paths remain dry-run-first, while the direct PowerShell helper files stay listed here separately.</p>
-        <p class="muted" data-lang="th">launcher ฝั่ง PowerShell ยังเป็นแนว dry-run-first แต่ไฟล์ helper ฝั่ง PowerShell แบบแยกยังถูกแสดงไว้ต่างหากที่นี่</p>
+        <p class="muted" data-lang="en">PowerShell launcher paths are route-mode-aware and remain dry-run-first, while the direct PowerShell helper files stay listed here separately.</p>
+        <p class="muted" data-lang="th">launcher ฝั่ง PowerShell รองรับ route mode แล้ว แต่ยังคงเป็นแนว dry-run-first ส่วนไฟล์ helper ฝั่ง PowerShell แบบแยกยังถูกแสดงไว้ต่างหากที่นี่</p>
         <div class="downloads">
           <a class="download" href="./script/setup-claude-code-nodeclaw.ps1">setup-claude-code-nodeclaw.ps1<small data-lang="en">Claude Code PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ Claude Code</small></a>
           <a class="download" href="./script/setup-gemini-cli-nodeclaw.ps1">setup-gemini-cli-nodeclaw.ps1<small data-lang="en">Gemini CLI PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ Gemini CLI</small></a>

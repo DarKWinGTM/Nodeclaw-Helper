@@ -10,6 +10,8 @@ fi
 TOOLS=("claude-code" "gemini-cli" "opencode" "openclaw" "zed" "codex" "hermes")
 HELPER_BASE_URL="${NODECLAW_HELPER_BASE_URL:-https://darkwingtm.github.io/Nodeclaw-Helper/script}"
 HELPER_CACHE_DIR="${NODECLAW_HELPER_CACHE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/nodeclaw-helper}"
+CLOUDFLARE_CUSTOM_PROVIDER_BASE_URL="https://gateway.ai.cloudflare.com/v1/06b7333b2c174700306d7f931d809765/nodenetwork-nodeclaw-payg/custom-nodenetwork/"
+DEFAULT_ROUTE_MODE="direct"
 
 get_shell_target() {
   case "$1" in
@@ -149,6 +151,110 @@ describe_target() {
   esac
 }
 
+capability_label() {
+  case "$1" in
+    claude-code|codex|zed)
+      printf '%s\n' 'cloudflare-capable'
+      ;;
+    openclaw)
+      printf '%s\n' 'cloudflare-capable (openai|anthropic only)'
+      ;;
+    opencode|hermes)
+      printf '%s\n' 'cloudflare-capable (custom-provider root)'
+      ;;
+    *)
+      printf '%s\n' 'direct-only first-wave'
+      ;;
+  esac
+}
+
+route_mode_for_tool() {
+  local tool="$1"
+  local requested="$2"
+  local compatibility="${NODECLAW_COMPATIBILITY:-openai}"
+  local direct_base="${NODECLAW_BASE_URL:-https://payg.nodenetwork.ovh/v1}"
+  local gemini_root="${NODECLAW_GEMINI_BASE_URL:-https://payg.nodenetwork.ovh}"
+
+  case "$tool" in
+    claude-code)
+      if [ "$requested" = 'cloudflare' ]; then
+        printf '%s|%s|%s|%s|%s\n' "$requested" 'cloudflare' 'anthropic' "$CLOUDFLARE_CUSTOM_PROVIDER_BASE_URL" ''
+      else
+        printf '%s|%s|%s|%s|%s\n' "$requested" 'direct' 'anthropic' "$direct_base" ''
+      fi
+      ;;
+    codex|zed)
+      if [ "$requested" = 'cloudflare' ]; then
+        printf '%s|%s|%s|%s|%s\n' "$requested" 'cloudflare' 'openai' "$CLOUDFLARE_CUSTOM_PROVIDER_BASE_URL" ''
+      else
+        printf '%s|%s|%s|%s|%s\n' "$requested" 'direct' 'openai' "$direct_base" ''
+      fi
+      ;;
+    openclaw)
+      if [ "$requested" = 'cloudflare' ] && { [ "$compatibility" = 'openai' ] || [ "$compatibility" = 'anthropic' ]; }; then
+        printf '%s|%s|%s|%s|%s\n' "$requested" 'cloudflare' 'openai-or-anthropic' "$CLOUDFLARE_CUSTOM_PROVIDER_BASE_URL" ''
+      elif [ "$requested" = 'cloudflare' ]; then
+        printf '%s|%s|%s|%s|%s\n' "$requested" 'direct' 'custom-unverified' "$direct_base" 'OpenClaw can only use Cloudflare mode when NODECLAW_COMPATIBILITY is openai or anthropic.'
+      else
+        printf '%s|%s|%s|%s|%s\n' "$requested" 'direct' 'openai-or-anthropic' "$direct_base" ''
+      fi
+      ;;
+    gemini-cli)
+      if [ "$requested" = 'cloudflare' ]; then
+        printf '%s|%s|%s|%s|%s\n' "$requested" 'direct' 'gemini-v1beta' "$gemini_root" 'Cloudflare mode is not exposed for Gemini v1beta in checked scope yet, so the helper keeps the direct Gemini root.'
+      else
+        printf '%s|%s|%s|%s|%s\n' "$requested" 'direct' 'gemini-v1beta' "$gemini_root" ''
+      fi
+      ;;
+    opencode|hermes)
+      if [ "$requested" = 'cloudflare' ]; then
+        printf '%s|%s|%s|%s|%s\n' "$requested" 'cloudflare' 'custom-provider-root' "$CLOUDFLARE_CUSTOM_PROVIDER_BASE_URL" ''
+      else
+        printf '%s|%s|%s|%s|%s\n' "$requested" 'direct' 'custom-provider-root' "$direct_base" ''
+      fi
+      ;;
+    *)
+      printf '%s|%s|%s|%s|%s\n' "$requested" 'direct' 'custom-unverified' "$direct_base" 'Unknown tool family.'
+      ;;
+  esac
+}
+
+export_resolved_route_env() {
+  local tool="$1"
+  local requested="$2"
+  local requested_mode resolved_mode family base reason
+
+  IFS='|' read -r requested_mode resolved_mode family base reason <<EOF
+$(route_mode_for_tool "$tool" "$requested")
+EOF
+
+  export NODECLAW_REQUESTED_ROUTE_MODE="$requested_mode"
+  export NODECLAW_RESOLVED_MODE="$resolved_mode"
+  export NODECLAW_EFFECTIVE_COMPATIBILITY_FAMILY="$family"
+  export NODECLAW_EFFECTIVE_BASE_URL="$base"
+  if [ -n "$reason" ]; then
+    export NODECLAW_FALLBACK_REASON="$reason"
+  else
+    unset NODECLAW_FALLBACK_REASON 2>/dev/null || true
+  fi
+
+  if [ "$tool" = 'gemini-cli' ]; then
+    export NODECLAW_GEMINI_BASE_URL="$base"
+  else
+    export NODECLAW_BASE_URL="$base"
+  fi
+}
+
+print_route_resolution_summary() {
+  printf 'Requested route mode: %s\n' "$NODECLAW_REQUESTED_ROUTE_MODE"
+  printf 'Resolved route mode: %s\n' "$NODECLAW_RESOLVED_MODE"
+  printf 'Compatibility family: %s\n' "$NODECLAW_EFFECTIVE_COMPATIBILITY_FAMILY"
+  printf 'Effective base URL: %s\n' "$NODECLAW_EFFECTIVE_BASE_URL"
+  if [ -n "${NODECLAW_FALLBACK_REASON:-}" ]; then
+    printf 'Fallback reason: %s\n' "$NODECLAW_FALLBACK_REASON"
+  fi
+}
+
 usage() {
   cat <<'EOF'
 NodeClaw Helper Launcher
@@ -178,19 +284,21 @@ Commands
   list
       Show supported tools plus what each helper changes.
 
-  dry-run --tool <tool>
+  dry-run --tool <tool> [--route-mode <direct|cloudflare>]
       Preview the exact config change without writing files.
       Supported tools: claude-code, gemini-cli, codex, hermes, openclaw, opencode, zed.
+      Route mode defaults to direct. Cloudflare mode is only used for checked eligible tool families.
 
-  apply --tool <tool>
+  apply --tool <tool> [--route-mode <direct|cloudflare>]
       Apply the config change for the selected tool.
       Apply is currently supported for: claude-code, gemini-cli, codex, hermes, openclaw, opencode, zed.
+      Route mode defaults to direct. Ineligible tools fall back to direct with an explicit reason.
 
-  wizard [--tool <tool>]
-      Guided setup mode. Helps choose tool, shows what will change,
+  wizard [--tool <tool>] [--route-mode <direct|cloudflare>]
+      Guided setup mode. Helps choose tool, choose route mode, shows what will change,
       runs dry-run first, and only then offers apply when a helper-managed apply path exists.
 
-  windows-dry-run --tool <tool>
+  windows-dry-run --tool <tool> [--route-mode <direct|cloudflare>]
       Preview the PowerShell helper path.
       Current checked boundary: Windows is scaffold-first / dry-run-only.
 
@@ -200,14 +308,18 @@ Commands
 Notes
 - Shell helper paths can apply changes where the checked contract supports it.
 - PowerShell helper paths remain dry-run-only in the current checked scope.
+- Route mode defaults to direct; Cloudflare mode is explicit opt-in and only resolves for checked eligible helper families.
+- Gemini CLI remains direct-only in the current checked scope and keeps the effective Google / Gemini route family under v1beta.
 - Remote launcher usage can fetch the required helper payload automatically from the published helper surface.
 - Override the remote helper base with NODECLAW_HELPER_BASE_URL when needed.
 EOF
 }
 
-require_tool_value() {
+require_flag_value() {
+  local flag="$1"
+  shift
   if [ $# -eq 0 ]; then
-    printf '--tool requires a value.\n' >&2
+    printf '%s requires a value.\n' "$flag" >&2
     usage >&2
     exit 1
   fi
@@ -231,8 +343,12 @@ parse_tool_flag() {
     case "$1" in
       --tool)
         shift
-        require_tool_value "$@"
+        require_flag_value '--tool' "$@"
         tool="$1"
+        ;;
+      --route-mode)
+        shift
+        require_flag_value '--route-mode' "$@"
         ;;
       *)
         printf 'Unknown argument: %s\n' "$1" >&2
@@ -258,6 +374,40 @@ parse_tool_flag() {
   printf '%s\n' "$tool"
 }
 
+parse_route_mode_flag() {
+  local requested="$DEFAULT_ROUTE_MODE"
+
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --tool)
+        shift
+        require_flag_value '--tool' "$@"
+        ;;
+      --route-mode)
+        shift
+        require_flag_value '--route-mode' "$@"
+        requested="$1"
+        ;;
+      *)
+        printf 'Unknown argument: %s\n' "$1" >&2
+        usage >&2
+        exit 1
+        ;;
+    esac
+    shift
+  done
+
+  case "$requested" in
+    direct|cloudflare)
+      printf '%s\n' "$requested"
+      ;;
+    *)
+      printf 'Unsupported route mode: %s\n' "$requested" >&2
+      exit 1
+      ;;
+  esac
+}
+
 cmd_list() {
   printf 'Supported tools:\n'
   local tool
@@ -267,23 +417,29 @@ cmd_list() {
 
   printf '\nWhat each helper changes:\n'
   for tool in "${TOOLS[@]}"; do
-    printf '  %s -> %s\n' "$tool" "$(describe_tool "$tool")"
+    printf '  %s -> %s [%s]\n' "$tool" "$(describe_tool "$tool")" "$(capability_label "$tool")"
   done
 }
 
 cmd_dry_run() {
-  local tool target
+  local tool target route_mode
   tool="$(parse_tool_flag "$@")"
+  route_mode="$(parse_route_mode_flag "$@")"
   target="$(resolve_shell_target "$tool")"
+  export_resolved_route_env "$tool" "$route_mode"
   printf 'Launcher target: %s\n' "$target"
+  print_route_resolution_summary
   bash "$target" --dry-run
 }
 
 cmd_apply() {
-  local tool target
+  local tool target route_mode
   tool="$(parse_tool_flag "$@")"
+  route_mode="$(parse_route_mode_flag "$@")"
   target="$(resolve_shell_target "$tool")"
+  export_resolved_route_env "$tool" "$route_mode"
   printf 'Launcher target: %s\n' "$target"
+  print_route_resolution_summary
   bash "$target"
 }
 
@@ -303,7 +459,7 @@ prompt_choice() {
 
 cmd_wizard() {
   show_wizard_header
-  printf '\nStep 1/4 — Choose tool\n'
+  printf '\nStep 1/5 — Choose tool\n'
   printf '  [1] claude-code\n'
   printf '  [2] gemini-cli\n'
   printf '  [3] codex\n'
@@ -312,7 +468,7 @@ cmd_wizard() {
   printf '  [6] opencode\n'
   printf '  [7] zed\n\n'
 
-  local selection tool target run_cmd apply_now
+  local selection tool target apply_now route_mode_input route_mode
   if [ $# -gt 0 ]; then
     tool="$(parse_tool_flag "$@")"
     selection="$tool"
@@ -335,14 +491,34 @@ cmd_wizard() {
       ;;
   esac
 
-  printf '\nStep 2/4 — What this helper does\n'
+  if [ $# -gt 0 ]; then
+    route_mode="$(parse_route_mode_flag "$@")"
+    printf '\nStep 2/5 — Choose routing mode\n'
+    printf 'Preselected route mode: %s\n' "$route_mode"
+  else
+    printf '\nStep 2/5 — Choose routing mode\n'
+    printf '  [1] direct\n'
+    printf '  [2] cloudflare\n\n'
+    route_mode_input="$(prompt_choice 'Select routing mode: ')"
+    case "$route_mode_input" in
+      1|direct) route_mode='direct' ;;
+      2|cloudflare) route_mode='cloudflare' ;;
+      *)
+        printf 'Unsupported routing mode selection: %s\n' "$route_mode_input" >&2
+        exit 1
+        ;;
+    esac
+  fi
+
+  printf '\nStep 3/5 — What this helper does\n'
   printf '  Tool: %s\n' "$tool"
   printf '  Summary: %s\n' "$(describe_tool "$tool")"
   printf '  Target: %s\n' "$(describe_target "$tool")"
 
   target="$(resolve_shell_target "$tool")"
+  export_resolved_route_env "$tool" "$route_mode"
 
-  printf '\nStep 3/4 — Preview first\n'
+  printf '\nStep 4/5 — Preview first\n'
   printf '  Launcher will run:\n'
   printf '    bash %q --dry-run\n' "$target"
   if [ -z "$SCRIPT_SOURCE" ]; then
@@ -350,9 +526,10 @@ cmd_wizard() {
   fi
 
   printf '\nRunning dry-run now...\n\n'
+  print_route_resolution_summary
   bash "$target" --dry-run
 
-  printf '\nStep 4/4 — Apply\n'
+  printf '\nStep 5/5 — Apply\n'
   apply_now="$(prompt_choice 'Apply this change now? [y/N]: ')"
   case "$apply_now" in
     y|Y|yes|YES)
@@ -361,13 +538,14 @@ cmd_wizard() {
       ;;
     *)
       printf '\nNo files were changed by apply. You can rerun later with:\n'
-      printf '  bash ./script/launcher.sh apply --tool %s\n' "$tool"
+      printf '  bash ./script/launcher.sh apply --tool %s --route-mode %s\n' "$tool" "$route_mode"
       ;;
   esac
 }
 
 run_windows_launcher() {
   local tool="$1"
+  local route_mode="$2"
   local launcher_ps1
 
   launcher_ps1="$(resolve_powershell_launcher)"
@@ -384,13 +562,16 @@ run_windows_launcher() {
     ps_bin="powershell"
   fi
 
-  "$ps_bin" -File "$launcher_ps1" -Command dry-run -Tool "$tool"
+  "$ps_bin" -File "$launcher_ps1" -Command dry-run -Tool "$tool" -RouteMode "$route_mode"
 }
 
 cmd_windows_dry_run() {
-  local tool
+  local tool route_mode
   tool="$(parse_tool_flag "$@")"
-  run_windows_launcher "$tool"
+  route_mode="$(parse_route_mode_flag "$@")"
+  export_resolved_route_env "$tool" "$route_mode"
+  print_route_resolution_summary
+  run_windows_launcher "$tool" "$route_mode"
 }
 
 main() {
