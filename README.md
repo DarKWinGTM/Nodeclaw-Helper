@@ -45,6 +45,8 @@ Direct-native examples first:
 ```bash
 curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- wizard
 curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool claude-code
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool codex
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool zed
 curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool openclaw
 curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool gemini-cli
 curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool opencode
@@ -56,6 +58,8 @@ Optional Cloudflare-protected launcher examples:
 ```bash
 curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- wizard --route-mode cloudflare
 curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool claude-code --route-mode cloudflare
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool codex --route-mode cloudflare
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool zed --route-mode cloudflare
 curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool openclaw --route-mode cloudflare
 curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool opencode --route-mode cloudflare
 curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool hermes --route-mode cloudflare
@@ -79,6 +83,8 @@ Direct-native examples first:
 ```powershell
 powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
 powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='claude-code'; irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
+powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='codex'; irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
+powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='zed'; irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
 powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='openclaw'; irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
 powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='gemini-cli'; irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
 powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='opencode'; irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
@@ -90,6 +96,8 @@ Optional Cloudflare-protected launcher examples:
 ```powershell
 powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
 powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='claude-code'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
+powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='codex'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
+powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='zed'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
 powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='openclaw'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
 powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='opencode'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
 powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='hermes'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"

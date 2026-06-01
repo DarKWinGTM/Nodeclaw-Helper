@@ -312,6 +312,8 @@ gemini</code></pre>
             direct: [
               `curl -fsSL ${LAUNCHER_SH} | bash -s -- wizard`,
               `curl -fsSL ${LAUNCHER_SH} | bash -s -- dry-run --tool claude-code`,
+              `curl -fsSL ${LAUNCHER_SH} | bash -s -- dry-run --tool codex`,
+              `curl -fsSL ${LAUNCHER_SH} | bash -s -- dry-run --tool zed`,
               `curl -fsSL ${LAUNCHER_SH} | bash -s -- dry-run --tool openclaw`,
               `curl -fsSL ${LAUNCHER_SH} | bash -s -- dry-run --tool gemini-cli`,
               `curl -fsSL ${LAUNCHER_SH} | bash -s -- dry-run --tool opencode`,
@@ -320,6 +322,8 @@ gemini</code></pre>
             cloudflare: [
               `curl -fsSL ${LAUNCHER_SH} | bash -s -- wizard --route-mode cloudflare`,
               `curl -fsSL ${LAUNCHER_SH} | bash -s -- dry-run --tool claude-code --route-mode cloudflare`,
+              `curl -fsSL ${LAUNCHER_SH} | bash -s -- dry-run --tool codex --route-mode cloudflare`,
+              `curl -fsSL ${LAUNCHER_SH} | bash -s -- dry-run --tool zed --route-mode cloudflare`,
               `curl -fsSL ${LAUNCHER_SH} | bash -s -- dry-run --tool openclaw --route-mode cloudflare`,
               `curl -fsSL ${LAUNCHER_SH} | bash -s -- dry-run --tool gemini-cli`,
               `curl -fsSL ${LAUNCHER_SH} | bash -s -- dry-run --tool opencode --route-mode cloudflare`,
@@ -330,6 +334,8 @@ gemini</code></pre>
             direct: [
               `powershell -ExecutionPolicy Bypass -c \"$env:NODECLAW_LAUNCHER_COMMAND='wizard'; irm ${LAUNCHER_PS1} | iex\"`,
               `powershell -ExecutionPolicy Bypass -c \"$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='claude-code'; irm ${LAUNCHER_PS1} | iex\"`,
+              `powershell -ExecutionPolicy Bypass -c \"$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='codex'; irm ${LAUNCHER_PS1} | iex\"`,
+              `powershell -ExecutionPolicy Bypass -c \"$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='zed'; irm ${LAUNCHER_PS1} | iex\"`,
               `powershell -ExecutionPolicy Bypass -c \"$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='openclaw'; irm ${LAUNCHER_PS1} | iex\"`,
               `powershell -ExecutionPolicy Bypass -c \"$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='gemini-cli'; irm ${LAUNCHER_PS1} | iex\"`,
               `powershell -ExecutionPolicy Bypass -c \"$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='opencode'; irm ${LAUNCHER_PS1} | iex\"`,
@@ -338,6 +344,8 @@ gemini</code></pre>
             cloudflare: [
               `powershell -ExecutionPolicy Bypass -c \"$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; irm ${LAUNCHER_PS1} | iex\"`,
               `powershell -ExecutionPolicy Bypass -c \"$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='claude-code'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; irm ${LAUNCHER_PS1} | iex\"`,
+              `powershell -ExecutionPolicy Bypass -c \"$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='codex'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; irm ${LAUNCHER_PS1} | iex\"`,
+              `powershell -ExecutionPolicy Bypass -c \"$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='zed'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; irm ${LAUNCHER_PS1} | iex\"`,
               `powershell -ExecutionPolicy Bypass -c \"$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='openclaw'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; irm ${LAUNCHER_PS1} | iex\"`,
               `powershell -ExecutionPolicy Bypass -c \"$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='gemini-cli'; irm ${LAUNCHER_PS1} | iex\"`,
               `powershell -ExecutionPolicy Bypass -c \"$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='opencode'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; irm ${LAUNCHER_PS1} | iex\"`,
