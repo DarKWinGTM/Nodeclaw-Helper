@@ -42,10 +42,10 @@ Current checked truth:
 - the site can expose launcher help, wizard guidance, direct-native examples, an opt-in Cloudflare-protected toggle for command rendering, and direct helper downloads
 - the remote contract should call launcher only; launcher may fetch the helper payload it needs automatically
 - the hosted release page should feel native-first by default; Cloudflare wording belongs behind explicit opt-in state rather than as the first visual posture
-- when the hosted release page renders Cloudflare-protected examples, `gemini-cli` must still stay on its direct/native command because the current checked route family remains under Google / Gemini `v1beta`
+- when the hosted release page renders Cloudflare-protected examples, `gemini-cli` now follows the protected Google / Gemini `v1beta` command path while direct mode still keeps the native Gemini root
 - checked local verification now includes focused launcher route-mode coverage plus setup-script dry-run smoke coverage in scope
 - hosted remote `curl | bash` wording remains placeholder-scoped until the published launcher URLs are locked strongly enough for promotion
-- additional public tools may still be mentioned here when the evidence is strong enough; current helper-guided targets such as `OpenCode` and `Hermes` may now be described as Cloudflare-capable only through the checked custom-provider-root contract, while `Gemini CLI` must remain direct-only until a protected `v1beta` doctrine is explicitly proven and selected
+- additional public tools may still be mentioned here when the evidence is strong enough; current helper-guided targets such as `OpenCode`, `Hermes`, and `Gemini CLI` may now be described as Cloudflare-capable only through their checked protected contracts, while Google / Gemini still keeps the `v1beta` family identity intact
 
 Current not-yet-proven truth:
 - a single-file hosted launcher/bootstrap contract is not yet verified strongly enough to be promoted as a live hero quick-start path on Home and `/docs`

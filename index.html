@@ -133,8 +133,8 @@
           <h3 data-lang="th">ขอบเขตการรองรับปัจจุบัน</h3>
           <ul data-lang="en">
             <li>Launcher route mode defaults to <code>direct</code>; <code>cloudflare</code> is explicit opt-in.</li>
-            <li>Checked Cloudflare-capable targets are <code>claude-code</code>, <code>codex</code>, <code>zed</code>, <code>opencode</code>, and <code>hermes</code>; <code>openclaw</code> can use Cloudflare only when compatibility is <code>openai</code> or <code>anthropic</code>.</li>
-            <li><code>gemini-cli</code> stays direct-only in the current checked scope and falls back to <code>direct</code> when Cloudflare is requested.</li>
+            <li>Checked Cloudflare-capable targets are <code>claude-code</code>, <code>gemini-cli</code>, <code>codex</code>, <code>zed</code>, <code>opencode</code>, and <code>hermes</code>; <code>openclaw</code> can use Cloudflare only when compatibility is <code>openai</code> or <code>anthropic</code>.</li>
+            <li><code>gemini-cli</code> now uses the protected Google / Gemini <code>v1beta</code> family when Cloudflare mode is requested, while direct mode keeps the native Gemini root.</li>
             <li><code>opencode</code> and <code>hermes</code> keep the same custom-provider root in both modes; the launcher only swaps which root/base gets injected.</li>
             <li>Shell helper paths can apply changes where the checked script supports it.</li>
             <li>PowerShell launcher paths are route-mode-aware and remain dry-run-first.</li>
@@ -145,8 +145,8 @@
           </ul>
           <ul data-lang="th">
             <li>route mode ของ launcher จะ default เป็น <code>direct</code> และ <code>cloudflare</code> เป็นการ opt-in แบบชัดเจน</li>
-            <li>target ที่ตรวจแล้วว่าใช้ Cloudflare ได้คือ <code>claude-code</code>, <code>codex</code>, <code>zed</code>, <code>opencode</code> และ <code>hermes</code>; ส่วน <code>openclaw</code> จะใช้ได้เมื่อ compatibility เป็น <code>openai</code> หรือ <code>anthropic</code> เท่านั้น</li>
-            <li><code>gemini-cli</code> ยังเป็น direct-only ในขอบเขตที่ตรวจแล้วตอนนี้ และจะ fallback กลับไป <code>direct</code> เมื่อมีการขอ Cloudflare</li>
+            <li>target ที่ตรวจแล้วว่าใช้ Cloudflare ได้คือ <code>claude-code</code>, <code>gemini-cli</code>, <code>codex</code>, <code>zed</code>, <code>opencode</code> และ <code>hermes</code>; ส่วน <code>openclaw</code> จะใช้ได้เมื่อ compatibility เป็น <code>openai</code> หรือ <code>anthropic</code> เท่านั้น</li>
+            <li><code>gemini-cli</code> จะใช้ protected Google / Gemini <code>v1beta</code> family เมื่อร้องขอ Cloudflare mode ส่วน direct mode จะคง native Gemini root ไว้</li>
             <li><code>opencode</code> และ <code>hermes</code> จะใช้ custom-provider root ชุดเดิมทั้งสองโหมด โดย launcher มีหน้าที่สลับ root/base ที่ inject เข้าไปเท่านั้น</li>
             <li>ฝั่ง shell สามารถ apply ได้ในจุดที่สคริปต์ที่ตรวจรองรับจริง</li>
             <li>launcher ฝั่ง PowerShell รองรับ route mode แล้ว แต่ยังคงเป็นแนว dry-run-first</li>
@@ -212,16 +212,12 @@
         <h2 data-lang="th">เส้นทาง helper ของ Gemini CLI</h2>
         <div data-lang="en">
           <p>Primary setup story:</p>
-          <pre><code>export GOOGLE_GEMINI_BASE_URL="https://payg.nodenetwork.ovh"
-export GEMINI_API_KEY="&lt;nodeclaw_access_key&gt;"
-gemini</code></pre>
+          <pre><code id="gemini-setup-contract"></code></pre>
           <p class="muted" id="gemini-setup-note-en"></p>
         </div>
         <div data-lang="th">
           <p>เส้นทางหลักของการตั้งค่า:</p>
-          <pre><code>export GOOGLE_GEMINI_BASE_URL="https://payg.nodenetwork.ovh"
-export GEMINI_API_KEY="&lt;nodeclaw_access_key&gt;"
-gemini</code></pre>
+          <pre><code id="gemini-setup-contract-th"></code></pre>
           <p class="muted" id="gemini-setup-note-th"></p>
         </div>
       </section>
@@ -320,8 +316,8 @@ gemini</code></pre>
             th: 'ตัวอย่างเริ่มต้นจะใช้ native NodeClaw endpoint ก่อน เปิดสวิตช์นี้เมื่อคุณต้องการใช้เส้นทาง Cloudflare-protected แบบ explicit เท่านั้น',
           },
           cloudflare: {
-            en: 'Cloudflare-protected examples are shown only for checked eligible tools. Gemini stays on the direct-native path in the current checked scope.',
-            th: 'ตอนนี้จะแสดงตัวอย่าง Cloudflare-protected เฉพาะ tools ที่ตรวจแล้วว่าใช้ได้ ส่วน Gemini จะคงอยู่บนเส้นทาง direct/native ตาม checked scope ปัจจุบัน',
+            en: 'Cloudflare-protected examples are shown for the checked eligible tools, including Gemini on the protected Google / Gemini v1beta path when you opt in.',
+            th: 'ตอนนี้จะแสดงตัวอย่าง Cloudflare-protected สำหรับ tools ที่ตรวจแล้ว รวมถึง Gemini บน protected Google / Gemini v1beta path เมื่อคุณ opt-in',
           },
         },
         quickStartRows: [
@@ -504,12 +500,12 @@ gemini</code></pre>
             label: { en: 'Gemini CLI', th: 'Gemini CLI' },
             modeHint: {
               direct: {
-                en: 'Direct-only in the current checked scope because the effective route family still stays on v1beta.',
-                th: 'เป็น direct-only ใน checked scope ปัจจุบัน เพราะ effective route family ยังอยู่บน v1beta',
+                en: 'Direct mode keeps Gemini on the native root while the effective Google / Gemini-shaped route family still resolves under v1beta.',
+                th: 'direct mode จะคง Gemini ไว้บน native root ขณะที่ effective route family แบบ Google / Gemini ยัง resolve อยู่ใต้ v1beta',
               },
               cloudflare: {
-                en: 'Still direct-only in the current checked scope. The launcher keeps the command on the native v1beta path here too.',
-                th: 'ยังเป็น direct-only ใน checked scope ปัจจุบัน และ launcher จะคงคำสั่งไว้บน native v1beta path เหมือนเดิม',
+                en: 'Cloudflare mode switches Gemini to the protected Google / Gemini v1beta owner path instead of falling back to direct.',
+                th: 'Cloudflare mode จะสลับ Gemini ไปใช้ protected Google / Gemini v1beta owner path แทนการ fallback กลับไป direct',
               },
             },
             shell: {
@@ -521,7 +517,8 @@ gemini</code></pre>
               cloudflare: [
                 `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
                 '  dry-run \\',
-                '  --tool gemini-cli',
+                '  --tool gemini-cli \\',
+                '  --route-mode cloudflare',
               ],
             },
             powershell: {
@@ -536,6 +533,7 @@ gemini</code></pre>
                 'powershell -ExecutionPolicy Bypass -c "',
                 "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
                 "  $env:NODECLAW_LAUNCHER_TOOL='gemini-cli'",
+                "  $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'",
                 `  irm ${LAUNCHER_PS1} | iex`,
                 '"',
               ],
@@ -649,13 +647,21 @@ claude`,
           },
         },
         gemini: {
-          direct: {
-            en: 'Effective Google / Gemini-shaped route family still resolves under v1beta. The helper manages the same env-based path through a generated snippet/profile block.',
-            th: 'route family แบบ Google / Gemini จะวิ่งอยู่ใต้ v1beta ส่วน helper มีหน้าที่จัด env/snippet/profile สำหรับ path เดียวกันนี้',
-          },
-          cloudflare: {
-            en: 'Cloudflare mode is not exposed for Gemini in the current checked scope, so this helper contract stays on the direct-native path and keeps the v1beta boundary.',
-            th: 'Cloudflare mode ยังไม่เปิดให้ Gemini ใน checked scope ปัจจุบัน ดังนั้น helper contract นี้จะคงอยู่บนเส้นทาง direct/native และรักษา v1beta boundary เดิมไว้',
+          direct: `export GOOGLE_GEMINI_BASE_URL="${GEMINI_ROOT}"
+export GEMINI_API_KEY="&lt;nodeclaw_access_key&gt;"
+gemini`,
+          cloudflare: `export GOOGLE_GEMINI_BASE_URL="${CLOUDFLARE_ROOT}v1beta"
+export GEMINI_API_KEY="&lt;nodeclaw_access_key&gt;"
+gemini`,
+          note: {
+            direct: {
+              en: 'Effective Google / Gemini-shaped route family still resolves under v1beta. The helper manages the same env-based path through a generated snippet/profile block.',
+              th: 'route family แบบ Google / Gemini จะวิ่งอยู่ใต้ v1beta ส่วน helper มีหน้าที่จัด env/snippet/profile สำหรับ path เดียวกันนี้',
+            },
+            cloudflare: {
+              en: 'Cloudflare mode uses the protected Google / Gemini v1beta path while keeping the same env-first helper contract and the same v1beta family boundary.',
+              th: 'Cloudflare mode จะใช้ protected Google / Gemini v1beta path โดยยังคง env-first helper contract ชุดเดิมและยังรักษา v1beta family boundary เหมือนเดิม',
+            },
           },
         },
         hermes: {
@@ -770,8 +776,10 @@ bash ./script/setup-hermes-nodeclaw.sh`,
         setText('claude-setup-contract-th', content.claude[mode]);
         setText('claude-setup-note-en', content.claude.note[mode].en);
         setText('claude-setup-note-th', content.claude.note[mode].th);
-        setText('gemini-setup-note-en', content.gemini[mode].en);
-        setText('gemini-setup-note-th', content.gemini[mode].th);
+        setText('gemini-setup-contract', content.gemini[mode]);
+        setText('gemini-setup-contract-th', content.gemini[mode]);
+        setText('gemini-setup-note-en', content.gemini.note[mode].en);
+        setText('gemini-setup-note-th', content.gemini.note[mode].th);
         setText('hermes-setup-contract', content.hermes[mode]);
         setText('hermes-setup-contract-th', content.hermes[mode]);
         setText('hermes-setup-note-en', content.hermes.note[mode].en);

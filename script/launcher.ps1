@@ -18,6 +18,7 @@ $LauncherScriptRoot = if ($LauncherHasLocalScriptPath) { Split-Path -Parent $Lau
     $HelperBaseUrl = if ($env:NODECLAW_HELPER_BASE_URL) { $env:NODECLAW_HELPER_BASE_URL } else { 'https://darkwingtm.github.io/Nodeclaw-Helper/script' }
     $HelperCacheRoot = if ($env:NODECLAW_HELPER_CACHE_DIR) { $env:NODECLAW_HELPER_CACHE_DIR } elseif ($env:XDG_CACHE_HOME) { Join-Path $env:XDG_CACHE_HOME 'nodeclaw-helper' } else { Join-Path $HOME '.cache/nodeclaw-helper' }
     $CloudflareCustomProviderBaseUrl = 'https://gateway.ai.cloudflare.com/v1/06b7333b2c174700306d7f931d809765/nodenetwork-nodeclaw-payg/custom-nodenetwork/'
+    $CloudflareCustomProviderGoogleV1BetaBaseUrl = "$CloudflareCustomProviderBaseUrl" + 'v1beta'
     $DefaultRouteMode = 'direct'
 
     function Show-Usage {
@@ -46,7 +47,7 @@ Remote example:
 Notes:
 - PowerShell helper paths remain scaffold-first and dry-run-only in the current checked scope.
 - Route mode defaults to direct; Cloudflare mode is explicit opt-in and only resolves for checked eligible helper families.
-- Gemini CLI stays helper-guided on the checked env-first path and remains direct-only in the current checked scope with the effective Google / Gemini route family under v1beta.
+- Gemini CLI stays helper-guided on the checked env-first path and can now request Cloudflare for the protected Google / Gemini `v1beta` family when Cloudflare opt-in is selected.
 - Remote launcher usage can fetch the helper payload it needs automatically.
 - Use direct per-tool scripts if you want a tool-specific entrypoint.
 - Hermes currently has a helper-guided profile-local setup target that the launcher can preview through the same entrypoint family.
@@ -132,6 +133,7 @@ Notes:
             'openclaw' { return 'cloudflare-capable (openai|anthropic only)' }
             'opencode' { return 'cloudflare-capable (custom-provider root)' }
             'hermes' { return 'cloudflare-capable (custom-provider root)' }
+            'gemini-cli' { return 'cloudflare-capable (protected v1beta family)' }
             default { return 'direct-only first-wave' }
         }
     }
@@ -176,7 +178,7 @@ Notes:
             }
             'gemini-cli' {
                 if ($RequestedRouteMode -eq 'cloudflare') {
-                    return @{ Requested='cloudflare'; Resolved='direct'; Family='gemini-v1beta'; Base=$geminiRoot; Reason='Cloudflare mode is not exposed for Gemini v1beta in checked scope yet, so the helper keeps the direct Gemini root.' }
+                    return @{ Requested='cloudflare'; Resolved='cloudflare'; Family='gemini-v1beta'; Base=$CloudflareCustomProviderGoogleV1BetaBaseUrl; Reason='' }
                 }
                 return @{ Requested='direct'; Resolved='direct'; Family='gemini-v1beta'; Base=$geminiRoot; Reason='' }
             }

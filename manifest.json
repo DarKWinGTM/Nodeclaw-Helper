@@ -5,11 +5,11 @@
     "localPath": "/home/node/workplace/AWCLOUD/CLAUDE/NodeClaw-platform/script/",
     "commit": "8f3b421"
   },
-  "publishedAt": "2026-04-11",
+  "publishedAt": "2026-06-11T10:27:16Z",
   "notes": {
-    "releasePage": "Hosted release-page command rendering is direct-native first and exposes Cloudflare only as an explicit opt-in toggle. Gemini stays on the direct/native command even when Cloudflare examples are shown for other eligible tools.",
+    "releasePage": "Hosted release-page command rendering is direct-native first and exposes Cloudflare only as an explicit opt-in toggle. Gemini now uses the protected Google / Gemini v1beta command path when Cloudflare mode is selected.",
     "claudeCode": "Launcher-first helper path through ~/.claude/settings.json. Route mode defaults to direct; Cloudflare is explicit opt-in for checked Anthropic-compatible targets, and the owner-field base stays at the custom-provider root without endpoint suffixes.",
-    "geminiCli": "Launcher-first helper path. GOOGLE_GEMINI_BASE_URL stays on the direct service root, and a Cloudflare request must resolve back to direct in checked scope because the effective Google / Gemini-shaped route family still runs under v1beta.",
+    "geminiCli": "Launcher-first helper path. GOOGLE_GEMINI_BASE_URL stays on the direct service root by default, and Cloudflare mode now switches Gemini to the protected Google / Gemini v1beta owner path instead of resolving back to direct.",
     "opencode": "Helper-guided custom-provider path. OpenCode now keeps one checked custom-provider root contract in both direct and Cloudflare modes, and the launcher only swaps which root/base gets injected without appending endpoint suffixes.",
     "hermes": "Helper-guided profile-local path. Hermes now keeps one checked custom-provider root contract in both direct and Cloudflare modes: create or update one dedicated profile under ~/.hermes/profiles/<profile> with profile-local .env, config.yaml, and SOUL.md, then let the launcher swap only the injected base_url root without appending endpoint suffixes.",
     "verification": "Checked local smoke coverage verifies launcher route-mode behavior plus setup-script dry-run contracts in scope. This does not claim live provider, deploy, or hosted Pages proof."
@@ -17,11 +17,11 @@
   "files": [
     {
       "path": "script/launcher.sh",
-      "sha256": "db94a9f81d4b604eda75b48390f328a90b8f7dabd2aaf5a270e6607f76ee2baa"
+      "sha256": "f6efa46d95d342f11ecbf498760bdd5052a63bd801922d31f81f6493b12e5849"
     },
     {
       "path": "script/launcher.ps1",
-      "sha256": "1e7d20cc615957ff348c953a42c8c6047c96a255b29489008c6e569ebd451b63"
+      "sha256": "5da300a01f5bf8d2e69e41123c043ec37021958e6c3239c61468d6efcf4b2288"
     },
     {
       "path": "script/setup-claude-code-nodeclaw.sh",
@@ -77,7 +77,7 @@
     },
     {
       "path": "script/setup-hermes-nodeclaw.ps1",
-      "sha256": "463616ed82a87c8299d5882877352b1f9ecd7df1ffb160fd2842585acc483c94"
+      "sha256": "32b101c49de0f6d677c79ffe7631290a4bffde7794ff31378801f69f9edd3554"
     }
   ],
   "helperTargets": [

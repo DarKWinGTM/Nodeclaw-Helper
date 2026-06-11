@@ -11,6 +11,7 @@ TOOLS=("claude-code" "gemini-cli" "opencode" "openclaw" "zed" "codex" "hermes")
 HELPER_BASE_URL="${NODECLAW_HELPER_BASE_URL:-https://darkwingtm.github.io/Nodeclaw-Helper/script}"
 HELPER_CACHE_DIR="${NODECLAW_HELPER_CACHE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/nodeclaw-helper}"
 CLOUDFLARE_CUSTOM_PROVIDER_BASE_URL="https://gateway.ai.cloudflare.com/v1/06b7333b2c174700306d7f931d809765/nodenetwork-nodeclaw-payg/custom-nodenetwork/"
+CLOUDFLARE_CUSTOM_PROVIDER_GOOGLE_V1BETA_BASE_URL="${CLOUDFLARE_CUSTOM_PROVIDER_BASE_URL%/}/v1beta"
 DEFAULT_ROUTE_MODE="direct"
 
 get_shell_target() {
@@ -162,6 +163,9 @@ capability_label() {
     opencode|hermes)
       printf '%s\n' 'cloudflare-capable (custom-provider root)'
       ;;
+    gemini-cli)
+      printf '%s\n' 'cloudflare-capable (protected v1beta family)'
+      ;;
     *)
       printf '%s\n' 'direct-only first-wave'
       ;;
@@ -201,7 +205,7 @@ route_mode_for_tool() {
       ;;
     gemini-cli)
       if [ "$requested" = 'cloudflare' ]; then
-        printf '%s|%s|%s|%s|%s\n' "$requested" 'direct' 'gemini-v1beta' "$gemini_root" 'Cloudflare mode is not exposed for Gemini v1beta in checked scope yet, so the helper keeps the direct Gemini root.'
+        printf '%s|%s|%s|%s|%s\n' "$requested" 'cloudflare' 'gemini-v1beta' "$CLOUDFLARE_CUSTOM_PROVIDER_GOOGLE_V1BETA_BASE_URL" ''
       else
         printf '%s|%s|%s|%s|%s\n' "$requested" 'direct' 'gemini-v1beta' "$gemini_root" ''
       fi
@@ -278,6 +282,7 @@ Remote examples
   curl -fsSL <nodeclaw-launcher-url> | bash -s -- dry-run --tool claude-code
   curl -fsSL <nodeclaw-launcher-url> | bash -s -- apply --tool claude-code
   curl -fsSL <nodeclaw-launcher-url> | bash -s -- dry-run --tool gemini-cli
+  curl -fsSL <nodeclaw-launcher-url> | bash -s -- dry-run --tool gemini-cli --route-mode cloudflare
   curl -fsSL <nodeclaw-launcher-url> | bash -s -- dry-run --tool hermes
 
 Commands
@@ -309,7 +314,7 @@ Notes
 - Shell helper paths can apply changes where the checked contract supports it.
 - PowerShell helper paths remain dry-run-only in the current checked scope.
 - Route mode defaults to direct; Cloudflare mode is explicit opt-in and only resolves for checked eligible helper families.
-- Gemini CLI remains direct-only in the current checked scope and keeps the effective Google / Gemini route family under v1beta.
+- Gemini CLI now supports the protected Google / Gemini `v1beta` route when Cloudflare mode is selected, while direct mode keeps the native Gemini root.
 - Remote launcher usage can fetch the required helper payload automatically from the published helper surface.
 - Override the remote helper base with NODECLAW_HELPER_BASE_URL when needed.
 EOF

@@ -61,11 +61,12 @@ curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bas
 curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool codex --route-mode cloudflare
 curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool zed --route-mode cloudflare
 curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool openclaw --route-mode cloudflare
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool gemini-cli --route-mode cloudflare
 curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool opencode --route-mode cloudflare
 curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool hermes --route-mode cloudflare
 ```
 
-`gemini-cli` stays on the direct/native launcher contract in the current checked scope even when you opt into Cloudflare-protected examples elsewhere.
+`gemini-cli` can now use the Cloudflare-protected launcher path through the protected Google / Gemini `v1beta` family when you explicitly opt into Cloudflare mode.
 
 PowerShell launcher:
 
@@ -99,11 +100,12 @@ powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; 
 powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='codex'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
 powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='zed'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
 powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='openclaw'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
+powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='gemini-cli'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
 powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='opencode'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
 powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='hermes'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1 | iex"
 ```
 
-`gemini-cli` remains direct/native here too, because the current checked route family still stays on the Google / Gemini `v1beta` path.
+`gemini-cli` can now use the Cloudflare-protected launcher path through the protected Google / Gemini `v1beta` family when you explicitly opt into Cloudflare mode.
 
 ## Claude Code CLI setup posture
 
@@ -143,6 +145,14 @@ Primary setup contract:
 
 ```bash
 export GOOGLE_GEMINI_BASE_URL="https://payg.nodenetwork.ovh"
+export GEMINI_API_KEY="<nodeclaw_access_key>"
+gemini
+```
+
+Optional Cloudflare-protected helper posture for the same Gemini contract:
+
+```bash
+export GOOGLE_GEMINI_BASE_URL="https://gateway.ai.cloudflare.com/v1/06b7333b2c174700306d7f931d809765/nodenetwork-nodeclaw-payg/custom-nodenetwork/v1beta"
 export GEMINI_API_KEY="<nodeclaw_access_key>"
 gemini
 ```
@@ -217,8 +227,8 @@ Windows PowerShell helpers:
 
 - Launcher remains the generic entrypoint.
 - Route mode defaults to `direct`, while `cloudflare` is explicit opt-in at the launcher surface.
-- Checked Cloudflare-capable targets are `claude-code`, `codex`, `zed`, `opencode`, and `hermes`; `openclaw` can use Cloudflare only when `NODECLAW_COMPATIBILITY` is `openai` or `anthropic`.
-- `gemini-cli` remains direct-only in the current checked scope; the launcher may accept `--route-mode cloudflare`, but it must resolve that request back to `direct` with an explicit fallback reason.
+- Checked Cloudflare-capable targets are `claude-code`, `codex`, `zed`, `opencode`, `hermes`, and `gemini-cli`; `openclaw` can use Cloudflare only when `NODECLAW_COMPATIBILITY` is `openai` or `anthropic`.
+- `gemini-cli` now uses the protected Google / Gemini `v1beta` family when `--route-mode cloudflare` is requested, while direct mode keeps the native Gemini root.
 - `opencode` and `hermes` keep the same custom-provider-root contract in both modes; launcher only swaps which root/base gets injected.
 - Shell helper paths can apply changes where the checked script supports it.
 - PowerShell launcher paths are route-mode-aware and remain dry-run-first.
