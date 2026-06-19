@@ -177,6 +177,7 @@ route_mode_for_tool() {
   local requested="$2"
   local compatibility="${NODECLAW_COMPATIBILITY:-openai}"
   local direct_base="${NODECLAW_BASE_URL:-https://payg.nodenetwork.ovh/v1}"
+  local anthropic_direct_root="${NODECLAW_ANTHROPIC_BASE_URL:-${NODECLAW_BASE_URL:-https://payg.nodenetwork.ovh}}"
   local gemini_root="${NODECLAW_GEMINI_BASE_URL:-https://payg.nodenetwork.ovh}"
 
   case "$tool" in
@@ -184,7 +185,7 @@ route_mode_for_tool() {
       if [ "$requested" = 'cloudflare' ]; then
         printf '%s|%s|%s|%s|%s\n' "$requested" 'cloudflare' 'anthropic' "$CLOUDFLARE_CUSTOM_PROVIDER_BASE_URL" ''
       else
-        printf '%s|%s|%s|%s|%s\n' "$requested" 'direct' 'anthropic' "$direct_base" ''
+        printf '%s|%s|%s|%s|%s\n' "$requested" 'direct' 'anthropic' "$anthropic_direct_root" ''
       fi
       ;;
     codex|zed)

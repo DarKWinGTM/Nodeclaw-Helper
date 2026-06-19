@@ -146,6 +146,7 @@ Notes:
         )
 
         $directBase = if ($env:NODECLAW_BASE_URL) { $env:NODECLAW_BASE_URL } else { 'https://payg.nodenetwork.ovh/v1' }
+        $anthropicDirectRoot = if ($env:NODECLAW_ANTHROPIC_BASE_URL) { $env:NODECLAW_ANTHROPIC_BASE_URL } elseif ($env:NODECLAW_BASE_URL) { $env:NODECLAW_BASE_URL } else { 'https://payg.nodenetwork.ovh' }
         $geminiRoot = if ($env:NODECLAW_GEMINI_BASE_URL) { $env:NODECLAW_GEMINI_BASE_URL } else { 'https://payg.nodenetwork.ovh' }
 
         switch ($SelectedTool) {
@@ -153,7 +154,7 @@ Notes:
                 if ($RequestedRouteMode -eq 'cloudflare') {
                     return @{ Requested='cloudflare'; Resolved='cloudflare'; Family='anthropic'; Base=$CloudflareCustomProviderBaseUrl; Reason='' }
                 }
-                return @{ Requested='direct'; Resolved='direct'; Family='anthropic'; Base=$directBase; Reason='' }
+                return @{ Requested='direct'; Resolved='direct'; Family='anthropic'; Base=$anthropicDirectRoot; Reason='' }
             }
             'codex' {
                 if ($RequestedRouteMode -eq 'cloudflare') {

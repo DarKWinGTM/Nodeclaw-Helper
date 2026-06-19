@@ -1,7 +1,7 @@
 param(
     [string]$ClaudeCodeSettingsPath = $(if ($env:CLAUDE_CODE_SETTINGS_PATH) { $env:CLAUDE_CODE_SETTINGS_PATH } else { Join-Path $HOME '.claude/settings.json' }),
     [string]$NodeClawApiKey = $env:NODECLAW_API_KEY,
-    [string]$NodeClawBaseUrl = $(if ($env:NODECLAW_BASE_URL) { $env:NODECLAW_BASE_URL } else { 'https://payg.nodenetwork.ovh/v1' }),
+    [string]$NodeClawBaseUrl = $(if ($env:NODECLAW_BASE_URL) { $env:NODECLAW_BASE_URL } else { 'https://payg.nodenetwork.ovh' }),
     [switch]$DryRun
 )
 

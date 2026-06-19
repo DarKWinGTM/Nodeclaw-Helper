@@ -65,6 +65,19 @@
       .launcher-command-column { display: grid; gap: 8px; grid-template-rows: auto minmax(0, 1fr); align-self: stretch; }
       .launcher-command-column pre { height: 100%; }
       .launcher-command-label { margin: 0; color: #dbeafe; font-size: 0.92rem; font-weight: 600; }
+      .claude-guide-header { display:grid; gap:16px; grid-template-columns: minmax(0, 1fr) minmax(220px, 280px); align-items:start; }
+      .claude-config-jump { width:100%; }
+      .os-tab-row { display:flex; flex-wrap:wrap; gap:10px; margin:16px 0 14px; }
+      .os-tab { border:1px solid var(--line); background:rgba(15,23,42,.72); color:var(--text); border-radius:999px; padding:8px 14px; cursor:pointer; font:inherit; }
+      .os-tab.active { background:rgba(96,165,250,.18); border-color:rgba(96,165,250,.34); color:#dbeafe; }
+      .claude-subnav { display:flex; flex-wrap:wrap; gap:10px; margin:0 0 16px; }
+      .claude-subnav a { display:inline-flex; align-items:center; padding:6px 10px; border-radius:999px; border:1px solid var(--line); background:rgba(15,23,42,.72); color:#dbeafe; }
+      .claude-subnav a:hover { text-decoration:none; border-color:rgba(96,165,250,.34); }
+      .claude-guide-grid { display:grid; gap:16px; }
+      .claude-guide-section { display:grid; gap:10px; padding:16px; border-radius:14px; border:1px solid var(--line); background:rgba(15,23,42,.72); }
+      @media (max-width: 900px) {
+        .claude-guide-header { grid-template-columns: 1fr; }
+      }
       [data-lang] { display:none; }
       html.lang-en [data-lang="en"], html.lang-th [data-lang="th"] { display:block; }
     </style>
@@ -193,17 +206,103 @@
       </section>
 
       <section class="card" style="margin-top:18px;">
-        <h2 data-lang="en">Claude Code CLI helper path</h2>
-        <h2 data-lang="th">เส้นทาง helper ของ Claude Code CLI</h2>
-        <div data-lang="en">
-          <p>Primary setup story:</p>
-          <pre><code id="claude-setup-contract"></code></pre>
-          <p class="muted" id="claude-setup-note-en"></p>
+        <div class="claude-guide-header">
+          <div>
+            <h2 data-lang="en">Claude Code CLI helper path</h2>
+            <h2 data-lang="th">เส้นทาง helper ของ Claude Code CLI</h2>
+            <p class="muted" data-lang="en">Claude Code CLI auto-resolves the Anthropic <code>/v1</code> route family. For direct/native setup, point <code>ANTHROPIC_BASE_URL</code> at the service root only.</p>
+            <p class="muted" data-lang="th">Claude Code CLI จะ resolve เส้นทาง Anthropic ตระกูล <code>/v1</code> ให้อัตโนมัติ ดังนั้น direct/native setup ต้องชี้ <code>ANTHROPIC_BASE_URL</code> ไปที่ service root เท่านั้น</p>
+          </div>
+          <a class="download claude-config-jump" href="#claude-config-file">
+            Config file
+            <small data-lang="en">Jump to the checked settings path</small>
+            <small data-lang="th">ไปดู path ของ settings ที่ตรวจแล้ว</small>
+          </a>
         </div>
-        <div data-lang="th">
-          <p>เส้นทางหลักของการตั้งค่า:</p>
-          <pre><code id="claude-setup-contract-th"></code></pre>
-          <p class="muted" id="claude-setup-note-th"></p>
+
+        <div id="claude-quickstart-tabs" class="os-tab-row" aria-label="Claude Code operating system tabs">
+          <button class="os-tab active" type="button" data-claude-os="linux">Linux</button>
+          <button class="os-tab" type="button" data-claude-os="macos">macOS</button>
+          <button class="os-tab" type="button" data-claude-os="windows">Windows</button>
+        </div>
+
+        <nav class="claude-subnav" aria-label="Claude Code helper sections">
+          <a href="#claude-quick-start">Quick start</a>
+          <a href="#claude-config-file">Config file</a>
+          <a href="#claude-env">Env</a>
+          <a href="#claude-command">Command</a>
+          <a href="#claude-verify">Verify</a>
+          <a href="#claude-troubleshoot">Troubleshoot</a>
+        </nav>
+
+        <div class="claude-guide-grid">
+          <section id="claude-quick-start" class="claude-guide-section">
+            <h3 data-lang="en">Quick start</h3>
+            <h3 data-lang="th">Quick start</h3>
+            <p class="muted" id="claude-quickstart-summary-en" data-lang="en"></p>
+            <p class="muted" id="claude-quickstart-summary-th" data-lang="th"></p>
+            <pre><code id="claude-quickstart-command"></code></pre>
+          </section>
+
+          <section id="claude-config-file" class="claude-guide-section">
+            <h3 data-lang="en">Config file</h3>
+            <h3 data-lang="th">Config file</h3>
+            <p class="muted" id="claude-config-file-summary-en" data-lang="en"></p>
+            <p class="muted" id="claude-config-file-summary-th" data-lang="th"></p>
+            <pre><code id="claude-config-file-path"></code></pre>
+            <p class="muted" data-lang="en">Checked against the official Claude Code settings docs: user settings live in <code>~/.claude/settings.json</code> and Windows <code>~/.claude</code> resolves to <code>%USERPROFILE%\.claude</code>.</p>
+            <p class="muted" data-lang="th">ตรวจเทียบกับ official Claude Code settings docs แล้วว่า user settings อยู่ที่ <code>~/.claude/settings.json</code> และบน Windows path <code>~/.claude</code> จะ resolve เป็น <code>%USERPROFILE%\.claude</code></p>
+          </section>
+
+          <section id="claude-env" class="claude-guide-section">
+            <h3 data-lang="en">Env</h3>
+            <h3 data-lang="th">Env</h3>
+            <ul data-lang="en">
+              <li><code>ANTHROPIC_BASE_URL</code> = direct/native service root for Claude Code, without appending <code>/v1</code></li>
+              <li><code>ANTHROPIC_AUTH_TOKEN</code> = your NodeClaw access key</li>
+              <li><code>ANTHROPIC_MODEL</code> = optional default model override for the same shell/session</li>
+              <li><code>CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1</code> = optional fallback when the gateway rejects Anthropic beta headers</li>
+              <li><code>DISABLE_INTERLEAVED_THINKING=1</code> = optional fallback when the provider path rejects interleaved thinking</li>
+            </ul>
+            <ul data-lang="th">
+              <li><code>ANTHROPIC_BASE_URL</code> = service root แบบ direct/native สำหรับ Claude Code โดยไม่ต้อง append <code>/v1</code></li>
+              <li><code>ANTHROPIC_AUTH_TOKEN</code> = NodeClaw access key ของคุณ</li>
+              <li><code>ANTHROPIC_MODEL</code> = ค่า model default แบบ optional สำหรับ shell/session เดียวกัน</li>
+              <li><code>CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1</code> = fallback แบบ optional เมื่อ gateway ไม่รับ Anthropic beta headers</li>
+              <li><code>DISABLE_INTERLEAVED_THINKING=1</code> = fallback แบบ optional เมื่อ provider path ไม่รับ interleaved thinking</li>
+            </ul>
+          </section>
+
+          <section id="claude-command" class="claude-guide-section">
+            <h3 data-lang="en">Command</h3>
+            <h3 data-lang="th">Command</h3>
+            <p class="muted" id="claude-command-summary-en" data-lang="en"></p>
+            <p class="muted" id="claude-command-summary-th" data-lang="th"></p>
+            <pre><code id="claude-command-snippet"></code></pre>
+          </section>
+
+          <section id="claude-verify" class="claude-guide-section">
+            <h3 data-lang="en">Verify</h3>
+            <h3 data-lang="th">Verify</h3>
+            <p class="muted" id="claude-verify-summary-en" data-lang="en"></p>
+            <p class="muted" id="claude-verify-summary-th" data-lang="th"></p>
+            <pre><code id="claude-verify-snippet"></code></pre>
+          </section>
+
+          <section id="claude-troubleshoot" class="claude-guide-section">
+            <h3 data-lang="en">Troubleshoot</h3>
+            <h3 data-lang="th">Troubleshoot</h3>
+            <ul data-lang="en">
+              <li>If the first request fails immediately, verify the target still exposes <code>/v1/messages</code> and <code>/v1/messages/count_tokens</code>.</li>
+              <li>If the gateway rejects Anthropic beta headers/features, keep <code>CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1</code> and optionally <code>DISABLE_INTERLEAVED_THINKING=1</code> before deeper debugging.</li>
+              <li>If <code>ANTHROPIC_BASE_URL</code> points to a non-first-party host, MCP tool search stays disabled unless that proxy forwards <code>tool_reference</code> blocks correctly.</li>
+            </ul>
+            <ul data-lang="th">
+              <li>ถ้า request แรก fail ทันที ให้ตรวจว่าปลายทางยังเปิด <code>/v1/messages</code> และ <code>/v1/messages/count_tokens</code> อยู่</li>
+              <li>ถ้า gateway ไม่รับ Anthropic beta headers/features ให้คง <code>CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1</code> และใช้ <code>DISABLE_INTERLEAVED_THINKING=1</code> เพิ่มเมื่อจำเป็น ก่อนค่อย debug ต่อ</li>
+              <li>ถ้า <code>ANTHROPIC_BASE_URL</code> ชี้ไปที่ non-first-party host, MCP tool search จะยังถูกปิดอยู่ เว้นแต่ proxy นั้นจะ forward <code>tool_reference</code> blocks ได้ถูกต้อง</li>
+            </ul>
+          </section>
         </div>
       </section>
 
@@ -299,7 +398,8 @@
       const routeModeBadge = document.getElementById('route-mode-badge');
       const routeModeState = { enabled: false };
 
-      const DIRECT_ROOT = 'https://payg.nodenetwork.ovh/v1';
+      const CLAUDE_DIRECT_ROOT = 'https://payg.nodenetwork.ovh';
+      const CUSTOM_PROVIDER_DIRECT_ROOT = 'https://payg.nodenetwork.ovh/v1';
       const GEMINI_ROOT = 'https://payg.nodenetwork.ovh';
       const CLOUDFLARE_ROOT = 'https://gateway.ai.cloudflare.com/v1/06b7333b2c174700306d7f931d809765/nodenetwork-nodeclaw-payg/custom-nodenetwork/';
       const LAUNCHER_SH = 'https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh';
@@ -629,9 +729,10 @@
           },
         ],
         claude: {
-          direct: `export ANTHROPIC_BASE_URL="${DIRECT_ROOT}"
+          direct: `export ANTHROPIC_BASE_URL="${CLAUDE_DIRECT_ROOT}"
 export ANTHROPIC_AUTH_TOKEN="&lt;nodeclaw_access_key&gt;"
-claude`,
+export ANTHROPIC_MODEL="gemini-3.1-flash"
+claude --model gemini-3.1-flash`,
           cloudflare: `export ANTHROPIC_BASE_URL="${CLOUDFLARE_ROOT}"
 export ANTHROPIC_AUTH_TOKEN="&lt;nodeclaw_access_key&gt;"
 claude`,
@@ -666,7 +767,7 @@ gemini`,
         },
         hermes: {
           direct: `export HERMES_NODECLAW_API_KEY="&lt;nodeclaw_access_key&gt;"
-export HERMES_NODECLAW_BASE_URL="${DIRECT_ROOT}"
+export HERMES_NODECLAW_BASE_URL="${CUSTOM_PROVIDER_DIRECT_ROOT}"
 bash ./script/setup-hermes-nodeclaw.sh --dry-run
 bash ./script/setup-hermes-nodeclaw.sh`,
           cloudflare: `export HERMES_NODECLAW_API_KEY="&lt;nodeclaw_access_key&gt;"
@@ -704,6 +805,37 @@ bash ./script/setup-hermes-nodeclaw.sh`,
       const harnessLabels = {
         shell: { en: 'Shell launcher', th: 'launcher ฝั่ง shell' },
         powershell: { en: 'PowerShell launcher', th: 'launcher ฝั่ง PowerShell' },
+      };
+      const claudeOsState = { platform: 'linux' };
+      const claudeOsButtons = document.querySelectorAll('[data-claude-os]');
+      const claudeConfigPaths = {
+        linux: '~/.claude/settings.json',
+        macos: '~/.claude/settings.json',
+        windows: '%USERPROFILE%\\.claude\\settings.json',
+      };
+      const claudeGuideCopy = {
+        quickSummary: {
+          direct: {
+            en: 'Direct/native Claude Code uses the service root only. Claude Code CLI adds the Anthropic /v1 route family automatically.',
+            th: 'Claude Code แบบ direct/native ต้องใช้ service root เท่านั้น เพราะ Claude Code CLI จะเติม route family แบบ Anthropic /v1 ให้อัตโนมัติ',
+          },
+          cloudflare: {
+            en: 'Cloudflare mode still keeps the custom-provider root only. Claude Code CLI adds the Anthropic /v1 route family automatically on top of that root.',
+            th: 'Cloudflare mode จะคงไว้แค่ custom-provider root เช่นเดิม และ Claude Code CLI จะเติม route family แบบ Anthropic /v1 ให้อัตโนมัติบน root นั้นอีกชั้น',
+          },
+        },
+        configSummary: {
+          en: 'User settings path for the selected OS.',
+          th: 'path ของ user settings สำหรับ OS ที่เลือกอยู่',
+        },
+        commandSummary: {
+          en: 'Run this in the same shell that launches Claude Code.',
+          th: 'รันชุดนี้ใน shell เดียวกับที่ใช้เปิด Claude Code',
+        },
+        verifySummary: {
+          en: 'The launch itself is the check: Claude Code should start with the chosen model and without an immediate base-URL failure.',
+          th: 'การเปิดใช้งานจริงคือการตรวจสอบ: Claude Code ควรขึ้นด้วย model ที่เลือกและไม่ fail ทันทีจาก base URL',
+        },
       };
 
       const getToolRowHint = (entry, mode, lang) => {
@@ -763,6 +895,64 @@ bash ./script/setup-hermes-nodeclaw.sh`,
         });
       };
 
+      const getClaudeBaseUrl = (mode) => (mode === 'cloudflare' ? CLOUDFLARE_ROOT : CLAUDE_DIRECT_ROOT);
+      const buildClaudeCommandLines = (mode, platform) => {
+        const baseUrl = getClaudeBaseUrl(mode);
+        const model = 'gemini-3.1-flash';
+        if (platform === 'windows') {
+          return [
+            `$env:ANTHROPIC_BASE_URL="${baseUrl}"`,
+            '$env:ANTHROPIC_AUTH_TOKEN="<nodeclaw_access_key>"',
+            `$env:ANTHROPIC_MODEL="${model}"`,
+            `claude --model ${model}`,
+          ];
+        }
+        return [
+          `export ANTHROPIC_BASE_URL="${baseUrl}"`,
+          'export ANTHROPIC_AUTH_TOKEN="<nodeclaw_access_key>"',
+          `export ANTHROPIC_MODEL="${model}"`,
+          `claude --model ${model}`,
+        ];
+      };
+      const buildClaudeVerifyLines = (platform) => {
+        const model = 'gemini-3.1-flash';
+        if (platform === 'windows') {
+          return [
+            `claude --model ${model}`,
+            '# Expect Claude Code to start without an immediate base-URL error',
+          ];
+        }
+        return [
+          `claude --model ${model}`,
+          '# Expect Claude Code to start without an immediate base-URL error',
+        ];
+      };
+      const renderClaudeGuide = (mode, lang) => {
+        const platform = claudeOsState.platform;
+        const command = buildClaudeCommandLines(mode, platform).join('\n');
+        const verify = buildClaudeVerifyLines(platform).join('\n');
+        const configPath = claudeConfigPaths[platform];
+
+        claudeOsButtons.forEach((button) => {
+          const isActive = button.dataset.claudeOs === platform;
+          button.classList.toggle('active', isActive);
+          button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        });
+
+        setText('claude-quickstart-summary-en', claudeGuideCopy.quickSummary[mode].en);
+        setText('claude-quickstart-summary-th', claudeGuideCopy.quickSummary[mode].th);
+        setText('claude-quickstart-command', command);
+        setText('claude-config-file-summary-en', claudeGuideCopy.configSummary.en);
+        setText('claude-config-file-summary-th', claudeGuideCopy.configSummary.th);
+        setText('claude-config-file-path', configPath);
+        setText('claude-command-summary-en', claudeGuideCopy.commandSummary.en);
+        setText('claude-command-summary-th', claudeGuideCopy.commandSummary.th);
+        setText('claude-command-snippet', command);
+        setText('claude-verify-summary-en', claudeGuideCopy.verifySummary.en);
+        setText('claude-verify-summary-th', claudeGuideCopy.verifySummary.th);
+        setText('claude-verify-snippet', verify);
+      };
+
       const renderRouteMode = () => {
         const mode = routeModeState.enabled ? 'cloudflare' : 'direct';
         const lang = root.classList.contains('lang-th') ? 'th' : 'en';
@@ -772,10 +962,7 @@ bash ./script/setup-hermes-nodeclaw.sh`,
         setText('route-mode-note-en', content.note[mode].en);
         setText('route-mode-note-th', content.note[mode].th);
         renderToolRows('quick-start-tool-rows', content.quickStartRows, mode, lang);
-        setText('claude-setup-contract', content.claude[mode]);
-        setText('claude-setup-contract-th', content.claude[mode]);
-        setText('claude-setup-note-en', content.claude.note[mode].en);
-        setText('claude-setup-note-th', content.claude.note[mode].th);
+        renderClaudeGuide(mode, lang);
         setText('gemini-setup-contract', content.gemini[mode]);
         setText('gemini-setup-contract-th', content.gemini[mode]);
         setText('gemini-setup-note-en', content.gemini.note[mode].en);
@@ -788,6 +975,11 @@ bash ./script/setup-hermes-nodeclaw.sh`,
 
       buttons.forEach((button) => button.addEventListener('click', () => {
         applyLang(button.dataset.setLang);
+        renderRouteMode();
+      }));
+
+      claudeOsButtons.forEach((button) => button.addEventListener('click', () => {
+        claudeOsState.platform = button.dataset.claudeOs;
         renderRouteMode();
       }));
 

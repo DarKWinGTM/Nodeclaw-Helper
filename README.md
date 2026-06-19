@@ -111,12 +111,20 @@ powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; 
 
 `claude-code` uses an env-first helper path through the checked `ANTHROPIC_*` environment contract.
 
-Primary setup contract:
+Quick start:
 
 ```bash
-export ANTHROPIC_BASE_URL="https://payg.nodenetwork.ovh/v1"
+export ANTHROPIC_BASE_URL="https://payg.nodenetwork.ovh"
 export ANTHROPIC_AUTH_TOKEN="<nodeclaw_access_key>"
-claude
+export ANTHROPIC_MODEL="gemini-3.1-flash"
+claude --model gemini-3.1-flash
+```
+
+Optional compatibility fallbacks when the gateway rejects Anthropic beta headers/features:
+
+```bash
+export CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1
+export DISABLE_INTERLEAVED_THINKING=1
 ```
 
 Optional Cloudflare-protected helper posture for the same Claude contract:
@@ -127,13 +135,25 @@ export ANTHROPIC_AUTH_TOKEN="<nodeclaw_access_key>"
 claude
 ```
 
+Config file paths proved from the official Claude Code settings docs:
+- Linux / macOS user settings: `~/.claude/settings.json`
+- Windows user settings: `%USERPROFILE%\.claude\settings.json`
+- Project shared settings: `.claude/settings.json`
+- Project local settings: `.claude/settings.local.json`
+
 What the helper manages:
-- `~/.claude/settings.json` generation/update
-- the same `ANTHROPIC_BASE_URL` + `ANTHROPIC_AUTH_TOKEN` env contract
+- `~/.claude/settings.json` generation/update on Linux / macOS shell helper runs
+- the same `ANTHROPIC_BASE_URL` + `ANTHROPIC_AUTH_TOKEN` env contract under the Claude Code `env` object
 - helper-guided dry-run/apply flow for that same env-based setup
+
+Verify / troubleshoot:
+- launch `claude` only after both env vars are active in the same shell that starts Claude Code
+- if the first request fails immediately, verify the target still exposes `/v1/messages` and `/v1/messages/count_tokens`
+- if `ANTHROPIC_BASE_URL` points to a non-first-party host, Claude Code MCP tool search remains disabled unless that proxy forwards `tool_reference` blocks correctly
 
 Important boundary:
 - Claude helper writes the checked Claude Code settings file instead of only printing a profile snippet
+- direct/native Claude Code must use the service root `https://payg.nodenetwork.ovh` in `ANTHROPIC_BASE_URL` rather than appending `/v1`
 - shell helper can apply the settings path directly
 - PowerShell launcher is route-mode-aware and remains dry-run-first in the current checked scope
 

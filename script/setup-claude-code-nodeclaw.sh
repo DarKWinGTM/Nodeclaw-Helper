@@ -3,7 +3,7 @@ set -euo pipefail
 
 SETTINGS_PATH="${CLAUDE_CODE_SETTINGS_PATH:-$HOME/.claude/settings.json}"
 NODECLAW_API_KEY="${NODECLAW_API_KEY:-}"
-NODECLAW_BASE_URL="${NODECLAW_BASE_URL:-https://payg.nodenetwork.ovh/v1}"
+NODECLAW_BASE_URL="${NODECLAW_BASE_URL:-https://payg.nodenetwork.ovh}"
 DRY_RUN=false
 
 for arg in "$@"; do
