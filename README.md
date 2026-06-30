@@ -79,30 +79,30 @@ PowerShell launcher:
 
 Remote PowerShell launcher:
 
-Direct-native examples first:
+Two explicit PowerShell entry patterns are supported:
+
+### 1) One-shot launcher invocation from `cmd.exe` or a terminal
+
+Use this when you want one command that starts PowerShell, downloads the launcher, and runs it immediately.
 
 ```powershell
 powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $launcherText = irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1; & ([scriptblock]::Create($launcherText))"
 powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='claude-code'; $launcherText = irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1; & ([scriptblock]::Create($launcherText))"
-powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='codex'; $launcherText = irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1; & ([scriptblock]::Create($launcherText))"
-powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='zed'; $launcherText = irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1; & ([scriptblock]::Create($launcherText))"
-powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='openclaw'; $launcherText = irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1; & ([scriptblock]::Create($launcherText))"
-powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='gemini-cli'; $launcherText = irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1; & ([scriptblock]::Create($launcherText))"
-powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='opencode'; $launcherText = irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1; & ([scriptblock]::Create($launcherText))"
-powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='hermes'; $launcherText = irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1; & ([scriptblock]::Create($launcherText))"
+powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='claude-code'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; $launcherText = irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1; & ([scriptblock]::Create($launcherText))"
 ```
 
-Optional Cloudflare-protected launcher examples:
+Swap `NODECLAW_LAUNCHER_TOOL='claude-code'` for `codex`, `zed`, `openclaw`, `gemini-cli`, `opencode`, or `hermes` when you want a specific tool preselected.
+
+### 2) Run from an existing PowerShell session
+
+Use this when PowerShell is already open and you want to set launcher options step by step before running it.
 
 ```powershell
-powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; $launcherText = irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1; & ([scriptblock]::Create($launcherText))"
-powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='claude-code'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; $launcherText = irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1; & ([scriptblock]::Create($launcherText))"
-powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='codex'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; $launcherText = irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1; & ([scriptblock]::Create($launcherText))"
-powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='zed'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; $launcherText = irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1; & ([scriptblock]::Create($launcherText))"
-powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='openclaw'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; $launcherText = irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1; & ([scriptblock]::Create($launcherText))"
-powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='gemini-cli'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; $launcherText = irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1; & ([scriptblock]::Create($launcherText))"
-powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='opencode'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; $launcherText = irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1; & ([scriptblock]::Create($launcherText))"
-powershell -ExecutionPolicy Bypass -c "$env:NODECLAW_LAUNCHER_COMMAND='wizard'; $env:NODECLAW_LAUNCHER_TOOL='hermes'; $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'; $launcherText = irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1; & ([scriptblock]::Create($launcherText))"
+$env:NODECLAW_LAUNCHER_COMMAND='wizard'
+$env:NODECLAW_LAUNCHER_TOOL='claude-code'      # optional
+$env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare' # optional
+$launcherText = irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.ps1
+& ([scriptblock]::Create($launcherText))
 ```
 
 `gemini-cli` can now use the Cloudflare-protected launcher path through the protected Google / Gemini `v1beta` family when you explicitly opt into Cloudflare mode.
