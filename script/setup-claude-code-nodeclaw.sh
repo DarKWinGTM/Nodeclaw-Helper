@@ -61,6 +61,32 @@ resolve_install_mode() {
   esac
 }
 
+prompt_input_is_available() {
+  [ -t 0 ] || { [ -r /dev/tty ] && [ -w /dev/tty ]; }
+}
+
+read_prompt_value() {
+  local __var_name="$1"
+
+  if [ -t 0 ]; then
+    IFS= read -r "$__var_name"
+  elif [ -r /dev/tty ] && [ -w /dev/tty ]; then
+    IFS= read -r "$__var_name" < /dev/tty
+  else
+    return 1
+  fi
+}
+
+print_prompt_message() {
+  local message="$1"
+
+  if [ -w /dev/tty ]; then
+    printf '%s' "$message" > /dev/tty
+  else
+    printf '%s' "$message" >&2
+  fi
+}
+
 helper_allows_prompt() {
   case "$NODECLAW_INTERACTIVE" in
     true|TRUE|1|yes|YES)
@@ -70,10 +96,11 @@ helper_allows_prompt() {
       return 1
       ;;
     auto|'')
-      [ -t 0 ]
+      prompt_input_is_available
       ;;
     *)
-      printf 'NODECLAW_INTERACTIVE must be auto, true, or false.\n' >&2
+      printf 'NODECLAW_INTERACTIVE must be auto, true, or false.
+' >&2
       exit 1
       ;;
   esac
@@ -89,9 +116,8 @@ prompt_nodeclaw_api_key_if_needed() {
     exit 1
   fi
 
-  printf 'Enter NodeClaw API key: ' >&2
-  IFS= read -r NODECLAW_API_KEY
-  if [ -z "$NODECLAW_API_KEY" ]; then
+  print_prompt_message 'Enter NodeClaw API key: '
+  if ! read_prompt_value NODECLAW_API_KEY || [ -z "$NODECLAW_API_KEY" ]; then
     printf 'NODECLAW_API_KEY cannot be empty.\n' >&2
     exit 1
   fi

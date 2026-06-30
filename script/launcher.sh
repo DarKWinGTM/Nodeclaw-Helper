@@ -14,6 +14,7 @@ CLOUDFLARE_CUSTOM_PROVIDER_BASE_URL="https://gateway.ai.cloudflare.com/v1/06b733
 CLOUDFLARE_CUSTOM_PROVIDER_GOOGLE_V1BETA_BASE_URL="${CLOUDFLARE_CUSTOM_PROVIDER_BASE_URL%/}/v1beta"
 DEFAULT_ROUTE_MODE="direct"
 DEFAULT_INSTALL_MODE="auto"
+NODECLAW_INTERACTIVE="${NODECLAW_INTERACTIVE:-auto}"
 
 get_shell_target() {
   case "$1" in
@@ -220,17 +221,49 @@ resolve_install_mode() {
   esac
 }
 
-is_interactive_input_allowed() {
-  case "${NODECLAW_INTERACTIVE:-auto}" in
-    1|true|TRUE|yes|YES|on|ON)
+prompt_input_is_available() {
+  [ -t 0 ] || { [ -r /dev/tty ] && [ -w /dev/tty ]; }
+}
+
+read_prompt_value() {
+  local __var_name="$1"
+
+  if [ -t 0 ]; then
+    IFS= read -r "$__var_name"
+  elif [ -r /dev/tty ] && [ -w /dev/tty ]; then
+    IFS= read -r "$__var_name" < /dev/tty
+  else
+    return 1
+  fi
+}
+
+print_prompt_message() {
+  local message="$1"
+
+  if [ -w /dev/tty ]; then
+    printf '%s' "$message" > /dev/tty
+  else
+    printf '%s' "$message" >&2
+  fi
+}
+
+helper_allows_prompt() {
+  case "$NODECLAW_INTERACTIVE" in
+    true|TRUE|1|yes|YES)
       return 0
       ;;
-    0|false|FALSE|no|NO|off|OFF)
+    false|FALSE|0|no|NO)
       return 1
       ;;
+    auto|'')
+      prompt_input_is_available
+      ;;
+    *)
+      printf 'NODECLAW_INTERACTIVE must be auto, true, or false.
+' >&2
+      exit 1
+      ;;
   esac
-
-  [ -t 0 ]
 }
 
 prompt_nodeclaw_api_key() {
@@ -240,16 +273,17 @@ prompt_nodeclaw_api_key() {
     return 0
   fi
 
-  if ! is_interactive_input_allowed; then
+  if ! helper_allows_prompt; then
     if [ "$required" = 'optional' ]; then
       return 0
     fi
-    printf 'NODECLAW_API_KEY is required. Re-run interactively or export NODECLAW_API_KEY first.\n' >&2
+    printf 'NODECLAW_API_KEY is required. Re-run interactively or export NODECLAW_API_KEY first.
+' >&2
     exit 1
   fi
 
-  printf 'Enter NodeClaw API key: '
-  if ! IFS= read -r NODECLAW_API_KEY || [ -z "$NODECLAW_API_KEY" ]; then
+  print_prompt_message 'Enter NodeClaw API key: '
+  if ! read_prompt_value NODECLAW_API_KEY || [ -z "$NODECLAW_API_KEY" ]; then
     if [ "$required" = 'optional' ]; then
       unset NODECLAW_API_KEY 2>/dev/null || true
       return 0
@@ -645,6 +679,23 @@ parse_install_mode_flag() {
   esac
 }
 
+resolve_launcher_setup_install_mode() {
+  local command="$1"
+  local tool="$2"
+  local requested="$3"
+
+  if [ "$requested" = 'auto' ]; then
+    case "$command:$tool" in
+      apply:claude-code|wizard:claude-code)
+        printf 'persistent\n'
+        return
+        ;;
+    esac
+  fi
+
+  printf '%s\n' "$requested"
+}
+
 cmd_list() {
   printf 'Supported tools:\n'
   local tool
@@ -663,6 +714,7 @@ cmd_dry_run() {
   tool="$(parse_tool_flag "$@")"
   route_mode="$(parse_route_mode_flag "$@")"
   install_mode="$(parse_install_mode_flag "$@")"
+  install_mode="$(resolve_launcher_setup_install_mode 'dry-run' "$tool" "$install_mode")"
   export_resolved_route_env "$tool" "$route_mode"
   export_resolved_install_env "$tool" "$install_mode"
 
@@ -687,6 +739,7 @@ cmd_apply() {
   tool="$(parse_tool_flag "$@")"
   route_mode="$(parse_route_mode_flag "$@")"
   install_mode="$(parse_install_mode_flag "$@")"
+  install_mode="$(resolve_launcher_setup_install_mode 'apply' "$tool" "$install_mode")"
   export_resolved_route_env "$tool" "$route_mode"
   export_resolved_install_env "$tool" "$install_mode"
 
@@ -825,6 +878,7 @@ cmd_wizard() {
   install_capability="$(install_capability_for_tool "$tool")"
   if has_argument_flag '--install-mode' "$@"; then
     install_mode="$(parse_install_mode_flag "$@")"
+    install_mode="$(resolve_launcher_setup_install_mode 'wizard' "$tool" "$install_mode")"
     printf '\nStep 3/6 — Choose install mode\n'
     printf 'Preselected install mode: %s\n' "$install_mode"
   else
@@ -832,6 +886,7 @@ cmd_wizard() {
     print_install_mode_options "$install_capability"
     install_mode_input="$(prompt_choice 'Select install mode: ')"
     install_mode="$(normalize_install_mode_selection "$install_mode_input" "$install_capability")"
+    install_mode="$(resolve_launcher_setup_install_mode 'wizard' "$tool" "$install_mode")"
   fi
 
   printf '\nStep 4/6 — What this helper does\n'
@@ -867,7 +922,6 @@ Running dry-run now...
   print_route_resolution_summary
   print_install_mode_summary
   if [ "$NODECLAW_INSTALL_MODE" = 'env' ]; then
-    prompt_nodeclaw_api_key optional
     render_launcher_env_contract "$tool" true
   else
     bash "$target" --dry-run
