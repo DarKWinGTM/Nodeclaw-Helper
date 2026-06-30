@@ -99,7 +99,7 @@ resolve_powershell_launcher() {
 describe_tool() {
   case "$1" in
     claude-code)
-      printf '%s\n' 'edits ~/.claude/settings.json and writes ANTHROPIC_* env values'
+      printf '%s\n' 'renders ANTHROPIC_* env exports for the current shell/session and only uses settings-file mode when the user explicitly chooses persistent'
       ;;
     gemini-cli)
       printf '%s\n' 'writes a managed Gemini env snippet/profile source block for the custom-endpoint path and keeps launch helper-guided'
@@ -128,7 +128,7 @@ describe_tool() {
 describe_target() {
   case "$1" in
     claude-code)
-      printf '%s\n' '~/.claude/settings.json'
+      printf '%s\n' 'current shell/session env exports by default; ~/.claude/settings.json only when persistent is explicitly chosen'
       ;;
     gemini-cli)
       printf '%s\n' '~/.gemini/nodeclaw-gemini-env.sh + shell profile source block'
@@ -150,6 +150,40 @@ describe_target() {
       ;;
     *)
       printf '%s\n' 'unknown target'
+      ;;
+  esac
+}
+
+describe_selected_tool() {
+  local tool="$1"
+  local install_mode="$2"
+
+  case "$tool:$install_mode" in
+    claude-code:env)
+      printf '%s\n' 'renders ANTHROPIC_* env exports for the current shell/session'
+      ;;
+    claude-code:persistent)
+      printf '%s\n' 'edits ~/.claude/settings.json and writes ANTHROPIC_* env values'
+      ;;
+    *)
+      describe_tool "$tool"
+      ;;
+  esac
+}
+
+describe_selected_target() {
+  local tool="$1"
+  local install_mode="$2"
+
+  case "$tool:$install_mode" in
+    claude-code:env)
+      printf '%s\n' 'current shell/session env exports'
+      ;;
+    claude-code:persistent)
+      printf '%s\n' '~/.claude/settings.json'
+      ;;
+    *)
+      describe_target "$tool"
       ;;
   esac
 }
@@ -483,21 +517,17 @@ Purpose
   Remote usage should call launcher only; launcher fetches the helper payload it needs.
 
 Recommended flow
-  1. list available tools
-  2. run dry-run first
-  3. review the target file / planned config
-  4. run apply only when ready
+  1. run wizard
+  2. choose tool, route, and install style in the menu
+  3. let the helper print or apply the env-first contract in the same flow
 
 Usage
   bash ./script/launcher.sh <command> [options]
 
 Remote examples
   curl -fsSL <nodeclaw-launcher-url> | bash -s -- wizard
-  curl -fsSL <nodeclaw-launcher-url> | bash -s -- dry-run --tool claude-code
-  curl -fsSL <nodeclaw-launcher-url> | bash -s -- apply --tool claude-code
-  curl -fsSL <nodeclaw-launcher-url> | bash -s -- dry-run --tool gemini-cli
-  curl -fsSL <nodeclaw-launcher-url> | bash -s -- dry-run --tool gemini-cli --route-mode cloudflare
-  curl -fsSL <nodeclaw-launcher-url> | bash -s -- dry-run --tool hermes
+  curl -fsSL <nodeclaw-launcher-url> | bash -s -- wizard --tool claude-code
+  curl -fsSL <nodeclaw-launcher-url> | bash -s -- wizard --tool gemini-cli --route-mode cloudflare
 
 Commands
   list
@@ -510,14 +540,13 @@ Commands
       Install mode defaults to auto, which resolves to env when the checked tool contract supports it.
 
   apply --tool <tool> [--route-mode <direct|cloudflare>] [--install-mode <auto|env|persistent>]
-      Apply the config change for the selected tool.
-      Apply is currently supported for: claude-code, gemini-cli, codex, hermes, openclaw, opencode, zed.
-      Route mode defaults to direct. Ineligible tools fall back to direct with an explicit reason.
-      Env install mode prompts for NODECLAW_API_KEY when the key is missing.
+      Advanced/non-interactive path for direct execution.
+      Keep this for automation or explicit operator use, not as the main first-use flow.
 
   wizard [--tool <tool>] [--route-mode <direct|cloudflare>] [--install-mode <auto|env|persistent>]
-      Guided setup mode. Helps choose tool, route mode, install mode, shows what will change,
-      runs dry-run first, and only then offers apply when a helper-managed apply path exists.
+      Primary guided setup path.
+      The menu owns the choices so users do not need to remember flags first.
+      Env-first tools stay env-first by default unless the user explicitly chooses persistent.
 
   windows-dry-run --tool <tool> [--route-mode <direct|cloudflare>] [--install-mode <auto|env|persistent>]
       Preview the PowerShell helper path.
@@ -527,10 +556,10 @@ Commands
       Show this help message.
 
 Notes
-- Shell helper paths can apply changes where the checked contract supports it.
+- Wizard is the main user-facing path; flags stay available mainly for automation and advanced operator use.
+- Env-first remains the primary contract for env-default/hybrid tools unless the user explicitly chooses persistent.
 - PowerShell helper paths remain dry-run-only in the current checked scope.
 - Route mode defaults to direct; Cloudflare mode is explicit opt-in and only resolves for checked eligible helper families.
-- Install mode defaults to auto; auto resolves to env for env-default/hybrid tools and persistent for persistent-primary tools.
 - Gemini CLI now supports the protected Google / Gemini `v1beta` route when Cloudflare mode is selected, while direct mode keeps the native Gemini root.
 - Remote launcher usage can fetch the required helper payload automatically from the published helper surface.
 - Override the remote helper base with NODECLAW_HELPER_BASE_URL when needed.
@@ -683,15 +712,6 @@ resolve_launcher_setup_install_mode() {
   local command="$1"
   local tool="$2"
   local requested="$3"
-
-  if [ "$requested" = 'auto' ]; then
-    case "$command:$tool" in
-      apply:claude-code|wizard:claude-code)
-        printf 'persistent\n'
-        return
-        ;;
-    esac
-  fi
 
   printf '%s\n' "$requested"
 }
@@ -889,14 +909,14 @@ cmd_wizard() {
     install_mode="$(resolve_launcher_setup_install_mode 'wizard' "$tool" "$install_mode")"
   fi
 
-  printf '\nStep 4/6 — What this helper does\n'
-  printf '  Tool: %s\n' "$tool"
-  printf '  Summary: %s\n' "$(describe_tool "$tool")"
-  printf '  Target: %s\n' "$(describe_target "$tool")"
-
-  target="$(resolve_shell_target "$tool")"
   export_resolved_route_env "$tool" "$route_mode"
   export_resolved_install_env "$tool" "$install_mode"
+  printf '\nStep 4/6 — What this helper does\n'
+  printf '  Tool: %s\n' "$tool"
+  printf '  Summary: %s\n' "$(describe_selected_tool "$tool" "$NODECLAW_INSTALL_MODE")"
+  printf '  Target: %s\n' "$(describe_selected_target "$tool" "$NODECLAW_INSTALL_MODE")"
+
+  target="$(resolve_shell_target "$tool")"
 
   printf '
 Step 5/6 — Preview first
@@ -945,11 +965,7 @@ Applying...
       fi
       ;;
     *)
-      printf '
-No files were changed by apply. You can rerun later with:
-'
-      printf '  bash ./script/launcher.sh apply --tool %s --route-mode %s --install-mode %s
-' "$tool" "$route_mode" "$NODECLAW_REQUESTED_INSTALL_MODE"
+      printf '\nNo changes were applied.\n'
       ;;
   esac
 }

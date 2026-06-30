@@ -66,7 +66,6 @@
       .launcher-command-column pre { height: 100%; }
       .launcher-command-label { margin: 0; color: #dbeafe; font-size: 0.92rem; font-weight: 600; }
       .claude-guide-header { display:grid; gap:16px; grid-template-columns: minmax(0, 1fr) minmax(220px, 280px); align-items:start; }
-      .claude-config-jump { width:100%; }
       .os-tab-row { display:flex; flex-wrap:wrap; gap:10px; margin:16px 0 14px; }
       .os-tab { border:1px solid var(--line); background:rgba(15,23,42,.72); color:var(--text); border-radius:999px; padding:8px 14px; cursor:pointer; font:inherit; }
       .os-tab.active { background:rgba(96,165,250,.18); border-color:rgba(96,165,250,.34); color:#dbeafe; }
@@ -231,14 +230,11 @@ $launcherText = irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher
           <div>
             <h2 data-lang="en">Claude Code CLI helper path</h2>
             <h2 data-lang="th">เส้นทาง helper ของ Claude Code CLI</h2>
-            <p class="muted" data-lang="en">Claude Code CLI auto-resolves the Anthropic <code>/v1</code> route family. For direct/native setup, point <code>ANTHROPIC_BASE_URL</code> at the service root only.</p>
-            <p class="muted" data-lang="th">Claude Code CLI จะ resolve เส้นทาง Anthropic ตระกูล <code>/v1</code> ให้อัตโนมัติ ดังนั้น direct/native setup ต้องชี้ <code>ANTHROPIC_BASE_URL</code> ไปที่ service root เท่านั้น</p>
+            <p class="muted" data-lang="en">Start with the launcher wizard. Claude Code CLI auto-resolves the Anthropic <code>/v1</code> route family, so env-first setup stays the primary path.</p>
+            <p class="muted" data-lang="th">เริ่มจาก launcher wizard ก่อน โดย Claude Code CLI จะ resolve เส้นทาง Anthropic ตระกูล <code>/v1</code> ให้อัตโนมัติ ดังนั้น env-first จึงยังเป็นเส้นทางหลัก</p>
+            <p class="muted" data-lang="en">Use persistent config writes when you explicitly choose that option later.</p>
+            <p class="muted" data-lang="th">ใช้การเขียน config แบบถาวรต่อเมื่อคุณเลือกตัวเลือกนั้นเองอย่างชัดเจนในภายหลังเท่านั้น</p>
           </div>
-          <a class="download claude-config-jump" href="#claude-config-file">
-            Config file
-            <small data-lang="en">Jump to the checked settings path</small>
-            <small data-lang="th">ไปดู path ของ settings ที่ตรวจแล้ว</small>
-          </a>
         </div>
 
         <div id="claude-quickstart-tabs" class="os-tab-row" aria-label="Claude Code operating system tabs">
@@ -249,7 +245,6 @@ $launcherText = irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher
 
         <nav class="claude-subnav" aria-label="Claude Code helper sections">
           <a href="#claude-quick-start">Quick start</a>
-          <a href="#claude-config-file">Config file</a>
           <a href="#claude-env">Env</a>
           <a href="#claude-command">Command</a>
           <a href="#claude-verify">Verify</a>
@@ -263,16 +258,6 @@ $launcherText = irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher
             <p class="muted" id="claude-quickstart-summary-en" data-lang="en"></p>
             <p class="muted" id="claude-quickstart-summary-th" data-lang="th"></p>
             <pre><code id="claude-quickstart-command"></code></pre>
-          </section>
-
-          <section id="claude-config-file" class="claude-guide-section">
-            <h3 data-lang="en">Config file</h3>
-            <h3 data-lang="th">Config file</h3>
-            <p class="muted" id="claude-config-file-summary-en" data-lang="en"></p>
-            <p class="muted" id="claude-config-file-summary-th" data-lang="th"></p>
-            <pre><code id="claude-config-file-path"></code></pre>
-            <p class="muted" data-lang="en">Checked against the official Claude Code settings docs: user settings live in <code>~/.claude/settings.json</code> and Windows <code>~/.claude</code> resolves to <code>%USERPROFILE%\.claude</code>.</p>
-            <p class="muted" data-lang="th">ตรวจเทียบกับ official Claude Code settings docs แล้วว่า user settings อยู่ที่ <code>~/.claude/settings.json</code> และบน Windows path <code>~/.claude</code> จะ resolve เป็น <code>%USERPROFILE%\.claude</code></p>
           </section>
 
           <section id="claude-env" class="claude-guide-section">
@@ -482,12 +467,12 @@ $launcherText = irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher
             shell: {
               direct: [
                 `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
-                '  dry-run \\',
+                '  wizard \\',
                 '  --tool claude-code',
               ],
               cloudflare: [
                 `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
-                '  dry-run \\',
+                '  wizard \\',
                 '  --tool claude-code \\',
                 '  --route-mode cloudflare',
               ],
@@ -516,12 +501,12 @@ $launcherText = irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher
             shell: {
               direct: [
                 `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
-                '  dry-run \\',
+                '  wizard \\',
                 '  --tool codex',
               ],
               cloudflare: [
                 `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
-                '  dry-run \\',
+                '  wizard \\',
                 '  --tool codex \\',
                 '  --route-mode cloudflare',
               ],
@@ -550,12 +535,12 @@ $launcherText = irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher
             shell: {
               direct: [
                 `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
-                '  dry-run \\',
+                '  wizard \\',
                 '  --tool zed',
               ],
               cloudflare: [
                 `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
-                '  dry-run \\',
+                '  wizard \\',
                 '  --tool zed \\',
                 '  --route-mode cloudflare',
               ],
@@ -588,12 +573,12 @@ $launcherText = irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher
             shell: {
               direct: [
                 `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
-                '  dry-run \\',
+                '  wizard \\',
                 '  --tool openclaw',
               ],
               cloudflare: [
                 `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
-                '  dry-run \\',
+                '  wizard \\',
                 '  --tool openclaw \\',
                 '  --route-mode cloudflare',
               ],
@@ -632,12 +617,12 @@ $launcherText = irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher
             shell: {
               direct: [
                 `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
-                '  dry-run \\',
+                '  wizard \\',
                 '  --tool gemini-cli',
               ],
               cloudflare: [
                 `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
-                '  dry-run \\',
+                '  wizard \\',
                 '  --tool gemini-cli \\',
                 '  --route-mode cloudflare',
               ],
@@ -676,12 +661,12 @@ $launcherText = irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher
             shell: {
               direct: [
                 `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
-                '  dry-run \\',
+                '  wizard \\',
                 '  --tool opencode',
               ],
               cloudflare: [
                 `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
-                '  dry-run \\',
+                '  wizard \\',
                 '  --tool opencode \\',
                 '  --route-mode cloudflare',
               ],
@@ -720,12 +705,12 @@ $launcherText = irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher
             shell: {
               direct: [
                 `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
-                '  dry-run \\',
+                '  wizard \\',
                 '  --tool hermes',
               ],
               cloudflare: [
                 `curl -fsSL ${LAUNCHER_SH} | bash -s -- \\`,
-                '  dry-run \\',
+                '  wizard \\',
                 '  --tool hermes \\',
                 '  --route-mode cloudflare',
               ],
@@ -829,29 +814,20 @@ bash ./script/setup-hermes-nodeclaw.sh`,
       };
       const claudeOsState = { platform: 'linux' };
       const claudeOsButtons = document.querySelectorAll('[data-claude-os]');
-      const claudeConfigPaths = {
-        linux: '~/.claude/settings.json',
-        macos: '~/.claude/settings.json',
-        windows: '%USERPROFILE%\\.claude\\settings.json',
-      };
       const claudeGuideCopy = {
         quickSummary: {
           direct: {
-            en: 'Direct/native Claude Code uses the service root only. Claude Code CLI adds the Anthropic /v1 route family automatically.',
-            th: 'Claude Code แบบ direct/native ต้องใช้ service root เท่านั้น เพราะ Claude Code CLI จะเติม route family แบบ Anthropic /v1 ให้อัตโนมัติ',
+            en: 'Start with the launcher wizard. Direct/native Claude Code uses the service root only and keeps env-first setup as the primary path.',
+            th: 'เริ่มจาก launcher wizard ก่อน โดย Claude Code แบบ direct/native จะใช้ service root เท่านั้น และคง env-first ให้เป็นเส้นทางหลัก',
           },
           cloudflare: {
-            en: 'Cloudflare mode still keeps the custom-provider root only. Claude Code CLI adds the Anthropic /v1 route family automatically on top of that root.',
-            th: 'Cloudflare mode จะคงไว้แค่ custom-provider root เช่นเดิม และ Claude Code CLI จะเติม route family แบบ Anthropic /v1 ให้อัตโนมัติบน root นั้นอีกชั้น',
+            en: 'Start with the launcher wizard. Cloudflare mode still keeps the custom-provider root only and keeps env-first setup as the primary path.',
+            th: 'เริ่มจาก launcher wizard ก่อน โดย Cloudflare mode จะคงไว้แค่ custom-provider root และคง env-first ให้เป็นเส้นทางหลัก',
           },
         },
-        configSummary: {
-          en: 'User settings path for the selected OS.',
-          th: 'path ของ user settings สำหรับ OS ที่เลือกอยู่',
-        },
         commandSummary: {
-          en: 'Run this in the same shell that launches Claude Code.',
-          th: 'รันชุดนี้ใน shell เดียวกับที่ใช้เปิด Claude Code',
+          en: 'Run this in the same shell that launches Claude Code. Choose persistent config writes only when you explicitly want them later.',
+          th: 'รันชุดนี้ใน shell เดียวกับที่ใช้เปิด Claude Code และค่อยเลือกการเขียน config แบบถาวรเมื่อคุณต้องการจริง ๆ ในภายหลัง',
         },
         verifySummary: {
           en: 'The launch itself is the check: Claude Code should start with the chosen model and without an immediate base-URL failure.',
@@ -952,7 +928,6 @@ bash ./script/setup-hermes-nodeclaw.sh`,
         const platform = claudeOsState.platform;
         const command = buildClaudeCommandLines(mode, platform).join('\n');
         const verify = buildClaudeVerifyLines(platform).join('\n');
-        const configPath = claudeConfigPaths[platform];
 
         claudeOsButtons.forEach((button) => {
           const isActive = button.dataset.claudeOs === platform;
@@ -963,9 +938,6 @@ bash ./script/setup-hermes-nodeclaw.sh`,
         setText('claude-quickstart-summary-en', claudeGuideCopy.quickSummary[mode].en);
         setText('claude-quickstart-summary-th', claudeGuideCopy.quickSummary[mode].th);
         setText('claude-quickstart-command', command);
-        setText('claude-config-file-summary-en', claudeGuideCopy.configSummary.en);
-        setText('claude-config-file-summary-th', claudeGuideCopy.configSummary.th);
-        setText('claude-config-file-path', configPath);
         setText('claude-command-summary-en', claudeGuideCopy.commandSummary.en);
         setText('claude-command-summary-th', claudeGuideCopy.commandSummary.th);
         setText('claude-command-snippet', command);

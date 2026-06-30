@@ -26,160 +26,45 @@ Helper-guided targets:
 - `opencode`
 - `zed`
 
-## Main entrypoints
+## Primary path
+
+Use the launcher wizard first.
+
+```bash
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- wizard
+```
+
+If you already know the tool, you can preselect it:
+
+```bash
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- wizard --tool claude-code
+```
+
+Default behavior for env-capable tools such as `claude-code` is env-first.
+Persistent config/file writes are available only when you explicitly choose them in the wizard or another advanced path.
+
+## Advanced / automation
 
 Shell launcher:
 
 ```bash
 bash ./script/launcher.sh help
 bash ./script/launcher.sh list
-bash ./script/launcher.sh dry-run --tool <claude-code|gemini-cli|codex|hermes|openclaw|opencode|zed> --route-mode <direct|cloudflare>
-bash ./script/launcher.sh apply --tool <claude-code|gemini-cli|codex|hermes|openclaw|opencode|zed> --route-mode <direct|cloudflare>
-bash ./script/launcher.sh wizard [--tool <claude-code|gemini-cli|codex|hermes|openclaw|opencode|zed>] [--route-mode <direct|cloudflare>]
+bash ./script/launcher.sh wizard [--tool <claude-code|gemini-cli|codex|hermes|openclaw|opencode|zed>] [--route-mode <direct|cloudflare>] [--install-mode <auto|env|persistent>]
+bash ./script/launcher.sh dry-run --tool <claude-code|gemini-cli|codex|hermes|openclaw|opencode|zed> --route-mode <direct|cloudflare> --install-mode <auto|env|persistent>
+bash ./script/launcher.sh apply --tool <claude-code|gemini-cli|codex|hermes|openclaw|opencode|zed> --route-mode <direct|cloudflare> --install-mode <auto|env|persistent>
 ```
 
-Remote launcher-first usage:
-
-These are one-shot shell commands.
-- Pick the block for the tool you want.
-- `direct` is the default launcher path.
-- Use the Cloudflare variant only when you explicitly want the protected route.
-
-### Wizard
-
-Use this when you want the launcher to ask for the tool interactively.
-
-Direct:
-
-```bash
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- wizard
-```
-
-Optional Cloudflare-protected route:
-
-```bash
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- wizard --route-mode cloudflare
-```
-
-### Claude Code CLI
-
-Use this when you want a direct launcher preview for `claude-code`.
-
-Direct:
-
-```bash
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool claude-code
-```
-
-Optional Cloudflare-protected route:
-
-```bash
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool claude-code --route-mode cloudflare
-```
-
-### Codex
-
-Use this when you want a direct launcher preview for `codex`.
-
-Direct:
-
-```bash
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool codex
-```
-
-Optional Cloudflare-protected route:
-
-```bash
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool codex --route-mode cloudflare
-```
-
-### Zed
-
-Use this when you want a direct launcher preview for `zed`.
-
-Direct:
-
-```bash
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool zed
-```
-
-Optional Cloudflare-protected route:
-
-```bash
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool zed --route-mode cloudflare
-```
-
-### OpenClaw
-
-Use this when you want a direct launcher preview for `openclaw`. Cloudflare works only when compatibility resolves to `openai` or `anthropic`.
-
-Direct:
-
-```bash
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool openclaw
-```
-
-Optional Cloudflare-protected route:
-
-```bash
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool openclaw --route-mode cloudflare
-```
-
-### Gemini CLI
-
-Use this when you want the Gemini launcher path. Direct mode keeps the native Gemini root; Cloudflare switches to the protected Google / Gemini `v1beta` path.
-
-Direct:
-
-```bash
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool gemini-cli
-```
-
-Optional Cloudflare-protected route:
-
-```bash
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool gemini-cli --route-mode cloudflare
-```
-
-### OpenCode
-
-Use this when you want the OpenCode launcher path. Both modes keep the same custom-provider-root contract; the launcher only swaps the injected root.
-
-Direct:
-
-```bash
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool opencode
-```
-
-Optional Cloudflare-protected route:
-
-```bash
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool opencode --route-mode cloudflare
-```
-
-### Hermes
-
-Use this when you want the Hermes launcher path. Both modes keep the same custom-provider-root contract; the launcher only swaps the injected root.
-
-Direct:
-
-```bash
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool hermes
-```
-
-Optional Cloudflare-protected route:
-
-```bash
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool hermes --route-mode cloudflare
-```
+Use these advanced flags when you are automating setup, previewing a non-interactive path, or deliberately choosing a persistent install contract.
+Cloudflare remains explicit opt-in; `direct` stays the default launcher route.
 
 PowerShell launcher:
 
 ```powershell
 .\script\launcher.ps1 -Command help
 .\script\launcher.ps1 -Command list
-.\script\launcher.ps1 -Command dry-run -Tool <claude-code|gemini-cli|codex|hermes|openclaw|opencode|zed> -RouteMode <direct|cloudflare>
-.\script\launcher.ps1 -Command wizard -Tool <claude-code|gemini-cli|codex|hermes|openclaw|opencode|zed> -RouteMode <direct|cloudflare>
+.\script\launcher.ps1 -Command dry-run -Tool <claude-code|gemini-cli|codex|hermes|openclaw|opencode|zed> -RouteMode <direct|cloudflare> -InstallMode <auto|env|persistent>
+.\script\launcher.ps1 -Command wizard -Tool <claude-code|gemini-cli|codex|hermes|openclaw|opencode|zed> -RouteMode <direct|cloudflare> -InstallMode <auto|env|persistent>
 ```
 
 Remote PowerShell launcher:
@@ -232,7 +117,7 @@ export CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1
 export DISABLE_INTERLEAVED_THINKING=1
 ```
 
-Optional Cloudflare-protected helper posture for the same Claude contract:
+Optional Cloudflare-protected helper posture for the same Claude contract/
 
 ```bash
 export ANTHROPIC_BASE_URL="https://gateway.ai.cloudflare.com/v1/06b7333b2c174700306d7f931d809765/nodenetwork-nodeclaw-payg/custom-nodenetwork/"
@@ -240,16 +125,13 @@ export ANTHROPIC_AUTH_TOKEN="<nodeclaw_access_key>"
 claude
 ```
 
-Config file paths proved from the official Claude Code settings docs:
-- Linux / macOS user settings: `~/.claude/settings.json`
-- Windows user settings: `%USERPROFILE%\.claude\settings.json`
-- Project shared settings: `.claude/settings.json`
-- Project local settings: `.claude/settings.local.json`
+If you explicitly choose persistent mode later, Claude Code can mirror the same env values into `~/.claude/settings.json` or `%USERPROFILE%\.claude\settings.json`.
+That persistence path is optional; it is not the default first-use contract.
 
-What the helper manages:
-- `~/.claude/settings.json` generation/update on Linux / macOS shell helper runs
-- the same `ANTHROPIC_BASE_URL` + `ANTHROPIC_AUTH_TOKEN` env contract under the Claude Code `env` object
-- helper-guided dry-run/apply flow for that same env-based setup
+What the helper manages by default:
+- session-ready `ANTHROPIC_BASE_URL` + `ANTHROPIC_AUTH_TOKEN` export lines
+- the same env-first Claude Code contract without forcing a config-file edit first
+- optional helper-guided persistent mode only after an explicit choice
 
 Verify / troubleshoot:
 - launch `claude` only after both env vars are active in the same shell that starts Claude Code
@@ -306,7 +188,7 @@ bash ./script/setup-hermes-nodeclaw.sh --dry-run
 bash ./script/setup-hermes-nodeclaw.sh
 ```
 
-Optional Cloudflare-protected helper posture for the same Hermes profile-local contract:
+Optional Cloudflare-protected helper posture for the same Hermes profile-local contract/
 
 ```bash
 export HERMES_NODECLAW_API_KEY="<nodeclaw_access_key>"
@@ -369,10 +251,10 @@ Windows PowerShell helpers:
 ## Recommended usage order
 
 1. Start from the main NodeClaw docs/product surface when you want the full context.
-2. Use `launcher.sh` or `launcher.ps1` as the generic helper entrypoint.
-3. Run `dry-run` first.
-4. Use `wizard` when you want a guided setup flow that still shows the real command and target output.
-5. Use direct per-tool scripts only when you want a more explicit tool-specific entrypoint.
+2. Use `launcher.sh` or `launcher.ps1` with `wizard` as the default first-use path.
+3. Let the wizard choose the right setup flow and keep env-first where the tool supports it.
+4. Use advanced `dry-run`, `apply`, or direct per-tool scripts only when you intentionally need a non-interactive/operator path.
+5. Choose persistent mode only when you deliberately want config/file state beyond the current shell or session.
 
 ## Related release files
 
