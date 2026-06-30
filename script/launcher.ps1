@@ -20,6 +20,7 @@ $LauncherScriptRoot = if ($LauncherHasLocalScriptPath) { Split-Path -Parent $Lau
     $CloudflareCustomProviderBaseUrl = 'https://gateway.ai.cloudflare.com/v1/06b7333b2c174700306d7f931d809765/nodenetwork-nodeclaw-payg/custom-nodenetwork/'
     $CloudflareCustomProviderGoogleV1BetaBaseUrl = "$CloudflareCustomProviderBaseUrl" + 'v1beta'
     $DefaultRouteMode = 'direct'
+    $DefaultInstallMode = 'auto'
 
     function Show-Usage {
 @"
@@ -38,15 +39,16 @@ Recommended flow
 
 Usage:
   .\script\launcher.ps1 -Command list
-  .\script\launcher.ps1 -Command dry-run -Tool <claude-code|gemini-cli|codex|hermes|openclaw|opencode|zed> -RouteMode <direct|cloudflare>
-  .\script\launcher.ps1 -Command wizard [-Tool <claude-code|gemini-cli|codex|hermes|openclaw|opencode|zed>] [-RouteMode <direct|cloudflare>]
+  .\script\launcher.ps1 -Command dry-run -Tool <claude-code|gemini-cli|codex|hermes|openclaw|opencode|zed> -RouteMode <direct|cloudflare> -InstallMode <auto|env|persistent>
+  .\script\launcher.ps1 -Command wizard [-Tool <claude-code|gemini-cli|codex|hermes|openclaw|opencode|zed>] [-RouteMode <direct|cloudflare>] [-InstallMode <auto|env|persistent>]
 
 Remote example:
-  powershell -ExecutionPolicy Bypass -c "irm <nodeclaw-launcher-ps1-url> | iex"
+  powershell -ExecutionPolicy Bypass -c "`$launcherText = irm <nodeclaw-launcher-ps1-url>; & ([scriptblock]::Create(`$launcherText))"
 
 Notes:
-- PowerShell helper paths remain scaffold-first and dry-run-only in the current checked scope.
+- PowerShell launcher stays preview-first in the current checked scope; direct PowerShell helpers remain the tool-specific apply surface where that helper supports file writes or env/session output.
 - Route mode defaults to direct; Cloudflare mode is explicit opt-in and only resolves for checked eligible helper families.
+- Install mode defaults to auto; auto resolves to env for env-default/hybrid tools and persistent for persistent-primary tools.
 - Gemini CLI stays helper-guided on the checked env-first path and can now request Cloudflare for the protected Google / Gemini `v1beta` family when Cloudflare opt-in is selected.
 - Remote launcher usage can fetch the helper payload it needs automatically.
 - Use direct per-tool scripts if you want a tool-specific entrypoint.
@@ -88,6 +90,11 @@ Notes:
             if (Test-Path $localTarget) {
                 return $localTarget
             }
+        }
+
+        $cwdScriptTarget = Join-Path (Join-Path (Get-Location).Path 'script') "setup-$SelectedTool-nodeclaw.ps1"
+        if (Test-Path $cwdScriptTarget) {
+            return $cwdScriptTarget
         }
 
         return (Fetch-RemoteHelperFile -FileName "setup-$SelectedTool-nodeclaw.ps1")
@@ -135,6 +142,204 @@ Notes:
             'hermes' { return 'cloudflare-capable (custom-provider root)' }
             'gemini-cli' { return 'cloudflare-capable (protected v1beta family)' }
             default { return 'direct-only first-wave' }
+        }
+    }
+
+    function Normalize-LauncherArguments {
+        param($RawArgs)
+
+        if ($null -eq $RawArgs) { return @() }
+
+        $normalized = @()
+        foreach ($item in @($RawArgs)) {
+            if ($null -eq $item) { continue }
+            $text = [string]$item
+            if ([string]::IsNullOrEmpty($text)) { continue }
+            $normalized += $text
+        }
+
+        return @($normalized)
+    }
+
+    function Get-InstallCapabilityForTool {
+        param([string]$SelectedTool)
+
+        switch ($SelectedTool) {
+            'claude-code' { return 'env-default' }
+            'gemini-cli' { return 'env-default' }
+            'codex' { return 'hybrid' }
+            'hermes' { return 'persistent-primary' }
+            'openclaw' { return 'persistent-primary' }
+            'opencode' { return 'persistent-primary' }
+            'zed' { return 'persistent-primary' }
+            default { return 'persistent-primary' }
+        }
+    }
+
+    function Resolve-InstallMode {
+        param(
+            [string]$RequestedInstallMode,
+            [string]$Capability
+        )
+
+        switch ($RequestedInstallMode) {
+            'env' { return 'env' }
+            'persistent' { return 'persistent' }
+            '' { }
+            'auto' { }
+            default { throw "Unsupported install mode: $RequestedInstallMode" }
+        }
+
+        switch ($Capability) {
+            'env-default' { return 'env' }
+            'hybrid' { return 'env' }
+            'persistent-primary' { return 'persistent' }
+            default { return 'persistent' }
+        }
+    }
+
+    function Prompt-NodeClawApiKey {
+        if (-not [string]::IsNullOrWhiteSpace($env:NODECLAW_API_KEY)) { return }
+        if (-not $Host.UI) {
+            throw 'NODECLAW_API_KEY is required. Re-run interactively or set the env first.'
+        }
+        $apiKey = Read-Host 'Enter NodeClaw API key'
+        if ([string]::IsNullOrWhiteSpace($apiKey)) {
+            throw 'NODECLAW_API_KEY is required. Re-run interactively or set the env first.'
+        }
+        $env:NODECLAW_API_KEY = $apiKey
+    }
+
+    function ConvertTo-PowerShellLiteral {
+        param([string]$Value)
+
+        return "'" + ($Value -replace "'", "''") + "'"
+    }
+
+    function Write-EnvAssignment {
+        param(
+            [string]$Name,
+            [string]$Value
+        )
+
+        Write-Host (('$env:{0}={1}' -f $Name, (ConvertTo-PowerShellLiteral -Value $Value)))
+    }
+
+    function Render-LauncherEnvContract {
+        param(
+            [string]$SelectedTool,
+            [bool]$DryRun = $true
+        )
+
+        $ApiKey = '<nodeclaw_access_key>'
+        if (-not $DryRun) {
+            $ApiKey = $env:NODECLAW_API_KEY
+        }
+
+        Write-Host "Launcher env install contract for $SelectedTool"
+        Write-Host 'No persistent files are changed by env install mode.'
+        Write-Host ''
+        if ($DryRun) {
+            Write-Host 'Dry run only. Planned session env exports:'
+            Write-Host ''
+        } else {
+            Write-Host 'Run these assignments in the current PowerShell session or save them into your profile by choice.'
+            Write-Host ''
+        }
+
+        Write-EnvAssignment -Name 'NODECLAW_API_KEY' -Value $ApiKey
+
+        switch ($SelectedTool) {
+            'claude-code' {
+                Write-EnvAssignment -Name 'ANTHROPIC_BASE_URL' -Value $env:NODECLAW_EFFECTIVE_BASE_URL
+                Write-Host '$env:ANTHROPIC_AUTH_TOKEN=$env:NODECLAW_API_KEY'
+            }
+            'gemini-cli' {
+                Write-EnvAssignment -Name 'GOOGLE_GEMINI_BASE_URL' -Value $env:NODECLAW_EFFECTIVE_BASE_URL
+                Write-Host '$env:GEMINI_API_KEY=$env:NODECLAW_API_KEY'
+            }
+            'codex' {
+                Write-Host '$env:OPENAI_API_KEY=$env:NODECLAW_API_KEY'
+                Write-Host ''
+                Write-Host 'Codex is hybrid: env mode only supplies auth. Use -InstallMode persistent when base URL/model/provider config must be written.'
+            }
+            default {
+                throw "Env install mode is not available for $SelectedTool from the launcher yet. Use -InstallMode persistent."
+            }
+        }
+    }
+
+    function Export-ResolvedInstallEnv {
+        param(
+            [string]$SelectedTool,
+            [string]$RequestedInstallMode
+        )
+
+        $capability = Get-InstallCapabilityForTool -SelectedTool $SelectedTool
+        $resolved = Resolve-InstallMode -RequestedInstallMode $RequestedInstallMode -Capability $capability
+        $env:NODECLAW_REQUESTED_INSTALL_MODE = if ([string]::IsNullOrWhiteSpace($RequestedInstallMode)) { 'auto' } else { $RequestedInstallMode }
+        $env:NODECLAW_INSTALL_CAPABILITY = $capability
+        $env:NODECLAW_INSTALL_MODE = $resolved
+
+        return @{
+            Requested = $env:NODECLAW_REQUESTED_INSTALL_MODE
+            Capability = $capability
+            Resolved = $resolved
+        }
+    }
+
+    function Write-InstallModeSummary {
+        param([hashtable]$InstallMode)
+
+        Write-Host "Requested install mode: $($InstallMode.Requested)"
+        Write-Host "Install capability: $($InstallMode.Capability)"
+        Write-Host "Install mode: $($InstallMode.Resolved)"
+    }
+
+    function Write-InstallModeOptions {
+        param([string]$Capability)
+
+        Write-Host 'Install mode'
+        if ($Capability -in @('env-default', 'hybrid')) {
+            Write-Host '  [1] env (recommended)'
+            Write-Host '  [2] persistent'
+            Write-Host '  [3] auto'
+        } else {
+            Write-Host '  [1] persistent (recommended)'
+            Write-Host '  [2] env'
+            Write-Host '  [3] auto'
+        }
+        Write-Host ''
+    }
+
+    function ConvertTo-InstallModeSelection {
+        param(
+            [string]$Selection,
+            [string]$Capability
+        )
+
+        if ($Capability -in @('env-default', 'hybrid')) {
+            switch ($Selection) {
+                '' { return 'auto' }
+                '1' { return 'env' }
+                'env' { return 'env' }
+                '2' { return 'persistent' }
+                'persistent' { return 'persistent' }
+                '3' { return 'auto' }
+                'auto' { return 'auto' }
+                default { throw "Unsupported install mode selection: $Selection" }
+            }
+        }
+
+        switch ($Selection) {
+            '' { return 'auto' }
+            '1' { return 'persistent' }
+            'persistent' { return 'persistent' }
+            '2' { return 'env' }
+            'env' { return 'env' }
+            '3' { return 'auto' }
+            'auto' { return 'auto' }
+            default { throw "Unsupported install mode selection: $Selection" }
         }
     }
 
@@ -232,11 +437,14 @@ Notes:
     }
 
     function Parse-LauncherArguments {
-        param([string[]]$RawArgs)
+        param($RawArgs)
+
+        $RawArgs = @(Normalize-LauncherArguments -RawArgs $RawArgs)
 
         $resolvedCommand = if ($env:NODECLAW_LAUNCHER_COMMAND) { $env:NODECLAW_LAUNCHER_COMMAND } else { '' }
         $resolvedTool = if ($env:NODECLAW_LAUNCHER_TOOL) { $env:NODECLAW_LAUNCHER_TOOL } else { '' }
         $resolvedRouteMode = if ($env:NODECLAW_LAUNCHER_ROUTE_MODE) { $env:NODECLAW_LAUNCHER_ROUTE_MODE } else { $DefaultRouteMode }
+        $resolvedInstallMode = if ($env:NODECLAW_LAUNCHER_INSTALL_MODE) { $env:NODECLAW_LAUNCHER_INSTALL_MODE } elseif ($env:NODECLAW_INSTALL_MODE) { $env:NODECLAW_INSTALL_MODE } else { $DefaultInstallMode }
 
         for ($i = 0; $i -lt $RawArgs.Length; $i++) {
             switch ($RawArgs[$i]) {
@@ -260,6 +468,13 @@ Notes:
                     }
                     $i++
                     $resolvedRouteMode = $RawArgs[$i]
+                }
+                '-InstallMode' {
+                    if ($i + 1 -ge $RawArgs.Length) {
+                        throw 'Set -InstallMode to one of: auto, env, persistent.'
+                    }
+                    $i++
+                    $resolvedInstallMode = $RawArgs[$i]
                 }
                 default {
                     if ([string]::IsNullOrWhiteSpace($resolvedCommand)) {
@@ -295,17 +510,24 @@ Notes:
             throw "Unsupported route mode: $resolvedRouteMode"
         }
 
+        if ($resolvedInstallMode -notin @('auto', 'env', 'persistent')) {
+            throw "Unsupported install mode: $resolvedInstallMode"
+        }
+
         return @{
             Command = $resolvedCommand
             Tool = $resolvedTool
             RouteMode = $resolvedRouteMode
+            InstallMode = $resolvedInstallMode
         }
     }
 
-    $parsed = Parse-LauncherArguments -RawArgs $LauncherArgs
+    $NormalizedLauncherArgs = @(Normalize-LauncherArguments -RawArgs $LauncherArgs)
+    $parsed = Parse-LauncherArguments -RawArgs $NormalizedLauncherArgs
     $Command = $parsed.Command
     $Tool = $parsed.Tool
     $RouteMode = $parsed.RouteMode
+    $InstallMode = $parsed.InstallMode
 
     if ($Command -eq 'help') {
         Show-Usage
@@ -320,7 +542,7 @@ Notes:
         Write-Host ''
         Write-Host 'What each helper changes:'
         foreach ($Item in $SupportedTools) {
-            Write-Host "  $Item -> $(Describe-Tool -SelectedTool $Item) [$(Get-CapabilityLabel -SelectedTool $Item)]"
+            Write-Host "  $Item -> $(Describe-Tool -SelectedTool $Item) [$(Get-CapabilityLabel -SelectedTool $Item), install=$(Get-InstallCapabilityForTool -SelectedTool $Item)]"
         }
         return
     }
@@ -328,7 +550,7 @@ Notes:
     if ($Command -eq 'wizard') {
         Write-Host 'NodeClaw Setup Wizard'
         Write-Host ''
-        Write-Host 'Step 1/5 — Choose tool'
+        Write-Host 'Step 1/6 — Choose tool'
         Write-Host '  [1] claude-code'
         Write-Host '  [2] gemini-cli'
         Write-Host '  [3] codex'
@@ -358,8 +580,8 @@ Notes:
         }
 
         Write-Host ''
-        Write-Host 'Step 2/5 — Choose routing mode'
-        if ($LauncherArgs -contains '-RouteMode' -or -not [string]::IsNullOrWhiteSpace($env:NODECLAW_LAUNCHER_ROUTE_MODE)) {
+        Write-Host 'Step 2/6 — Choose routing mode'
+        if ($NormalizedLauncherArgs.Count -gt 0 -or -not [string]::IsNullOrWhiteSpace($env:NODECLAW_LAUNCHER_ROUTE_MODE)) {
             Write-Host "Preselected route mode: $RouteMode"
         } else {
             Write-Host '  [1] direct'
@@ -367,6 +589,7 @@ Notes:
             Write-Host ''
             $RouteSelection = Read-Host 'Select routing mode'
             switch ($RouteSelection) {
+                '' { $RouteMode = 'direct' }
                 '1' { $RouteMode = 'direct' }
                 '2' { $RouteMode = 'cloudflare' }
                 'direct' { $RouteMode = 'direct' }
@@ -375,17 +598,29 @@ Notes:
             }
         }
 
+        $InstallCapability = Get-InstallCapabilityForTool -SelectedTool $Tool
         Write-Host ''
-        Write-Host 'Step 3/5 — What this helper does'
+        Write-Host 'Step 3/6 — Choose install mode'
+        if ($NormalizedLauncherArgs -contains '-InstallMode' -or -not [string]::IsNullOrWhiteSpace($env:NODECLAW_LAUNCHER_INSTALL_MODE) -or -not [string]::IsNullOrWhiteSpace($env:NODECLAW_INSTALL_MODE) -or @(Normalize-LauncherArguments -RawArgs $NormalizedLauncherArgs).Length -gt 0) {
+            Write-Host "Preselected install mode: $InstallMode"
+        } else {
+            Write-InstallModeOptions -Capability $InstallCapability
+            $InstallSelection = Read-Host 'Select install mode'
+            $InstallMode = ConvertTo-InstallModeSelection -Selection $InstallSelection -Capability $InstallCapability
+        }
+
+        Write-Host ''
+        Write-Host 'Step 4/6 — What this helper does'
         Write-Host "  Tool: $Tool"
         Write-Host "  Summary: $(Describe-Tool -SelectedTool $Tool)"
         Write-Host "  Target: $(Describe-Target -SelectedTool $Tool)"
 
         $Route = Resolve-RouteModeForTool -SelectedTool $Tool -RequestedRouteMode $RouteMode
         Export-ResolvedRouteEnv -SelectedTool $Tool -Route $Route
+        $ResolvedInstallMode = Export-ResolvedInstallEnv -SelectedTool $Tool -RequestedInstallMode $InstallMode
         $Target = Resolve-TargetScript -SelectedTool $Tool
         Write-Host ''
-        Write-Host 'Step 4/5 — Preview first'
+        Write-Host 'Step 5/6 — Preview first'
         Write-Host '  Launcher will run:'
         Write-Host "    $Target -DryRun"
         if (-not $HasLocalScriptPath) {
@@ -393,11 +628,16 @@ Notes:
         }
         Write-Host ''
         Write-RouteResolutionSummary -Route $Route
-        & $Target -DryRun
+        Write-InstallModeSummary -InstallMode $ResolvedInstallMode
+        if ($ResolvedInstallMode.Resolved -eq 'env') {
+            Render-LauncherEnvContract -SelectedTool $Tool -DryRun $true
+        } else {
+            & $Target -DryRun
+        }
         Write-Host ''
-        Write-Host 'Step 5/5 — Apply'
-        Write-Host '  PowerShell helpers remain dry-run-only in the current checked scope.'
-        Write-Host '  If you want the apply path today, use the shell launcher for the same tool.'
+        Write-Host 'Step 6/6 — Apply'
+        Write-Host '  PowerShell launcher stops at preview in the current checked scope.'
+        Write-Host '  If you want apply next, run the direct PowerShell helper for the same tool without -DryRun where that helper supports file writes or env/session output.'
         return
     }
 
@@ -410,9 +650,15 @@ Notes:
         'dry-run' {
             $Route = Resolve-RouteModeForTool -SelectedTool $Tool -RequestedRouteMode $RouteMode
             Export-ResolvedRouteEnv -SelectedTool $Tool -Route $Route
+            $ResolvedInstallMode = Export-ResolvedInstallEnv -SelectedTool $Tool -RequestedInstallMode $InstallMode
             Write-Host "Launcher target: $Target"
             Write-RouteResolutionSummary -Route $Route
-            & $Target -DryRun
+            Write-InstallModeSummary -InstallMode $ResolvedInstallMode
+            if ($ResolvedInstallMode.Resolved -eq 'env') {
+                Render-LauncherEnvContract -SelectedTool $Tool -DryRun $true
+            } else {
+                & $Target -DryRun
+            }
         }
         default {
             Show-Usage

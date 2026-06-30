@@ -6,6 +6,10 @@ NODECLAW_BASE_URL="${NODECLAW_BASE_URL:-https://payg.nodenetwork.ovh/v1}"
 NODECLAW_MODEL_ID="${NODECLAW_MODEL_ID:-gpt-5.4}"
 NODECLAW_MODEL_DISPLAY_NAME="${NODECLAW_MODEL_DISPLAY_NAME:-NodeClaw GPT-5.4}"
 NODECLAW_MAX_TOKENS="${NODECLAW_MAX_TOKENS:-128000}"
+NODECLAW_INSTALL_MODE="${NODECLAW_INSTALL_MODE:-auto}"
+NODECLAW_INTERACTIVE="${NODECLAW_INTERACTIVE:-auto}"
+NODECLAW_PROMPTED_API_KEY="${NODECLAW_PROMPTED_API_KEY:-}"
+HELPER_CAPABILITY='persistent-primary'
 DRY_RUN=false
 
 for arg in "$@"; do
@@ -15,11 +19,59 @@ for arg in "$@"; do
       ;;
     *)
       printf 'Unknown argument: %s\n' "$arg" >&2
-      printf 'Usage: ZED_SETTINGS_PATH="<path-to-zed-settings.json>" bash ./script/setup-zed-nodeclaw.sh [--dry-run]\n' >&2
+      printf 'Usage: NODECLAW_INSTALL_MODE="auto|env|persistent" ZED_SETTINGS_PATH="<path-to-zed-settings.json>" bash ./script/setup-zed-nodeclaw.sh [--dry-run]\n' >&2
       exit 1
       ;;
   esac
 done
+
+resolve_install_mode() {
+  local requested="$1"
+  local capability="$2"
+
+  case "$requested" in
+    env)
+      if [ "$capability" = 'persistent-primary' ]; then
+        printf 'persistent\n'
+      else
+        printf 'env\n'
+      fi
+      return
+      ;;
+    persistent)
+      printf 'persistent\n'
+      return
+      ;;
+    auto|'')
+      ;;
+    *)
+      printf 'Unsupported install mode: %s\n' "$requested" >&2
+      exit 1
+      ;;
+  esac
+
+  case "$capability" in
+    env-default|hybrid)
+      printf 'env\n'
+      ;;
+    persistent-primary)
+      printf 'persistent\n'
+      ;;
+    *)
+      printf 'persistent\n'
+      ;;
+  esac
+}
+
+RESOLVED_INSTALL_MODE="$(resolve_install_mode "$NODECLAW_INSTALL_MODE" "$HELPER_CAPABILITY")"
+
+printf 'Target Zed posture: persistent-primary settings owner\n'
+printf 'Capability class: %s\n' "$HELPER_CAPABILITY"
+printf 'Requested install mode: %s\n' "$NODECLAW_INSTALL_MODE"
+printf 'Install mode: %s\n' "$RESOLVED_INSTALL_MODE"
+printf 'Endpoint root: %s\n' "$NODECLAW_BASE_URL"
+printf 'Model: %s\n' "$NODECLAW_MODEL_ID"
+printf '\n'
 
 if [ -z "$ZED_SETTINGS_PATH" ]; then
   printf 'Set ZED_SETTINGS_PATH before running this script. Use Zed Command Palette > zed: open settings file to get the active settings path.\n' >&2

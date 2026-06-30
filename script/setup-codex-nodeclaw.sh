@@ -2,10 +2,15 @@
 set -euo pipefail
 
 CONFIG_PATH="${CODEX_CONFIG_PATH:-$HOME/.codex/config.toml}"
+NODECLAW_API_KEY="${NODECLAW_API_KEY:-${OPENAI_API_KEY:-}}"
 NODECLAW_BASE_URL="${NODECLAW_BASE_URL:-https://payg.nodenetwork.ovh/v1}"
 NODECLAW_MODEL_ID="${NODECLAW_MODEL_ID:-gpt-5.4}"
 NODECLAW_PROVIDER_ID="${NODECLAW_PROVIDER_ID:-nodeclaw}"
 CODEX_PROVIDER_MODE="${CODEX_PROVIDER_MODE:-simple}"
+NODECLAW_INSTALL_MODE="${NODECLAW_INSTALL_MODE:-auto}"
+NODECLAW_INTERACTIVE="${NODECLAW_INTERACTIVE:-auto}"
+NODECLAW_PROMPTED_API_KEY="${NODECLAW_PROMPTED_API_KEY:-}"
+HELPER_CAPABILITY='hybrid'
 DRY_RUN=false
 
 for arg in "$@"; do
@@ -15,16 +20,129 @@ for arg in "$@"; do
       ;;
     *)
       printf 'Unknown argument: %s\n' "$arg" >&2
-      printf 'Usage: bash ./script/setup-codex-nodeclaw.sh [--dry-run]\n' >&2
+      printf 'Usage: NODECLAW_INSTALL_MODE="auto|env|persistent" bash ./script/setup-codex-nodeclaw.sh [--dry-run]\n' >&2
       exit 1
       ;;
   esac
 done
 
+resolve_install_mode() {
+  local requested="$1"
+  local capability="$2"
+
+  case "$requested" in
+    env)
+      if [ "$capability" = 'persistent-primary' ]; then
+        printf 'persistent\n'
+      else
+        printf 'env\n'
+      fi
+      return
+      ;;
+    persistent)
+      printf 'persistent\n'
+      return
+      ;;
+    auto|'')
+      ;;
+    *)
+      printf 'Unsupported install mode: %s\n' "$requested" >&2
+      exit 1
+      ;;
+  esac
+
+  case "$capability" in
+    env-default|hybrid)
+      printf 'env\n'
+      ;;
+    persistent-primary)
+      printf 'persistent\n'
+      ;;
+    *)
+      printf 'persistent\n'
+      ;;
+  esac
+}
+
+helper_allows_prompt() {
+  case "$NODECLAW_INTERACTIVE" in
+    true|TRUE|1|yes|YES)
+      return 0
+      ;;
+    false|FALSE|0|no|NO)
+      return 1
+      ;;
+    auto|'')
+      [ -t 0 ]
+      ;;
+    *)
+      printf 'NODECLAW_INTERACTIVE must be auto, true, or false.\n' >&2
+      exit 1
+      ;;
+  esac
+}
+
+prompt_nodeclaw_api_key_if_needed() {
+  if [ -n "$NODECLAW_API_KEY" ]; then
+    return 0
+  fi
+
+  if ! helper_allows_prompt; then
+    printf 'NODECLAW_API_KEY or OPENAI_API_KEY is required to print an apply-ready Codex auth export. Re-run interactively or export NODECLAW_API_KEY first.\n' >&2
+    exit 1
+  fi
+
+  printf 'Enter NodeClaw API key: ' >&2
+  IFS= read -r NODECLAW_API_KEY
+  if [ -z "$NODECLAW_API_KEY" ]; then
+    printf 'NODECLAW_API_KEY cannot be empty.\n' >&2
+    exit 1
+  fi
+
+  OPENAI_API_KEY="$NODECLAW_API_KEY"
+  NODECLAW_PROMPTED_API_KEY='true'
+  export NODECLAW_API_KEY OPENAI_API_KEY NODECLAW_PROMPTED_API_KEY
+}
+
+shell_quote_value() {
+  local value="${1-}"
+  value="${value//\\/\\\\}"
+  value="${value//\"/\\\"}"
+  value="${value//\$/\\\$}"
+  value="${value//\`/\\\`}"
+  printf '"%s"' "$value"
+}
+
+render_export_line() {
+  local name="$1"
+  local value="$2"
+  printf 'export %s=%s\n' "$name" "$(shell_quote_value "$value")"
+}
+
 if [ "$CODEX_PROVIDER_MODE" != "simple" ] && [ "$CODEX_PROVIDER_MODE" != "custom-provider" ]; then
   printf 'CODEX_PROVIDER_MODE must be either simple or custom-provider.\n' >&2
   exit 1
 fi
+
+RESOLVED_INSTALL_MODE="$(resolve_install_mode "$NODECLAW_INSTALL_MODE" "$HELPER_CAPABILITY")"
+PREVIEW_API_KEY='<nodeclaw_access_key>'
+
+printf 'Target Codex posture: hybrid env auth plus config wiring\n'
+printf 'Capability class: %s\n' "$HELPER_CAPABILITY"
+printf 'Requested install mode: %s\n' "$NODECLAW_INSTALL_MODE"
+printf 'Install mode: %s\n' "$RESOLVED_INSTALL_MODE"
+printf 'Auth env: OPENAI_API_KEY\n'
+if [ "$DRY_RUN" = true ]; then
+  printf 'Preview auth export: '
+  render_export_line 'OPENAI_API_KEY' "$PREVIEW_API_KEY"
+elif [ "$RESOLVED_INSTALL_MODE" = 'env' ]; then
+  prompt_nodeclaw_api_key_if_needed
+  printf 'Session auth export: '
+  render_export_line 'OPENAI_API_KEY' "$NODECLAW_API_KEY"
+else
+  printf 'Auth remains env-owned; set OPENAI_API_KEY before running Codex.\n'
+fi
+printf '\n'
 
 python3 - <<'PY' "$CONFIG_PATH" "$NODECLAW_BASE_URL" "$NODECLAW_MODEL_ID" "$NODECLAW_PROVIDER_ID" "$CODEX_PROVIDER_MODE" "$DRY_RUN"
 import pathlib

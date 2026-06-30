@@ -5,79 +5,79 @@
     "localPath": "/home/node/workplace/AWCLOUD/CLAUDE/NodeClaw-platform/script/",
     "commit": "8f3b421"
   },
-  "publishedAt": "2026-06-11T10:27:16Z",
+  "publishedAt": "2026-06-30T02:56:21Z",
   "notes": {
-    "releasePage": "Hosted release-page command rendering is direct-native first and exposes Cloudflare only as an explicit opt-in toggle. Gemini now uses the protected Google / Gemini v1beta command path when Cloudflare mode is selected.",
-    "claudeCode": "Launcher-first helper path through ~/.claude/settings.json. Route mode defaults to direct; Cloudflare is explicit opt-in for checked Anthropic-compatible targets, and the owner-field base stays at the custom-provider root without endpoint suffixes.",
-    "geminiCli": "Launcher-first helper path. GOOGLE_GEMINI_BASE_URL stays on the direct service root by default, and Cloudflare mode now switches Gemini to the protected Google / Gemini v1beta owner path instead of resolving back to direct.",
-    "opencode": "Helper-guided custom-provider path. OpenCode now keeps one checked custom-provider root contract in both direct and Cloudflare modes, and the launcher only swaps which root/base gets injected without appending endpoint suffixes.",
-    "hermes": "Helper-guided profile-local path. Hermes now keeps one checked custom-provider root contract in both direct and Cloudflare modes: create or update one dedicated profile under ~/.hermes/profiles/<profile> with profile-local .env, config.yaml, and SOUL.md, then let the launcher swap only the injected base_url root without appending endpoint suffixes.",
-    "verification": "Checked local smoke coverage verifies launcher route-mode behavior plus setup-script dry-run contracts in scope. This does not claim live provider, deploy, or hosted Pages proof."
+    "releasePage": "Hosted release-page command rendering is direct-native first, exposes Cloudflare only as an explicit opt-in toggle, and now uses scriptblock-based remote PowerShell launcher examples instead of pipe-to-iex.",
+    "claudeCode": "Launcher-first helper path through ~/.claude/settings.json. Route mode defaults to direct; Cloudflare is explicit opt-in for checked Anthropic-compatible targets, and env-mode preview now stays secretless/placeholder-first before any apply-time prompt.",
+    "geminiCli": "Launcher-first helper path. GOOGLE_GEMINI_BASE_URL stays on the direct service root by default, Cloudflare mode switches Gemini to the protected Google / Gemini v1beta owner path, and launcher env preview stays placeholder-first before any apply-time prompt.",
+    "opencode": "Helper-guided custom-provider path. OpenCode keeps one checked custom-provider root contract in both direct and Cloudflare modes; launcher preview stays placeholder-first, while the direct helper owns real config writes.",
+    "hermes": "Helper-guided profile-local path. Hermes keeps one checked custom-provider root contract in both direct and Cloudflare modes; launcher remains preview-first while the direct helper can write the profile-local .env, config.yaml, and SOUL.md files.",
+    "verification": "Checked local coverage now includes launcher route-mode behavior, launcher env-preview without real secret on the PowerShell path, setup-script dry-run contracts, and PowerShell bootstrap compatibility in scope. This does not claim live provider, deploy, or hosted Pages proof."
   },
   "files": [
     {
       "path": "script/launcher.sh",
-      "sha256": "f6efa46d95d342f11ecbf498760bdd5052a63bd801922d31f81f6493b12e5849"
+      "sha256": "bfd9d1ca7a08148e2ed46a9e7837c3a42c1db1f7090bf728324cc24481d9b5a8"
     },
     {
       "path": "script/launcher.ps1",
-      "sha256": "5da300a01f5bf8d2e69e41123c043ec37021958e6c3239c61468d6efcf4b2288"
+      "sha256": "a6f006276699d6830c01188ceb9224fc20f0438a19f1c57732d232734a4db78e"
     },
     {
       "path": "script/setup-claude-code-nodeclaw.sh",
-      "sha256": "472100751e84198ba898a2d0264a13bf336723931bb18171e96ea281e74972de"
+      "sha256": "aa6dee4185fc40112a3c3aaaf99bdd74db648b62c65b335f6fe49e281b7bb70d"
     },
     {
       "path": "script/setup-claude-code-nodeclaw.ps1",
-      "sha256": "641e7acca5023e84db2aaa41060c50e4df2bf995d35a309f422708bfa615424d"
+      "sha256": "dda5a849cf15277231bc6b71f2d45539634b78f6741708b9d6da3179c4289454"
     },
     {
       "path": "script/setup-gemini-cli-nodeclaw.sh",
-      "sha256": "d230010a9bf626c01c363a7cedb564a57557181fdc88a513cd0a92f7b9613044"
+      "sha256": "b650c1bc070ff0ffde6b9f6a7acf784a1e57012b456aff89d10473e0a8052702"
     },
     {
       "path": "script/setup-gemini-cli-nodeclaw.ps1",
-      "sha256": "df7802ccf021bc44838f1a235df79ff9d71fcb255678453ff7c49b787cc44f86"
+      "sha256": "33629097baf4d356bd8b756cad127ff07d5c337b9bd6d47447a4401bba798ddb"
     },
     {
       "path": "script/setup-codex-nodeclaw.sh",
-      "sha256": "b5e5145e181747b14ddabefbed4ee10302dc76585257454fb93d76d088645b18"
+      "sha256": "f1dafac3521566d9d4561037b45fc9c049dc5d775ca1ee058346575cc4b8075b"
     },
     {
       "path": "script/setup-codex-nodeclaw.ps1",
-      "sha256": "7f582599c5d084fc419ca8808b38a38b78bef8fd512bc73f105e1635023ecf94"
+      "sha256": "322d46e5ec05acf5c064ed2f8fa831c3f7be2a1a5a8c132a6e1dd3f1feba27a7"
     },
     {
       "path": "script/setup-openclaw-nodeclaw.sh",
-      "sha256": "2d0e23ec60d4b935b83c1937e52f23325c55090757a97b01ff78dc3110e2b641"
+      "sha256": "364b8c3df4524537506635c5297822188718ab8d1f16d0650ef7e0fe55842328"
     },
     {
       "path": "script/setup-openclaw-nodeclaw.ps1",
-      "sha256": "aed4b8feb8d1f5697dc8703bef25da848e32591b41261d840a34e29e8e29d257"
+      "sha256": "dccbccfff2764d22d9b27cb4aa2a3018ff3f7ff39b1fa5afb0c1e3ed2aaabcb7"
     },
     {
       "path": "script/setup-opencode-nodeclaw.sh",
-      "sha256": "59487222315c4f389a98b019ccb08391ac5a6a579519fcf061e78e9e9ca85ce6"
+      "sha256": "d584b866cfae8f3d1a15ed565cc23b74d3579a9d05f7fb6c6ad37014dd21941b"
     },
     {
       "path": "script/setup-opencode-nodeclaw.ps1",
-      "sha256": "619ab1f0e6be3658467ff1105b741c74fcfd16bbe95978ebbae3dc5699d8ba51"
+      "sha256": "9fb30490d9769231bc7bfbf3e2640f02ecab263538b79044257ebfb494def936"
     },
     {
       "path": "script/setup-zed-nodeclaw.sh",
-      "sha256": "8f724fc90e574c0241d944f64ffc84843c39eedfb1e303c02a2a073b8a230115"
+      "sha256": "59e4b848879eb7479030dc7e903bd3f160fde902d8c4741a2585807feb03e7b9"
     },
     {
       "path": "script/setup-zed-nodeclaw.ps1",
-      "sha256": "a17c3c7d1fc4c3cd7464877bee3301483af4909b0c187dea36b3e99e242c8f5e"
+      "sha256": "c49563dcb253deaf797085503fad3e8b775d5399d0fdcfb58cb47aee208f0788"
     },
     {
       "path": "script/setup-hermes-nodeclaw.sh",
-      "sha256": "c05460465aa16d3376f25d62e2f9b0186e32975d2b0b30b3e873325419b8b646"
+      "sha256": "2338bbef11cb95f31ee723012049364f19bc5d8d9a10b0bb605de91b11fcb175"
     },
     {
       "path": "script/setup-hermes-nodeclaw.ps1",
-      "sha256": "32b101c49de0f6d677c79ffe7631290a4bffde7794ff31378801f69f9edd3554"
+      "sha256": "af3a2773f6a117e1c43b416225b33fb5b203c8b65b2fbe240f459a61c8a9d6fa"
     }
   ],
   "helperTargets": [

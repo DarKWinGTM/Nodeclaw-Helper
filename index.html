@@ -150,7 +150,7 @@
             <li><code>gemini-cli</code> now uses the protected Google / Gemini <code>v1beta</code> family when Cloudflare mode is requested, while direct mode keeps the native Gemini root.</li>
             <li><code>opencode</code> and <code>hermes</code> keep the same custom-provider root in both modes; the launcher only swaps which root/base gets injected.</li>
             <li>Shell helper paths can apply changes where the checked script supports it.</li>
-            <li>PowerShell launcher paths are route-mode-aware and remain dry-run-first.</li>
+            <li>PowerShell launcher paths are route-mode-aware and preview-first; direct PowerShell helpers remain the apply surface where that helper supports file writes or env/session output.</li>
             <li><code>gemini-cli</code> helper support is env/snippet/profile oriented.</li>
             <li><code>hermes</code> helper support is profile-local and writes <code>.env</code>, <code>config.yaml</code>, and <code>SOUL.md</code> for one dedicated Hermes profile path.</li>
             <li><code>openclaw</code> still requires the local <code>openclaw</code> command in <code>PATH</code>.</li>
@@ -367,7 +367,7 @@
 
         <h3 style="margin-top:18px;" data-lang="en">Windows PowerShell helpers</h3>
         <h3 style="margin-top:18px;" data-lang="th">ตัวช่วยฝั่ง PowerShell สำหรับ Windows</h3>
-        <p class="muted" data-lang="en">PowerShell launcher paths are route-mode-aware and remain dry-run-first, while the direct PowerShell helper files stay listed here separately.</p>
+        <p class="muted" data-lang="en">PowerShell launcher stays preview-first, while the direct PowerShell helper files remain listed here as the apply surface where that helper supports file writes or env/session output.</p>
         <p class="muted" data-lang="th">launcher ฝั่ง PowerShell รองรับ route mode แล้ว แต่ยังคงเป็นแนว dry-run-first ส่วนไฟล์ helper ฝั่ง PowerShell แบบแยกยังถูกแสดงไว้ต่างหากที่นี่</p>
         <div class="downloads">
           <a class="download" href="./script/setup-claude-code-nodeclaw.ps1">setup-claude-code-nodeclaw.ps1<small data-lang="en">Claude Code PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ Claude Code</small></a>
@@ -443,14 +443,14 @@
               direct: [
                 'powershell -ExecutionPolicy Bypass -c "',
                 "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
-                `  irm ${LAUNCHER_PS1} | iex`,
+                `  $launcherText = irm ${LAUNCHER_PS1}; & ([scriptblock]::Create($launcherText))`,
                 '"',
               ],
               cloudflare: [
                 'powershell -ExecutionPolicy Bypass -c "',
                 "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
                 "  $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'",
-                `  irm ${LAUNCHER_PS1} | iex`,
+                `  $launcherText = irm ${LAUNCHER_PS1}; & ([scriptblock]::Create($launcherText))`,
                 '"',
               ],
             },
@@ -476,7 +476,7 @@
                 'powershell -ExecutionPolicy Bypass -c "',
                 "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
                 "  $env:NODECLAW_LAUNCHER_TOOL='claude-code'",
-                `  irm ${LAUNCHER_PS1} | iex`,
+                `  $launcherText = irm ${LAUNCHER_PS1}; & ([scriptblock]::Create($launcherText))`,
                 '"',
               ],
               cloudflare: [
@@ -484,7 +484,7 @@
                 "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
                 "  $env:NODECLAW_LAUNCHER_TOOL='claude-code'",
                 "  $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'",
-                `  irm ${LAUNCHER_PS1} | iex`,
+                `  $launcherText = irm ${LAUNCHER_PS1}; & ([scriptblock]::Create($launcherText))`,
                 '"',
               ],
             },
@@ -510,7 +510,7 @@
                 'powershell -ExecutionPolicy Bypass -c "',
                 "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
                 "  $env:NODECLAW_LAUNCHER_TOOL='codex'",
-                `  irm ${LAUNCHER_PS1} | iex`,
+                `  $launcherText = irm ${LAUNCHER_PS1}; & ([scriptblock]::Create($launcherText))`,
                 '"',
               ],
               cloudflare: [
@@ -518,7 +518,7 @@
                 "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
                 "  $env:NODECLAW_LAUNCHER_TOOL='codex'",
                 "  $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'",
-                `  irm ${LAUNCHER_PS1} | iex`,
+                `  $launcherText = irm ${LAUNCHER_PS1}; & ([scriptblock]::Create($launcherText))`,
                 '"',
               ],
             },
@@ -544,7 +544,7 @@
                 'powershell -ExecutionPolicy Bypass -c "',
                 "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
                 "  $env:NODECLAW_LAUNCHER_TOOL='zed'",
-                `  irm ${LAUNCHER_PS1} | iex`,
+                `  $launcherText = irm ${LAUNCHER_PS1}; & ([scriptblock]::Create($launcherText))`,
                 '"',
               ],
               cloudflare: [
@@ -552,7 +552,7 @@
                 "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
                 "  $env:NODECLAW_LAUNCHER_TOOL='zed'",
                 "  $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'",
-                `  irm ${LAUNCHER_PS1} | iex`,
+                `  $launcherText = irm ${LAUNCHER_PS1}; & ([scriptblock]::Create($launcherText))`,
                 '"',
               ],
             },
@@ -582,7 +582,7 @@
                 'powershell -ExecutionPolicy Bypass -c "',
                 "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
                 "  $env:NODECLAW_LAUNCHER_TOOL='openclaw'",
-                `  irm ${LAUNCHER_PS1} | iex`,
+                `  $launcherText = irm ${LAUNCHER_PS1}; & ([scriptblock]::Create($launcherText))`,
                 '"',
               ],
               cloudflare: [
@@ -590,7 +590,7 @@
                 "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
                 "  $env:NODECLAW_LAUNCHER_TOOL='openclaw'",
                 "  $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'",
-                `  irm ${LAUNCHER_PS1} | iex`,
+                `  $launcherText = irm ${LAUNCHER_PS1}; & ([scriptblock]::Create($launcherText))`,
                 '"',
               ],
             },
@@ -626,7 +626,7 @@
                 'powershell -ExecutionPolicy Bypass -c "',
                 "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
                 "  $env:NODECLAW_LAUNCHER_TOOL='gemini-cli'",
-                `  irm ${LAUNCHER_PS1} | iex`,
+                `  $launcherText = irm ${LAUNCHER_PS1}; & ([scriptblock]::Create($launcherText))`,
                 '"',
               ],
               cloudflare: [
@@ -634,7 +634,7 @@
                 "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
                 "  $env:NODECLAW_LAUNCHER_TOOL='gemini-cli'",
                 "  $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'",
-                `  irm ${LAUNCHER_PS1} | iex`,
+                `  $launcherText = irm ${LAUNCHER_PS1}; & ([scriptblock]::Create($launcherText))`,
                 '"',
               ],
             },
@@ -670,7 +670,7 @@
                 'powershell -ExecutionPolicy Bypass -c "',
                 "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
                 "  $env:NODECLAW_LAUNCHER_TOOL='opencode'",
-                `  irm ${LAUNCHER_PS1} | iex`,
+                `  $launcherText = irm ${LAUNCHER_PS1}; & ([scriptblock]::Create($launcherText))`,
                 '"',
               ],
               cloudflare: [
@@ -678,7 +678,7 @@
                 "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
                 "  $env:NODECLAW_LAUNCHER_TOOL='opencode'",
                 "  $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'",
-                `  irm ${LAUNCHER_PS1} | iex`,
+                `  $launcherText = irm ${LAUNCHER_PS1}; & ([scriptblock]::Create($launcherText))`,
                 '"',
               ],
             },
@@ -714,7 +714,7 @@
                 'powershell -ExecutionPolicy Bypass -c "',
                 "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
                 "  $env:NODECLAW_LAUNCHER_TOOL='hermes'",
-                `  irm ${LAUNCHER_PS1} | iex`,
+                `  $launcherText = irm ${LAUNCHER_PS1}; & ([scriptblock]::Create($launcherText))`,
                 '"',
               ],
               cloudflare: [
@@ -722,7 +722,7 @@
                 "  $env:NODECLAW_LAUNCHER_COMMAND='wizard'",
                 "  $env:NODECLAW_LAUNCHER_TOOL='hermes'",
                 "  $env:NODECLAW_LAUNCHER_ROUTE_MODE='cloudflare'",
-                `  irm ${LAUNCHER_PS1} | iex`,
+                `  $launcherText = irm ${LAUNCHER_PS1}; & ([scriptblock]::Create($launcherText))`,
                 '"',
               ],
             },

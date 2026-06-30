@@ -13,6 +13,7 @@ HELPER_CACHE_DIR="${NODECLAW_HELPER_CACHE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/n
 CLOUDFLARE_CUSTOM_PROVIDER_BASE_URL="https://gateway.ai.cloudflare.com/v1/06b7333b2c174700306d7f931d809765/nodenetwork-nodeclaw-payg/custom-nodenetwork/"
 CLOUDFLARE_CUSTOM_PROVIDER_GOOGLE_V1BETA_BASE_URL="${CLOUDFLARE_CUSTOM_PROVIDER_BASE_URL%/}/v1beta"
 DEFAULT_ROUTE_MODE="direct"
+DEFAULT_INSTALL_MODE="auto"
 
 get_shell_target() {
   case "$1" in
@@ -172,6 +173,165 @@ capability_label() {
   esac
 }
 
+install_capability_for_tool() {
+  case "$1" in
+    claude-code|gemini-cli)
+      printf '%s\n' 'env-default'
+      ;;
+    codex)
+      printf '%s\n' 'hybrid'
+      ;;
+    hermes|openclaw|opencode|zed)
+      printf '%s\n' 'persistent-primary'
+      ;;
+    *)
+      printf '%s\n' 'persistent-primary'
+      ;;
+  esac
+}
+
+resolve_install_mode() {
+  local requested="$1"
+  local capability="$2"
+
+  case "$requested" in
+    env|persistent)
+      printf '%s\n' "$requested"
+      return
+      ;;
+    auto|'')
+      ;;
+    *)
+      printf 'Unsupported install mode: %s\n' "$requested" >&2
+      exit 1
+      ;;
+  esac
+
+  case "$capability" in
+    env-default|hybrid)
+      printf 'env\n'
+      ;;
+    persistent-primary)
+      printf 'persistent\n'
+      ;;
+    *)
+      printf 'persistent\n'
+      ;;
+  esac
+}
+
+is_interactive_input_allowed() {
+  case "${NODECLAW_INTERACTIVE:-auto}" in
+    1|true|TRUE|yes|YES|on|ON)
+      return 0
+      ;;
+    0|false|FALSE|no|NO|off|OFF)
+      return 1
+      ;;
+  esac
+
+  [ -t 0 ]
+}
+
+prompt_nodeclaw_api_key() {
+  local required="${1:-required}"
+
+  if [ -n "${NODECLAW_API_KEY:-}" ]; then
+    return 0
+  fi
+
+  if ! is_interactive_input_allowed; then
+    if [ "$required" = 'optional' ]; then
+      return 0
+    fi
+    printf 'NODECLAW_API_KEY is required. Re-run interactively or export NODECLAW_API_KEY first.\n' >&2
+    exit 1
+  fi
+
+  printf 'Enter NodeClaw API key: '
+  if ! IFS= read -r NODECLAW_API_KEY || [ -z "$NODECLAW_API_KEY" ]; then
+    if [ "$required" = 'optional' ]; then
+      unset NODECLAW_API_KEY 2>/dev/null || true
+      return 0
+    fi
+    printf 'NODECLAW_API_KEY is required. Re-run interactively or export NODECLAW_API_KEY first.\n' >&2
+    exit 1
+  fi
+  export NODECLAW_API_KEY
+}
+
+launcher_can_render_env_contract() {
+  case "$1" in
+    claude-code|gemini-cli|codex)
+      return 0
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+quote_shell_value() {
+  printf "'"
+  printf '%s' "$1" | sed "s/'/'\\\\''/g"
+  printf "'"
+}
+
+print_export_line() {
+  local name="$1"
+  local value="$2"
+  printf 'export %s=' "$name"
+  quote_shell_value "$value"
+  printf '\n'
+}
+
+render_launcher_env_contract() {
+  local tool="$1"
+  local dry_run="${2:-true}"
+  local api_key="<nodeclaw_access_key>"
+
+  if [ "$dry_run" != 'true' ]; then
+    api_key="$NODECLAW_API_KEY"
+  fi
+
+  printf 'Launcher env install contract for %s\n' "$tool"
+  printf 'No persistent files are changed by env install mode.\n'
+  if [ "$dry_run" = 'true' ]; then
+    printf '\nDry run only. Planned session env exports:\n\n'
+  else
+    printf '\nRun these exports in the current shell or save them into your profile by choice:\n\n'
+  fi
+
+  print_export_line 'NODECLAW_API_KEY' "$api_key"
+
+  case "$tool" in
+    claude-code)
+      print_export_line 'ANTHROPIC_BASE_URL' "$NODECLAW_EFFECTIVE_BASE_URL"
+      printf 'export ANTHROPIC_AUTH_TOKEN="$NODECLAW_API_KEY"\n'
+      ;;
+    gemini-cli)
+      print_export_line 'GOOGLE_GEMINI_BASE_URL' "$NODECLAW_EFFECTIVE_BASE_URL"
+      printf 'export GEMINI_API_KEY="$NODECLAW_API_KEY"\n'
+      ;;
+    codex)
+      printf 'export OPENAI_API_KEY="$NODECLAW_API_KEY"\n'
+      printf '\nCodex is hybrid: env mode only supplies auth. Use --install-mode persistent when base URL/model/provider config must be written.\n'
+      ;;
+    *)
+      printf 'Env install mode is not available for %s from the launcher yet. Use --install-mode persistent.\n' "$tool" >&2
+      exit 1
+      ;;
+  esac
+}
+
+block_unsupported_launcher_env_mode() {
+  local tool="$1"
+  if [ "${NODECLAW_INSTALL_MODE:-}" = 'env' ] && ! launcher_can_render_env_contract "$tool"; then
+    printf 'Install mode env is not available for %s from the launcher yet. Use --install-mode persistent for the helper-managed path.\n' "$tool" >&2
+    exit 1
+  fi
+}
+
 route_mode_for_tool() {
   local tool="$1"
   local requested="$2"
@@ -250,6 +410,19 @@ EOF
   fi
 }
 
+export_resolved_install_env() {
+  local tool="$1"
+  local requested="$2"
+  local capability resolved
+
+  capability="$(install_capability_for_tool "$tool")"
+  resolved="$(resolve_install_mode "$requested" "$capability")"
+
+  export NODECLAW_REQUESTED_INSTALL_MODE="${requested:-auto}"
+  export NODECLAW_INSTALL_CAPABILITY="$capability"
+  export NODECLAW_INSTALL_MODE="$resolved"
+}
+
 print_route_resolution_summary() {
   printf 'Requested route mode: %s\n' "$NODECLAW_REQUESTED_ROUTE_MODE"
   printf 'Resolved route mode: %s\n' "$NODECLAW_RESOLVED_MODE"
@@ -258,6 +431,12 @@ print_route_resolution_summary() {
   if [ -n "${NODECLAW_FALLBACK_REASON:-}" ]; then
     printf 'Fallback reason: %s\n' "$NODECLAW_FALLBACK_REASON"
   fi
+}
+
+print_install_mode_summary() {
+  printf 'Requested install mode: %s\n' "$NODECLAW_REQUESTED_INSTALL_MODE"
+  printf 'Install capability: %s\n' "$NODECLAW_INSTALL_CAPABILITY"
+  printf 'Install mode: %s\n' "$NODECLAW_INSTALL_MODE"
 }
 
 usage() {
@@ -290,21 +469,23 @@ Commands
   list
       Show supported tools plus what each helper changes.
 
-  dry-run --tool <tool> [--route-mode <direct|cloudflare>]
+  dry-run --tool <tool> [--route-mode <direct|cloudflare>] [--install-mode <auto|env|persistent>]
       Preview the exact config change without writing files.
       Supported tools: claude-code, gemini-cli, codex, hermes, openclaw, opencode, zed.
       Route mode defaults to direct. Cloudflare mode is only used for checked eligible tool families.
+      Install mode defaults to auto, which resolves to env when the checked tool contract supports it.
 
-  apply --tool <tool> [--route-mode <direct|cloudflare>]
+  apply --tool <tool> [--route-mode <direct|cloudflare>] [--install-mode <auto|env|persistent>]
       Apply the config change for the selected tool.
       Apply is currently supported for: claude-code, gemini-cli, codex, hermes, openclaw, opencode, zed.
       Route mode defaults to direct. Ineligible tools fall back to direct with an explicit reason.
+      Env install mode prompts for NODECLAW_API_KEY when the key is missing.
 
-  wizard [--tool <tool>] [--route-mode <direct|cloudflare>]
-      Guided setup mode. Helps choose tool, choose route mode, shows what will change,
+  wizard [--tool <tool>] [--route-mode <direct|cloudflare>] [--install-mode <auto|env|persistent>]
+      Guided setup mode. Helps choose tool, route mode, install mode, shows what will change,
       runs dry-run first, and only then offers apply when a helper-managed apply path exists.
 
-  windows-dry-run --tool <tool> [--route-mode <direct|cloudflare>]
+  windows-dry-run --tool <tool> [--route-mode <direct|cloudflare>] [--install-mode <auto|env|persistent>]
       Preview the PowerShell helper path.
       Current checked boundary: Windows is scaffold-first / dry-run-only.
 
@@ -315,6 +496,7 @@ Notes
 - Shell helper paths can apply changes where the checked contract supports it.
 - PowerShell helper paths remain dry-run-only in the current checked scope.
 - Route mode defaults to direct; Cloudflare mode is explicit opt-in and only resolves for checked eligible helper families.
+- Install mode defaults to auto; auto resolves to env for env-default/hybrid tools and persistent for persistent-primary tools.
 - Gemini CLI now supports the protected Google / Gemini `v1beta` route when Cloudflare mode is selected, while direct mode keeps the native Gemini root.
 - Remote launcher usage can fetch the required helper payload automatically from the published helper surface.
 - Override the remote helper base with NODECLAW_HELPER_BASE_URL when needed.
@@ -342,6 +524,18 @@ is_supported_tool() {
   return 1
 }
 
+has_argument_flag() {
+  local flag="$1"
+  shift
+  local arg
+  for arg in "$@"; do
+    if [ "$arg" = "$flag" ]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
 parse_tool_flag() {
   local tool=""
 
@@ -352,9 +546,10 @@ parse_tool_flag() {
         require_flag_value '--tool' "$@"
         tool="$1"
         ;;
-      --route-mode)
+      --route-mode|--install-mode)
+        local flag="$1"
         shift
-        require_flag_value '--route-mode' "$@"
+        require_flag_value "$flag" "$@"
         ;;
       *)
         printf 'Unknown argument: %s\n' "$1" >&2
@@ -385,9 +580,10 @@ parse_route_mode_flag() {
 
   while [ $# -gt 0 ]; do
     case "$1" in
-      --tool)
+      --tool|--install-mode)
+        local flag="$1"
         shift
-        require_flag_value '--tool' "$@"
+        require_flag_value "$flag" "$@"
         ;;
       --route-mode)
         shift
@@ -414,6 +610,41 @@ parse_route_mode_flag() {
   esac
 }
 
+parse_install_mode_flag() {
+  local requested="$DEFAULT_INSTALL_MODE"
+
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --tool|--route-mode)
+        local flag="$1"
+        shift
+        require_flag_value "$flag" "$@"
+        ;;
+      --install-mode)
+        shift
+        require_flag_value '--install-mode' "$@"
+        requested="$1"
+        ;;
+      *)
+        printf 'Unknown argument: %s\n' "$1" >&2
+        usage >&2
+        exit 1
+        ;;
+    esac
+    shift
+  done
+
+  case "$requested" in
+    auto|env|persistent)
+      printf '%s\n' "$requested"
+      ;;
+    *)
+      printf 'Unsupported install mode: %s\n' "$requested" >&2
+      exit 1
+      ;;
+  esac
+}
+
 cmd_list() {
   printf 'Supported tools:\n'
   local tool
@@ -423,29 +654,56 @@ cmd_list() {
 
   printf '\nWhat each helper changes:\n'
   for tool in "${TOOLS[@]}"; do
-    printf '  %s -> %s [%s]\n' "$tool" "$(describe_tool "$tool")" "$(capability_label "$tool")"
+    printf '  %s -> %s [%s, install=%s]\n' "$tool" "$(describe_tool "$tool")" "$(capability_label "$tool")" "$(install_capability_for_tool "$tool")"
   done
 }
 
 cmd_dry_run() {
-  local tool target route_mode
+  local tool route_mode install_mode
   tool="$(parse_tool_flag "$@")"
   route_mode="$(parse_route_mode_flag "$@")"
-  target="$(resolve_shell_target "$tool")"
+  install_mode="$(parse_install_mode_flag "$@")"
   export_resolved_route_env "$tool" "$route_mode"
-  printf 'Launcher target: %s\n' "$target"
+  export_resolved_install_env "$tool" "$install_mode"
+
+  if [ "$NODECLAW_INSTALL_MODE" = 'env' ]; then
+    print_route_resolution_summary
+    print_install_mode_summary
+    render_launcher_env_contract "$tool" true
+    return
+  fi
+
+  local target
+  target="$(resolve_shell_target "$tool")"
+  printf 'Launcher target: %s
+' "$target"
   print_route_resolution_summary
+  print_install_mode_summary
   bash "$target" --dry-run
 }
 
 cmd_apply() {
-  local tool target route_mode
+  local tool route_mode install_mode
   tool="$(parse_tool_flag "$@")"
   route_mode="$(parse_route_mode_flag "$@")"
-  target="$(resolve_shell_target "$tool")"
+  install_mode="$(parse_install_mode_flag "$@")"
   export_resolved_route_env "$tool" "$route_mode"
-  printf 'Launcher target: %s\n' "$target"
+  export_resolved_install_env "$tool" "$install_mode"
+
+  if [ "$NODECLAW_INSTALL_MODE" = 'env' ]; then
+    prompt_nodeclaw_api_key
+    print_route_resolution_summary
+    print_install_mode_summary
+    render_launcher_env_contract "$tool" false
+    return
+  fi
+
+  local target
+  target="$(resolve_shell_target "$tool")"
+  printf 'Launcher target: %s
+' "$target"
   print_route_resolution_summary
+  print_install_mode_summary
   bash "$target"
 }
 
@@ -459,13 +717,61 @@ prompt_choice() {
   local prompt="$1"
   local value
   printf '%s' "$prompt" >&2
-  IFS= read -r value
+  IFS= read -r value || value=""
   printf '%s\n' "$value"
+}
+
+print_install_mode_options() {
+  local capability="$1"
+  printf 'Install mode\n'
+  case "$capability" in
+    env-default|hybrid)
+      printf '  [1] env (recommended)\n'
+      printf '  [2] persistent\n'
+      printf '  [3] auto\n'
+      ;;
+    *)
+      printf '  [1] persistent (recommended)\n'
+      printf '  [2] env\n'
+      printf '  [3] auto\n'
+      ;;
+  esac
+  printf '\n'
+}
+
+normalize_install_mode_selection() {
+  local selection="$1"
+  local capability="$2"
+
+  case "$capability" in
+    env-default|hybrid)
+      case "$selection" in
+        ''|auto|3) printf 'auto\n' ;;
+        1|env) printf 'env\n' ;;
+        2|persistent) printf 'persistent\n' ;;
+        *)
+          printf 'Unsupported install mode selection: %s\n' "$selection" >&2
+          exit 1
+          ;;
+      esac
+      ;;
+    *)
+      case "$selection" in
+        ''|auto|3) printf 'auto\n' ;;
+        1|persistent) printf 'persistent\n' ;;
+        2|env) printf 'env\n' ;;
+        *)
+          printf 'Unsupported install mode selection: %s\n' "$selection" >&2
+          exit 1
+          ;;
+      esac
+      ;;
+  esac
 }
 
 cmd_wizard() {
   show_wizard_header
-  printf '\nStep 1/5 — Choose tool\n'
+  printf '\nStep 1/6 — Choose tool\n'
   printf '  [1] claude-code\n'
   printf '  [2] gemini-cli\n'
   printf '  [3] codex\n'
@@ -474,7 +780,7 @@ cmd_wizard() {
   printf '  [6] opencode\n'
   printf '  [7] zed\n\n'
 
-  local selection tool target apply_now route_mode_input route_mode
+  local selection tool target apply_now route_mode_input route_mode install_mode install_mode_input install_capability
   if [ $# -gt 0 ]; then
     tool="$(parse_tool_flag "$@")"
     selection="$tool"
@@ -499,15 +805,15 @@ cmd_wizard() {
 
   if [ $# -gt 0 ]; then
     route_mode="$(parse_route_mode_flag "$@")"
-    printf '\nStep 2/5 — Choose routing mode\n'
+    printf '\nStep 2/6 — Choose routing mode\n'
     printf 'Preselected route mode: %s\n' "$route_mode"
   else
-    printf '\nStep 2/5 — Choose routing mode\n'
+    printf '\nStep 2/6 — Choose routing mode\n'
     printf '  [1] direct\n'
     printf '  [2] cloudflare\n\n'
     route_mode_input="$(prompt_choice 'Select routing mode: ')"
     case "$route_mode_input" in
-      1|direct) route_mode='direct' ;;
+      ''|1|direct) route_mode='direct' ;;
       2|cloudflare) route_mode='cloudflare' ;;
       *)
         printf 'Unsupported routing mode selection: %s\n' "$route_mode_input" >&2
@@ -516,35 +822,80 @@ cmd_wizard() {
     esac
   fi
 
-  printf '\nStep 3/5 — What this helper does\n'
+  install_capability="$(install_capability_for_tool "$tool")"
+  if has_argument_flag '--install-mode' "$@"; then
+    install_mode="$(parse_install_mode_flag "$@")"
+    printf '\nStep 3/6 — Choose install mode\n'
+    printf 'Preselected install mode: %s\n' "$install_mode"
+  else
+    printf '\nStep 3/6 — Choose install mode\n'
+    print_install_mode_options "$install_capability"
+    install_mode_input="$(prompt_choice 'Select install mode: ')"
+    install_mode="$(normalize_install_mode_selection "$install_mode_input" "$install_capability")"
+  fi
+
+  printf '\nStep 4/6 — What this helper does\n'
   printf '  Tool: %s\n' "$tool"
   printf '  Summary: %s\n' "$(describe_tool "$tool")"
   printf '  Target: %s\n' "$(describe_target "$tool")"
 
   target="$(resolve_shell_target "$tool")"
   export_resolved_route_env "$tool" "$route_mode"
+  export_resolved_install_env "$tool" "$install_mode"
 
-  printf '\nStep 4/5 — Preview first\n'
-  printf '  Launcher will run:\n'
-  printf '    bash %q --dry-run\n' "$target"
+  printf '
+Step 5/6 — Preview first
+'
+  printf '  Launcher will run:
+'
+  if [ "$NODECLAW_INSTALL_MODE" = 'env' ]; then
+    printf '    render session env exports for %s
+' "$tool"
+  else
+    printf '    bash %q --dry-run
+' "$target"
+  fi
   if [ -z "$SCRIPT_SOURCE" ]; then
-    printf '  Remote launcher will fetch the helper payload automatically when needed.\n'
+    printf '  Remote launcher will fetch the helper payload automatically when needed.
+'
   fi
 
-  printf '\nRunning dry-run now...\n\n'
-  print_route_resolution_summary
-  bash "$target" --dry-run
+  printf '
+Running dry-run now...
 
-  printf '\nStep 5/5 — Apply\n'
+'
+  print_route_resolution_summary
+  print_install_mode_summary
+  if [ "$NODECLAW_INSTALL_MODE" = 'env' ]; then
+    prompt_nodeclaw_api_key optional
+    render_launcher_env_contract "$tool" true
+  else
+    bash "$target" --dry-run
+  fi
+
+  printf '
+Step 6/6 — Apply
+'
   apply_now="$(prompt_choice 'Apply this change now? [y/N]: ')"
   case "$apply_now" in
     y|Y|yes|YES)
-      printf '\nApplying...\n\n'
-      bash "$target"
+      printf '
+Applying...
+
+'
+      if [ "$NODECLAW_INSTALL_MODE" = 'env' ]; then
+        prompt_nodeclaw_api_key
+        render_launcher_env_contract "$tool" false
+      else
+        bash "$target"
+      fi
       ;;
     *)
-      printf '\nNo files were changed by apply. You can rerun later with:\n'
-      printf '  bash ./script/launcher.sh apply --tool %s --route-mode %s\n' "$tool" "$route_mode"
+      printf '
+No files were changed by apply. You can rerun later with:
+'
+      printf '  bash ./script/launcher.sh apply --tool %s --route-mode %s --install-mode %s
+' "$tool" "$route_mode" "$NODECLAW_REQUESTED_INSTALL_MODE"
       ;;
   esac
 }
@@ -552,6 +903,7 @@ cmd_wizard() {
 run_windows_launcher() {
   local tool="$1"
   local route_mode="$2"
+  local install_mode="$3"
   local launcher_ps1
 
   launcher_ps1="$(resolve_powershell_launcher)"
@@ -568,16 +920,19 @@ run_windows_launcher() {
     ps_bin="powershell"
   fi
 
-  "$ps_bin" -File "$launcher_ps1" -Command dry-run -Tool "$tool" -RouteMode "$route_mode"
+  "$ps_bin" -File "$launcher_ps1" -Command dry-run -Tool "$tool" -RouteMode "$route_mode" -InstallMode "$install_mode"
 }
 
 cmd_windows_dry_run() {
-  local tool route_mode
+  local tool route_mode install_mode
   tool="$(parse_tool_flag "$@")"
   route_mode="$(parse_route_mode_flag "$@")"
+  install_mode="$(parse_install_mode_flag "$@")"
   export_resolved_route_env "$tool" "$route_mode"
+  export_resolved_install_env "$tool" "$install_mode"
   print_route_resolution_summary
-  run_windows_launcher "$tool" "$route_mode"
+  print_install_mode_summary
+  run_windows_launcher "$tool" "$route_mode" "$install_mode"
 }
 
 main() {

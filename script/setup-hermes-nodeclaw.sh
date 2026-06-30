@@ -10,6 +10,10 @@ HERMES_NODECLAW_WORKDIR="${HERMES_NODECLAW_WORKDIR:-}"
 HERMES_NODECLAW_CLONE_MODE="${HERMES_NODECLAW_CLONE_MODE:-fresh}"
 HERMES_NODECLAW_CLONE_FROM="${HERMES_NODECLAW_CLONE_FROM:-}"
 HERMES_NODECLAW_REWRITE_SOUL="${HERMES_NODECLAW_REWRITE_SOUL:-true}"
+NODECLAW_INSTALL_MODE="${NODECLAW_INSTALL_MODE:-auto}"
+NODECLAW_INTERACTIVE="${NODECLAW_INTERACTIVE:-auto}"
+NODECLAW_PROMPTED_API_KEY="${NODECLAW_PROMPTED_API_KEY:-}"
+HELPER_CAPABILITY='persistent-primary'
 DRY_RUN=false
 
 for arg in "$@"; do
@@ -19,11 +23,104 @@ for arg in "$@"; do
       ;;
     *)
       printf 'Unknown argument: %s\n' "$arg" >&2
-      printf 'Usage: HERMES_NODECLAW_API_KEY="<nodeclaw_access_key>" bash ./script/setup-hermes-nodeclaw.sh [--dry-run]\n' >&2
+      printf 'Usage: NODECLAW_INSTALL_MODE="auto|env|persistent" HERMES_NODECLAW_API_KEY="<nodeclaw_access_key>" bash ./script/setup-hermes-nodeclaw.sh [--dry-run]\n' >&2
       exit 1
       ;;
   esac
 done
+
+resolve_install_mode() {
+  local requested="$1"
+  local capability="$2"
+
+  case "$requested" in
+    env)
+      if [ "$capability" = 'persistent-primary' ]; then
+        printf 'persistent\n'
+      else
+        printf 'env\n'
+      fi
+      return
+      ;;
+    persistent)
+      printf 'persistent\n'
+      return
+      ;;
+    auto|'')
+      ;;
+    *)
+      printf 'Unsupported install mode: %s\n' "$requested" >&2
+      exit 1
+      ;;
+  esac
+
+  case "$capability" in
+    env-default|hybrid)
+      printf 'env\n'
+      ;;
+    persistent-primary)
+      printf 'persistent\n'
+      ;;
+    *)
+      printf 'persistent\n'
+      ;;
+  esac
+}
+
+helper_allows_prompt() {
+  case "$NODECLAW_INTERACTIVE" in
+    true|TRUE|1|yes|YES)
+      return 0
+      ;;
+    false|FALSE|0|no|NO)
+      return 1
+      ;;
+    auto|'')
+      [ -t 0 ]
+      ;;
+    *)
+      printf 'NODECLAW_INTERACTIVE must be auto, true, or false.\n' >&2
+      exit 1
+      ;;
+  esac
+}
+
+prompt_nodeclaw_api_key_if_needed() {
+  if [ -n "$HERMES_NODECLAW_API_KEY" ]; then
+    return 0
+  fi
+
+  if ! helper_allows_prompt; then
+    printf 'HERMES_NODECLAW_API_KEY or NODECLAW_API_KEY is required for apply. Re-run interactively or export NODECLAW_API_KEY first.\n' >&2
+    exit 1
+  fi
+
+  printf 'Enter NodeClaw API key: ' >&2
+  IFS= read -r HERMES_NODECLAW_API_KEY
+  if [ -z "$HERMES_NODECLAW_API_KEY" ]; then
+    printf 'NODECLAW_API_KEY cannot be empty.\n' >&2
+    exit 1
+  fi
+
+  NODECLAW_API_KEY="$HERMES_NODECLAW_API_KEY"
+  NODECLAW_PROMPTED_API_KEY='true'
+  export HERMES_NODECLAW_API_KEY NODECLAW_API_KEY NODECLAW_PROMPTED_API_KEY
+}
+
+shell_env_value() {
+  local value="${1-}"
+  value="${value//\\/\\\\}"
+  value="${value//\"/\\\"}"
+  value="${value//\$/\\\$}"
+  value="${value//\`/\\\`}"
+  printf '"%s"' "$value"
+}
+
+render_env_assignment() {
+  local name="$1"
+  local value="$2"
+  printf '%s=%s\n' "$name" "$(shell_env_value "$value")"
+}
 
 case "$HERMES_NODECLAW_CLONE_MODE" in
   fresh|clone|clone-all)
@@ -52,6 +149,7 @@ PROFILE_HOME="$(resolve_profile_home)"
 ENV_PATH="$PROFILE_HOME/.env"
 CONFIG_PATH="$PROFILE_HOME/config.yaml"
 SOUL_PATH="$PROFILE_HOME/SOUL.md"
+RESOLVED_INSTALL_MODE="$(resolve_install_mode "$NODECLAW_INSTALL_MODE" "$HELPER_CAPABILITY")"
 IS_CUSTOM_HOME=false
 if [ -n "$HERMES_NODECLAW_HOME" ]; then
   IS_CUSTOM_HOME=true
@@ -60,18 +158,14 @@ fi
 render_env_file() {
   local api_key="$1"
 
-  cat <<EOF
-# NodeClaw-managed Hermes profile env
-HERMES_NODECLAW_PROFILE=$HERMES_NODECLAW_PROFILE
-HERMES_NODECLAW_BASE_URL=$HERMES_NODECLAW_BASE_URL
-HERMES_NODECLAW_API_KEY=$api_key
-HERMES_NODECLAW_MODEL=$HERMES_NODECLAW_MODEL
-EOF
+  printf '# NodeClaw-managed Hermes profile env\n'
+  render_env_assignment 'HERMES_NODECLAW_PROFILE' "$HERMES_NODECLAW_PROFILE"
+  render_env_assignment 'HERMES_NODECLAW_BASE_URL' "$HERMES_NODECLAW_BASE_URL"
+  render_env_assignment 'HERMES_NODECLAW_API_KEY' "$api_key"
+  render_env_assignment 'HERMES_NODECLAW_MODEL' "$HERMES_NODECLAW_MODEL"
 
   if [ -n "$HERMES_NODECLAW_WORKDIR" ]; then
-    cat <<EOF
-HERMES_NODECLAW_WORKDIR=$HERMES_NODECLAW_WORKDIR
-EOF
+    render_env_assignment 'HERMES_NODECLAW_WORKDIR' "$HERMES_NODECLAW_WORKDIR"
   fi
 }
 
@@ -161,6 +255,9 @@ create_profile_if_needed() {
 }
 
 printf 'Target Hermes profile: %s\n' "$HERMES_NODECLAW_PROFILE"
+printf 'Capability class: %s\n' "$HELPER_CAPABILITY"
+printf 'Requested install mode: %s\n' "$NODECLAW_INSTALL_MODE"
+printf 'Install mode: %s\n' "$RESOLVED_INSTALL_MODE"
 printf 'Target Hermes home: %s\n' "$PROFILE_HOME"
 printf 'Managed env file: %s\n' "$ENV_PATH"
 printf 'Managed config file: %s\n' "$CONFIG_PATH"
@@ -207,12 +304,7 @@ if [ "$DRY_RUN" = true ]; then
   exit 0
 fi
 
-if [ -z "$HERMES_NODECLAW_API_KEY" ]; then
-  printf 'Set HERMES_NODECLAW_API_KEY (or NODECLAW_API_KEY) before running apply.\n' >&2
-  printf 'Example: HERMES_NODECLAW_API_KEY="<nodeclaw_access_key>" bash ./script/setup-hermes-nodeclaw.sh\n' >&2
-  exit 1
-fi
-
+prompt_nodeclaw_api_key_if_needed
 create_profile_if_needed
 mkdir -p "$PROFILE_HOME"
 render_env_file "$HERMES_NODECLAW_API_KEY" > "$ENV_PATH"

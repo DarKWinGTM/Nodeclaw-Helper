@@ -4,10 +4,127 @@ param(
     [string]$NodeClawModelId = $(if ($env:NODECLAW_MODEL_ID) { $env:NODECLAW_MODEL_ID } else { 'gpt-5.4' }),
     [string]$NodeClawModelDisplayName = $(if ($env:NODECLAW_MODEL_DISPLAY_NAME) { $env:NODECLAW_MODEL_DISPLAY_NAME } else { 'NodeClaw GPT-5.4' }),
     [int]$NodeClawMaxTokens = $(if ($env:NODECLAW_MAX_TOKENS) { [int]$env:NODECLAW_MAX_TOKENS } else { 128000 }),
+    [ValidateSet('auto', 'env', 'persistent')]
+    [string]$NodeClawInstallMode = $(if ($env:NODECLAW_REQUESTED_INSTALL_MODE) { $env:NODECLAW_REQUESTED_INSTALL_MODE } elseif ($env:NODECLAW_INSTALL_MODE) { $env:NODECLAW_INSTALL_MODE } else { 'auto' }),
+    [string]$NodeClawInteractive = $(if ($env:NODECLAW_INTERACTIVE) { $env:NODECLAW_INTERACTIVE } else { 'auto' }),
     [switch]$DryRun
 )
 
 $ErrorActionPreference = 'Stop'
+$HelperCapability = 'persistent-primary'
+
+function ConvertTo-CompatHashtable {
+    param($InputObject)
+
+    if ($null -eq $InputObject) { return $null }
+
+    if ($InputObject -is [System.Collections.IDictionary]) {
+        $Table = [ordered]@{}
+        foreach ($Key in $InputObject.Keys) {
+            $Table[$Key] = ConvertTo-CompatHashtable -InputObject $InputObject[$Key]
+        }
+        return $Table
+    }
+
+    if ($InputObject -is [System.Collections.IEnumerable] -and -not ($InputObject -is [string])) {
+        $Items = @()
+        foreach ($Item in $InputObject) {
+            $Items += ,(ConvertTo-CompatHashtable -InputObject $Item)
+        }
+        return $Items
+    }
+
+    if ($InputObject -is [pscustomobject]) {
+        $Table = [ordered]@{}
+        foreach ($Property in $InputObject.PSObject.Properties) {
+            $Table[$Property.Name] = ConvertTo-CompatHashtable -InputObject $Property.Value
+        }
+        return $Table
+    }
+
+    return $InputObject
+}
+
+function ConvertFrom-JsonCompatHashtable {
+    param([string]$Raw)
+
+    if ([string]::IsNullOrWhiteSpace($Raw)) { return @{} }
+
+    $Command = Get-Command ConvertFrom-Json
+    $SupportsAsHashtable = $Command.Parameters.ContainsKey('AsHashtable')
+    if ($SupportsAsHashtable) {
+        $Params = @{ InputObject = $Raw }
+        $Params['AsHashtable'] = $true
+        return ConvertFrom-Json @Params
+    }
+
+    return ConvertTo-CompatHashtable -InputObject ($Raw | ConvertFrom-Json)
+}
+
+function Resolve-NodeClawInstallMode {
+    param(
+        [string]$RequestedInstallMode,
+        [string]$Capability
+    )
+
+    switch ($RequestedInstallMode) {
+        'env' {
+            if ($Capability -eq 'persistent-primary') { return 'persistent' }
+            return 'env'
+        }
+        'persistent' { return 'persistent' }
+        'auto' { }
+        '' { }
+        default { throw "Unsupported install mode: $RequestedInstallMode" }
+    }
+
+    switch ($Capability) {
+        'env-default' { return 'env' }
+        'hybrid' { return 'env' }
+        'persistent-primary' { return 'persistent' }
+        default { return 'persistent' }
+    }
+}
+
+function Test-NodeClawPromptAllowed {
+    $Normalized = if ([string]::IsNullOrWhiteSpace($NodeClawInteractive)) { 'auto' } else { $NodeClawInteractive.Trim().ToLowerInvariant() }
+
+    if ($Normalized -in @('true', '1', 'yes')) { return $true }
+    if ($Normalized -in @('false', '0', 'no')) { return $false }
+    if ($Normalized -ne 'auto') { throw 'NODECLAW_INTERACTIVE must be auto, true, or false.' }
+
+    try {
+        return ((-not [Console]::IsInputRedirected) -and ($null -ne $Host.UI))
+    }
+    catch {
+        return $false
+    }
+}
+
+function ConvertTo-PowerShellLiteral {
+    param([string]$Value)
+
+    return "'" + ($Value -replace "'", "''") + "'"
+}
+
+function Write-EnvAssignment {
+    param(
+        [string]$Name,
+        [string]$Value
+    )
+
+    Write-Host (('$env:{0}={1}' -f $Name, (ConvertTo-PowerShellLiteral -Value $Value)))
+}
+
+$ResolvedInstallMode = Resolve-NodeClawInstallMode -RequestedInstallMode $NodeClawInstallMode -Capability $HelperCapability
+
+Write-Host 'Target Zed posture: persistent-primary settings owner'
+Write-Host "Capability class: $HelperCapability"
+Write-Host "Requested install mode: $NodeClawInstallMode"
+Write-Host "Install mode: $ResolvedInstallMode"
+Write-Host "Endpoint root: $NodeClawBaseUrl"
+Write-Host "Model: $NodeClawModelId"
+Write-Host ''
 
 if ([string]::IsNullOrWhiteSpace($ZedSettingsPath)) {
     Write-Error 'Set ZED_SETTINGS_PATH before running this script. Use Zed Command Palette > zed: open settings file to get the active settings path. Example: $env:ZED_SETTINGS_PATH="<path-to-zed-settings.json>"; .\script\setup-zed-nodeclaw.ps1 -DryRun'
@@ -19,7 +136,7 @@ $Data = @{}
 if (Test-Path $SettingsPath) {
     $Raw = Get-Content -Raw -Path $SettingsPath
     if (-not [string]::IsNullOrWhiteSpace($Raw)) {
-        $Data = $Raw | ConvertFrom-Json -AsHashtable
+        $Data = ConvertFrom-JsonCompatHashtable -Raw $Raw
     }
 }
 
@@ -56,8 +173,14 @@ Write-Host "Target Zed settings: $SettingsPath"
 if ($DryRun) {
     Write-Host "`nDry run only. Planned Zed settings:`n"
     Write-Host $Rendered
-    Write-Host "`nWindows scaffold status: dry-run-only until a real Windows environment is available for end-to-end verification."
+    Write-Host "`nDry run only. Re-run without -DryRun to write the Zed settings."
     exit 0
 }
 
-Write-Error 'Windows execution is intentionally not enabled yet. Use -DryRun for now until a real Windows environment is available for validation.'
+$SettingsDirectory = Split-Path -Parent $SettingsPath
+if ($SettingsDirectory -and -not (Test-Path $SettingsDirectory)) {
+    New-Item -ItemType Directory -Force -Path $SettingsDirectory | Out-Null
+}
+
+Set-Content -Path $SettingsPath -Value ($Rendered + "`n") -Encoding UTF8
+Write-Host "Wrote Zed settings to $SettingsPath"

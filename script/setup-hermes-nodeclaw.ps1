@@ -8,10 +8,69 @@ param(
     [ValidateSet('fresh', 'clone', 'clone-all')]
     [string]$HermesNodeClawCloneMode = $(if ($env:HERMES_NODECLAW_CLONE_MODE) { $env:HERMES_NODECLAW_CLONE_MODE } else { 'fresh' }),
     [string]$HermesNodeClawCloneFrom = $(if ($env:HERMES_NODECLAW_CLONE_FROM) { $env:HERMES_NODECLAW_CLONE_FROM } else { '' }),
+    [ValidateSet('auto', 'env', 'persistent')]
+    [string]$NodeClawInstallMode = $(if ($env:NODECLAW_REQUESTED_INSTALL_MODE) { $env:NODECLAW_REQUESTED_INSTALL_MODE } elseif ($env:NODECLAW_INSTALL_MODE) { $env:NODECLAW_INSTALL_MODE } else { 'auto' }),
+    [string]$NodeClawInteractive = $(if ($env:NODECLAW_INTERACTIVE) { $env:NODECLAW_INTERACTIVE } else { 'auto' }),
     [switch]$DryRun
 )
 
 $ErrorActionPreference = 'Stop'
+$HelperCapability = 'persistent-primary'
+
+function Resolve-NodeClawInstallMode {
+    param(
+        [string]$RequestedInstallMode,
+        [string]$Capability
+    )
+
+    switch ($RequestedInstallMode) {
+        'env' {
+            if ($Capability -eq 'persistent-primary') { return 'persistent' }
+            return 'env'
+        }
+        'persistent' { return 'persistent' }
+        'auto' { }
+        '' { }
+        default { throw "Unsupported install mode: $RequestedInstallMode" }
+    }
+
+    switch ($Capability) {
+        'env-default' { return 'env' }
+        'hybrid' { return 'env' }
+        'persistent-primary' { return 'persistent' }
+        default { return 'persistent' }
+    }
+}
+
+function Test-NodeClawPromptAllowed {
+    $Normalized = if ([string]::IsNullOrWhiteSpace($NodeClawInteractive)) { 'auto' } else { $NodeClawInteractive.Trim().ToLowerInvariant() }
+
+    if ($Normalized -in @('true', '1', 'yes')) { return $true }
+    if ($Normalized -in @('false', '0', 'no')) { return $false }
+    if ($Normalized -ne 'auto') { throw 'NODECLAW_INTERACTIVE must be auto, true, or false.' }
+
+    try {
+        return ((-not [Console]::IsInputRedirected) -and ($null -ne $Host.UI))
+    }
+    catch {
+        return $false
+    }
+}
+
+function ConvertTo-PowerShellLiteral {
+    param([string]$Value)
+
+    return "'" + ($Value -replace "'", "''") + "'"
+}
+
+function Write-EnvAssignment {
+    param(
+        [string]$Name,
+        [string]$Value
+    )
+
+    Write-Host (('$env:{0}={1}' -f $Name, (ConvertTo-PowerShellLiteral -Value $Value)))
+}
 
 function Resolve-HermesProfileHome {
     if (-not [string]::IsNullOrWhiteSpace($HermesNodeClawHome)) {
@@ -30,6 +89,25 @@ $EnvPath = Join-Path $ProfileHome '.env'
 $ConfigPath = Join-Path $ProfileHome 'config.yaml'
 $SoulPath = Join-Path $ProfileHome 'SOUL.md'
 $IsCustomHome = -not [string]::IsNullOrWhiteSpace($HermesNodeClawHome)
+$ResolvedInstallMode = Resolve-NodeClawInstallMode -RequestedInstallMode $NodeClawInstallMode -Capability $HelperCapability
+
+function Resolve-HermesApiKey {
+    if (-not [string]::IsNullOrWhiteSpace($HermesNodeClawApiKey)) { return $HermesNodeClawApiKey }
+
+    if (-not (Test-NodeClawPromptAllowed)) {
+        throw 'HERMES_NODECLAW_API_KEY or NODECLAW_API_KEY is required for apply. Re-run interactively or set NODECLAW_API_KEY first.'
+    }
+
+    $PromptedKey = Read-Host 'Enter NodeClaw API key'
+    if ([string]::IsNullOrWhiteSpace($PromptedKey)) {
+        throw 'NODECLAW_API_KEY cannot be empty.'
+    }
+
+    $env:HERMES_NODECLAW_API_KEY = $PromptedKey
+    $env:NODECLAW_API_KEY = $PromptedKey
+    $env:NODECLAW_PROMPTED_API_KEY = 'true'
+    return $PromptedKey
+}
 
 function Get-EnvContent {
     param([string]$ApiKey)
@@ -72,7 +150,7 @@ function Get-ConfigContent {
 }
 
 function Get-SoulContent {
-    @"
+@"
 # NodeClaw Hermes Profile
 
 You are the NodeClaw-backed Hermes additional runtime IDE agent profile.
@@ -161,6 +239,9 @@ function Ensure-ProfileExists {
 }
 
 Write-Host "Target Hermes profile: $HermesNodeClawProfile"
+Write-Host "Capability class: $HelperCapability"
+Write-Host "Requested install mode: $NodeClawInstallMode"
+Write-Host "Install mode: $ResolvedInstallMode"
 Write-Host "Target Hermes home: $ProfileHome"
 Write-Host "Managed env file: $EnvPath"
 Write-Host "Managed config file: $ConfigPath"
@@ -192,13 +273,10 @@ if ($DryRun) {
     Write-Host '5. Suggested verification commands:'
     Write-Host ''
     Show-VerificationNotes
-    return
+    exit 0
 }
 
-if ([string]::IsNullOrWhiteSpace($HermesNodeClawApiKey)) {
-    Write-Error 'Set HERMES_NODECLAW_API_KEY (or NODECLAW_API_KEY) before running apply.'
-}
-
+$HermesNodeClawApiKey = Resolve-HermesApiKey
 Ensure-ProfileExists
 New-Item -ItemType Directory -Force -Path $ProfileHome | Out-Null
 Set-Content -Path $EnvPath -Value (Get-EnvContent -ApiKey $HermesNodeClawApiKey) -Encoding UTF8

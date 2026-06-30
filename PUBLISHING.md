@@ -21,6 +21,11 @@ Do not treat the public GitHub repo as the primary authoring location for helper
 4. Refresh local verification notes when the checked contract changes:
    - focused launcher route-mode coverage
    - focused setup-script dry-run smoke coverage
+   - install-mode contract coverage
+   - missing-API-key interactive / placeholder-preview coverage
+   - PowerShell bootstrap compatibility coverage
+   - shell syntax checks (`bash -n`)
+   - PowerShell parse checks
 5. Sync this subtree into the public `Nodeclaw-Helper` GitHub repository.
 6. Verify:
    - `https://darkwingtm.github.io/Nodeclaw-Helper/`
@@ -55,4 +60,4 @@ Current not-yet-proven truth:
 - Do not imply that hosted `curl | bash` is officially live unless the hosted launcher/bootstrap contract is truly verified.
 - Treat repo-local `launcher.sh` and `launcher.ps1` as normal in-repo entrypoints, but treat the remote contract as launcher-only: the remote launcher should fetch the helper payload it needs automatically.
 - Keep wizard/help honest about target files and real command behavior.
-- Keep PowerShell launcher wording honest: route-mode-aware and dry-run-first, without implying launcher apply parity or full Windows end-to-end proof.
+- Keep PowerShell launcher wording honest: route-mode-aware and preview-first, without implying launcher apply parity or full Windows end-to-end proof; direct PowerShell helpers may still expose real apply paths where the checked helper supports file writes or env/session output.

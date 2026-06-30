@@ -5,6 +5,10 @@ NODECLAW_GEMINI_BASE_URL="${NODECLAW_GEMINI_BASE_URL:-https://payg.nodenetwork.o
 NODECLAW_API_KEY_VALUE="${NODECLAW_API_KEY:-${GEMINI_API_KEY:-}}"
 NODECLAW_GEMINI_ENV_PATH="${NODECLAW_GEMINI_ENV_PATH:-$HOME/.gemini/nodeclaw-gemini-env.sh}"
 NODECLAW_GEMINI_PROFILE_PATH="${NODECLAW_GEMINI_PROFILE_PATH:-}"
+NODECLAW_INSTALL_MODE="${NODECLAW_INSTALL_MODE:-auto}"
+NODECLAW_INTERACTIVE="${NODECLAW_INTERACTIVE:-auto}"
+NODECLAW_PROMPTED_API_KEY="${NODECLAW_PROMPTED_API_KEY:-}"
+HELPER_CAPABILITY='env-default'
 DRY_RUN=false
 
 for arg in "$@"; do
@@ -14,11 +18,105 @@ for arg in "$@"; do
       ;;
     *)
       printf 'Unknown argument: %s\n' "$arg" >&2
-      printf 'Usage: NODECLAW_API_KEY="<nodeclaw_access_key>" bash ./script/setup-gemini-cli-nodeclaw.sh [--dry-run]\n' >&2
+      printf 'Usage: NODECLAW_INSTALL_MODE="auto|env|persistent" NODECLAW_API_KEY="<nodeclaw_access_key>" bash ./script/setup-gemini-cli-nodeclaw.sh [--dry-run]\n' >&2
       exit 1
       ;;
   esac
 done
+
+resolve_install_mode() {
+  local requested="$1"
+  local capability="$2"
+
+  case "$requested" in
+    env)
+      if [ "$capability" = 'persistent-primary' ]; then
+        printf 'persistent\n'
+      else
+        printf 'env\n'
+      fi
+      return
+      ;;
+    persistent)
+      printf 'persistent\n'
+      return
+      ;;
+    auto|'')
+      ;;
+    *)
+      printf 'Unsupported install mode: %s\n' "$requested" >&2
+      exit 1
+      ;;
+  esac
+
+  case "$capability" in
+    env-default|hybrid)
+      printf 'env\n'
+      ;;
+    persistent-primary)
+      printf 'persistent\n'
+      ;;
+    *)
+      printf 'persistent\n'
+      ;;
+  esac
+}
+
+helper_allows_prompt() {
+  case "$NODECLAW_INTERACTIVE" in
+    true|TRUE|1|yes|YES)
+      return 0
+      ;;
+    false|FALSE|0|no|NO)
+      return 1
+      ;;
+    auto|'')
+      [ -t 0 ]
+      ;;
+    *)
+      printf 'NODECLAW_INTERACTIVE must be auto, true, or false.\n' >&2
+      exit 1
+      ;;
+  esac
+}
+
+prompt_nodeclaw_api_key_if_needed() {
+  if [ -n "$NODECLAW_API_KEY_VALUE" ]; then
+    return 0
+  fi
+
+  if ! helper_allows_prompt; then
+    printf 'NODECLAW_API_KEY or GEMINI_API_KEY is required for apply. Re-run interactively or export NODECLAW_API_KEY first.\n' >&2
+    exit 1
+  fi
+
+  printf 'Enter NodeClaw API key: ' >&2
+  IFS= read -r NODECLAW_API_KEY_VALUE
+  if [ -z "$NODECLAW_API_KEY_VALUE" ]; then
+    printf 'NODECLAW_API_KEY cannot be empty.\n' >&2
+    exit 1
+  fi
+
+  NODECLAW_API_KEY="$NODECLAW_API_KEY_VALUE"
+  GEMINI_API_KEY="$NODECLAW_API_KEY_VALUE"
+  NODECLAW_PROMPTED_API_KEY='true'
+  export NODECLAW_API_KEY GEMINI_API_KEY NODECLAW_PROMPTED_API_KEY
+}
+
+shell_quote_value() {
+  local value="${1-}"
+  value="${value//\\/\\\\}"
+  value="${value//\"/\\\"}"
+  value="${value//\$/\\\$}"
+  value="${value//\`/\\\`}"
+  printf '"%s"' "$value"
+}
+
+render_export_line() {
+  local name="$1"
+  local value="$2"
+  printf 'export %s=%s\n' "$name" "$(shell_quote_value "$value")"
+}
 
 resolve_profile_path() {
   if [ -n "$NODECLAW_GEMINI_PROFILE_PATH" ]; then
@@ -36,17 +134,15 @@ resolve_profile_path() {
   esac
 }
 
-PROFILE_PATH="$(resolve_profile_path)"
-ENV_DIR="$(dirname "$NODECLAW_GEMINI_ENV_PATH")"
-MANAGED_BLOCK_START='# >>> NodeClaw Gemini CLI >>>'
-MANAGED_BLOCK_END='# <<< NodeClaw Gemini CLI <<<'
-SOURCE_LINE="[ -f \"$NODECLAW_GEMINI_ENV_PATH\" ] && . \"$NODECLAW_GEMINI_ENV_PATH\""
+render_session_env_exports() {
+  local api_key="$1"
+
+  render_export_line 'GOOGLE_GEMINI_BASE_URL' "$NODECLAW_GEMINI_BASE_URL"
+  render_export_line 'GEMINI_API_KEY' "$api_key"
+}
 
 render_env_file() {
-  cat <<EOF
-export GOOGLE_GEMINI_BASE_URL="$NODECLAW_GEMINI_BASE_URL"
-export GEMINI_API_KEY="$1"
-EOF
+  render_session_env_exports "$1"
 }
 
 render_profile_block() {
@@ -57,14 +153,41 @@ $MANAGED_BLOCK_END
 EOF
 }
 
+RESOLVED_INSTALL_MODE="$(resolve_install_mode "$NODECLAW_INSTALL_MODE" "$HELPER_CAPABILITY")"
+PROFILE_PATH="$(resolve_profile_path)"
+ENV_DIR="$(dirname "$NODECLAW_GEMINI_ENV_PATH")"
+MANAGED_BLOCK_START='# >>> NodeClaw Gemini CLI >>>'
+MANAGED_BLOCK_END='# <<< NodeClaw Gemini CLI <<<'
+SOURCE_LINE="[ -f \"$NODECLAW_GEMINI_ENV_PATH\" ] && . \"$NODECLAW_GEMINI_ENV_PATH\""
+
 printf 'Target Gemini CLI posture: env-first / helper-guided custom endpoint\n'
+printf 'Capability class: %s\n' "$HELPER_CAPABILITY"
+printf 'Requested install mode: %s\n' "$NODECLAW_INSTALL_MODE"
+printf 'Install mode: %s\n' "$RESOLVED_INSTALL_MODE"
 printf 'Custom endpoint root: %s\n' "$NODECLAW_GEMINI_BASE_URL"
 printf 'Managed env snippet: %s\n' "$NODECLAW_GEMINI_ENV_PATH"
 printf 'Target shell profile: %s\n' "$PROFILE_PATH"
 printf '\n'
 
+if [ "$RESOLVED_INSTALL_MODE" = 'env' ]; then
+  if [ "$DRY_RUN" = true ]; then
+    printf 'Dry run only. Planned Gemini CLI session env exports:\n\n'
+    render_session_env_exports '<nodeclaw_access_key>'
+    printf '\nVerification notes:\n'
+    printf '  - Gemini should authenticate through the gemini-api-key path.\n'
+    printf '  - Requests should reach the custom endpoint root and then follow the Gemini-shaped route family under v1beta.\n'
+    printf '  - Model entitlement failures do not mean the endpoint path is wrong.\n'
+    exit 0
+  fi
+
+  prompt_nodeclaw_api_key_if_needed
+  render_session_env_exports "$NODECLAW_API_KEY_VALUE"
+  printf 'Run this in the current shell or save it into your profile by choice.\n'
+  exit 0
+fi
+
 if [ "$DRY_RUN" = true ]; then
-  printf 'Dry run only. Planned Gemini CLI helper output:\n\n'
+  printf 'Dry run only. Planned Gemini CLI persistent helper output:\n\n'
   printf '1. Helper-managed env snippet:\n\n'
   render_env_file '<nodeclaw_access_key>'
   printf '\n2. Helper-managed shell profile block:\n\n'
@@ -79,11 +202,7 @@ if [ "$DRY_RUN" = true ]; then
   exit 0
 fi
 
-if [ -z "$NODECLAW_API_KEY_VALUE" ]; then
-  printf 'Set NODECLAW_API_KEY (or GEMINI_API_KEY) before running apply.\n' >&2
-  printf 'Example: NODECLAW_API_KEY="<nodeclaw_access_key>" bash ./script/setup-gemini-cli-nodeclaw.sh\n' >&2
-  exit 1
-fi
+prompt_nodeclaw_api_key_if_needed
 
 mkdir -p "$ENV_DIR"
 render_env_file "$NODECLAW_API_KEY_VALUE" > "$NODECLAW_GEMINI_ENV_PATH"
