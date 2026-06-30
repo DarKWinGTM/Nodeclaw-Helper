@@ -751,11 +751,11 @@ $launcherText = irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher
         ],
         claude: {
           direct: `export ANTHROPIC_BASE_URL="${CLAUDE_DIRECT_ROOT}"
-export ANTHROPIC_AUTH_TOKEN="&lt;nodeclaw_access_key&gt;"
+export ANTHROPIC_AUTH_TOKEN="<nodeclaw_access_key>"
 export ANTHROPIC_MODEL="gemini-3.1-flash"
 claude --model gemini-3.1-flash`,
           cloudflare: `export ANTHROPIC_BASE_URL="${CLOUDFLARE_ROOT}"
-export ANTHROPIC_AUTH_TOKEN="&lt;nodeclaw_access_key&gt;"
+export ANTHROPIC_AUTH_TOKEN="<nodeclaw_access_key>"
 claude`,
           note: {
             direct: {
@@ -770,10 +770,10 @@ claude`,
         },
         gemini: {
           direct: `export GOOGLE_GEMINI_BASE_URL="${GEMINI_ROOT}"
-export GEMINI_API_KEY="&lt;nodeclaw_access_key&gt;"
+export GEMINI_API_KEY="<nodeclaw_access_key>"
 gemini`,
           cloudflare: `export GOOGLE_GEMINI_BASE_URL="${CLOUDFLARE_ROOT}v1beta"
-export GEMINI_API_KEY="&lt;nodeclaw_access_key&gt;"
+export GEMINI_API_KEY="<nodeclaw_access_key>"
 gemini`,
           note: {
             direct: {
@@ -787,11 +787,11 @@ gemini`,
           },
         },
         hermes: {
-          direct: `export HERMES_NODECLAW_API_KEY="&lt;nodeclaw_access_key&gt;"
+          direct: `export HERMES_NODECLAW_API_KEY="<nodeclaw_access_key>"
 export HERMES_NODECLAW_BASE_URL="${CUSTOM_PROVIDER_DIRECT_ROOT}"
 bash ./script/setup-hermes-nodeclaw.sh --dry-run
 bash ./script/setup-hermes-nodeclaw.sh`,
-          cloudflare: `export HERMES_NODECLAW_API_KEY="&lt;nodeclaw_access_key&gt;"
+          cloudflare: `export HERMES_NODECLAW_API_KEY="<nodeclaw_access_key>"
 export HERMES_NODECLAW_BASE_URL="${CLOUDFLARE_ROOT}"
 bash ./script/setup-hermes-nodeclaw.sh --dry-run
 bash ./script/setup-hermes-nodeclaw.sh`,

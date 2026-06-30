@@ -40,33 +40,138 @@ bash ./script/launcher.sh wizard [--tool <claude-code|gemini-cli|codex|hermes|op
 
 Remote launcher-first usage:
 
-Direct-native examples first:
+These are one-shot shell commands.
+- Pick the block for the tool you want.
+- `direct` is the default launcher path.
+- Use the Cloudflare variant only when you explicitly want the protected route.
+
+### Wizard
+
+Use this when you want the launcher to ask for the tool interactively.
+
+Direct:
 
 ```bash
 curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- wizard
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool claude-code
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool codex
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool zed
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool openclaw
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool gemini-cli
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool opencode
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool hermes
 ```
 
-Optional Cloudflare-protected launcher examples:
+Optional Cloudflare-protected route:
 
 ```bash
 curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- wizard --route-mode cloudflare
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool claude-code --route-mode cloudflare
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool codex --route-mode cloudflare
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool zed --route-mode cloudflare
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool openclaw --route-mode cloudflare
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool gemini-cli --route-mode cloudflare
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool opencode --route-mode cloudflare
-curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool hermes --route-mode cloudflare
 ```
 
-`gemini-cli` can now use the Cloudflare-protected launcher path through the protected Google / Gemini `v1beta` family when you explicitly opt into Cloudflare mode.
+### Claude Code CLI
+
+Use this when you want a direct launcher preview for `claude-code`.
+
+Direct:
+
+```bash
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool claude-code
+```
+
+Optional Cloudflare-protected route:
+
+```bash
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool claude-code --route-mode cloudflare
+```
+
+### Codex
+
+Use this when you want a direct launcher preview for `codex`.
+
+Direct:
+
+```bash
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool codex
+```
+
+Optional Cloudflare-protected route:
+
+```bash
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool codex --route-mode cloudflare
+```
+
+### Zed
+
+Use this when you want a direct launcher preview for `zed`.
+
+Direct:
+
+```bash
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool zed
+```
+
+Optional Cloudflare-protected route:
+
+```bash
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool zed --route-mode cloudflare
+```
+
+### OpenClaw
+
+Use this when you want a direct launcher preview for `openclaw`. Cloudflare works only when compatibility resolves to `openai` or `anthropic`.
+
+Direct:
+
+```bash
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool openclaw
+```
+
+Optional Cloudflare-protected route:
+
+```bash
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool openclaw --route-mode cloudflare
+```
+
+### Gemini CLI
+
+Use this when you want the Gemini launcher path. Direct mode keeps the native Gemini root; Cloudflare switches to the protected Google / Gemini `v1beta` path.
+
+Direct:
+
+```bash
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool gemini-cli
+```
+
+Optional Cloudflare-protected route:
+
+```bash
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool gemini-cli --route-mode cloudflare
+```
+
+### OpenCode
+
+Use this when you want the OpenCode launcher path. Both modes keep the same custom-provider-root contract; the launcher only swaps the injected root.
+
+Direct:
+
+```bash
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool opencode
+```
+
+Optional Cloudflare-protected route:
+
+```bash
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool opencode --route-mode cloudflare
+```
+
+### Hermes
+
+Use this when you want the Hermes launcher path. Both modes keep the same custom-provider-root contract; the launcher only swaps the injected root.
+
+Direct:
+
+```bash
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool hermes
+```
+
+Optional Cloudflare-protected route:
+
+```bash
+curl -fsSL https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher.sh | bash -s -- dry-run --tool hermes --route-mode cloudflare
+```
 
 PowerShell launcher:
 
