@@ -195,10 +195,10 @@
           <div>
             <p class="muted" data-lang="en">Remote launcher examples by tool</p>
             <p class="muted" data-lang="th">ตัวอย่าง remote launcher แยกตามเครื่องมือ</p>
-            <p class="muted" data-lang="en">The per-tool rows below are one-shot commands. Use them when you want one command that starts PowerShell, downloads the launcher, and runs it immediately.</p>
-            <p class="muted" data-lang="th">แถวแยกตามเครื่องมือด้านล่างคือคำสั่งแบบ one-shot ใช้เมื่อคุณต้องการคำสั่งเดียวที่เปิด PowerShell, ดาวน์โหลด launcher และรันทันที</p>
-            <p class="muted" data-lang="en">If PowerShell is already open, use the separate session-based pattern underneath instead of pasting the one-shot command back into the same session.</p>
-            <p class="muted" data-lang="th">ถ้าเปิด PowerShell อยู่แล้ว ให้ใช้ตัวอย่างแบบ session ด้านล่างแทน ไม่ต้องเอาคำสั่ง one-shot กลับมาวางซ้ำใน session เดิม</p>
+            <p class="muted" data-lang="en">The per-tool rows below are one-shot launcher examples. Use the Shell column when you are starting from a shell/terminal. Use the PowerShell column when you want one command that starts PowerShell, downloads the launcher, and runs it immediately.</p>
+            <p class="muted" data-lang="th">แถวแยกตามเครื่องมือด้านล่างคือตัวอย่าง launcher แบบ one-shot ใช้คอลัมน์ Shell เมื่อเริ่มจาก shell/terminal และใช้คอลัมน์ PowerShell เมื่อต้องการคำสั่งเดียวที่เปิด PowerShell, ดาวน์โหลด launcher และรันทันที</p>
+            <p class="muted" data-lang="en">If PowerShell is already open, use the separate existing-session pattern underneath instead of pasting the one-shot PowerShell command back into the same session.</p>
+            <p class="muted" data-lang="th">ถ้าเปิด PowerShell อยู่แล้ว ให้ใช้ตัวอย่างแบบ existing-session ด้านล่างแทน ไม่ต้องเอาคำสั่ง one-shot ของ PowerShell กลับมาวางซ้ำใน session เดิม</p>
             <div id="quick-start-tool-rows" class="launcher-tool-rows"></div>
             <div class="launcher-tool-row" style="margin-top:14px;">
               <div class="launcher-tool-header">
@@ -389,7 +389,7 @@ $launcherText = irm https://darkwingtm.github.io/Nodeclaw-Helper/script/launcher
         <h3 style="margin-top:18px;" data-lang="en">Windows PowerShell helpers</h3>
         <h3 style="margin-top:18px;" data-lang="th">ตัวช่วยฝั่ง PowerShell สำหรับ Windows</h3>
         <p class="muted" data-lang="en">PowerShell launcher stays preview-first, while the direct PowerShell helper files remain listed here as the apply surface where that helper supports file writes or env/session output.</p>
-        <p class="muted" data-lang="th">launcher ฝั่ง PowerShell รองรับ route mode แล้ว แต่ยังคงเป็นแนว dry-run-first ส่วนไฟล์ helper ฝั่ง PowerShell แบบแยกยังถูกแสดงไว้ต่างหากที่นี่</p>
+        <p class="muted" data-lang="th">launcher ฝั่ง PowerShell รองรับ route mode แล้ว และยังคงเป็นแนว preview-first ส่วนไฟล์ helper ฝั่ง PowerShell แบบแยกยังถูกแสดงไว้ต่างหากที่นี่ในฐานะ apply surface เมื่อ helper นั้นรองรับการเขียนไฟล์หรือ env/session output</p>
         <div class="downloads">
           <a class="download" href="./script/setup-claude-code-nodeclaw.ps1">setup-claude-code-nodeclaw.ps1<small data-lang="en">Claude Code PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ Claude Code</small></a>
           <a class="download" href="./script/setup-gemini-cli-nodeclaw.ps1">setup-gemini-cli-nodeclaw.ps1<small data-lang="en">Gemini CLI PowerShell helper</small><small data-lang="th">helper ฝั่ง PowerShell สำหรับ Gemini CLI</small></a>
